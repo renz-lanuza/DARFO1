@@ -295,7 +295,7 @@ include('includes/navbar.php');
                                                 // ✅ Get the result
                                                 $result = mysqli_stmt_get_result($stmt);
 
-                                                // ✅ Fetch the data
+                                                    // ✅ Fetch the data
                                                 $beneficiaries_data = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
                                                 // ✅ Close the statement and connection
@@ -554,65 +554,82 @@ function downloadExcelWithImage() {
     }
 </script>
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Initialize the map
-        var map = L.map('map').setView([16.616, 120.316], 8); // Centered in La Union, Region 1
+document.addEventListener("DOMContentLoaded", async function () {
+    var map = L.map('map').setView([16.616, 120.316], 8);
 
-        // Add OpenStreetMap tile layer
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let interventionData = {}; // Store intervention counts
+
+    try {
+        // Fetch intervention data first
+        let response = await fetch('map/get_intervention_data.php');
+        interventionData = await response.json();
+        
+        // Fetch and process GeoJSON after intervention data is loaded
+        response = await fetch('map/map.geojson');
+        let geoData = await response.json();
+
+        // Process and add GeoJSON to map
+        L.geoJSON(geoData, {
+            style: function (feature) {
+                let provinceColors = {
+                    "Ilocos Norte": "#B22222",
+                    "Ilocos Sur": "#00008B",
+                    "La Union": "#006400",
+                    "Pangasinan": "#FF8C00"
+                };
+                return {
+                    fillColor: provinceColors[feature.properties.adm2_en] || "#CCCCCC",
+                    color: "#000",
+                    weight: 0.5,
+                    fillOpacity: 0.6
+                };
+            },
+            onEachFeature: function (feature, layer) {
+                let municipalityName = feature.properties.adm3_en;
+                let interventionCount = interventionData[municipalityName] || 0;
+
+                // Bind province popup on click (with intervention data)
+                layer.bindPopup(`<b>${municipalityName}</b><br>Interventions Distributed: <b>${interventionCount}</b>`);
+
+                // Show municipality name and intervention count tooltip on hover
+                layer.on({
+                    mouseover: function (e) {
+                        let layer = e.target;
+                        layer.setStyle({
+                            fillOpacity: 0.9,
+                            color: "#FFFF00"
+                        });
+
+                        // Show tooltip with municipality name and intervention data
+                        layer.bindTooltip(`<b>${municipalityName}</b><br>Interventions: ${interventionCount}`, {
+                            permanent: false,
+                            direction: "top"
+                        }).openTooltip();
+                    },
+                    mouseout: function (e) {
+                        let layer = e.target;
+                        layer.setStyle({
+                            fillOpacity: 0.6,
+                            color: "#000"
+                        });
+
+                        // Close the tooltip
+                        layer.closeTooltip();
+                    }
+                });
+            }
         }).addTo(map);
 
-        // Load GeoJSON file for Region 1
-        fetch('map/map.geojson')
-            .then(response => response.json())
-            .then(data => {
-                L.geoJSON(data, {
-                    style: function(feature) {
-                        // Assign colors based on province names
-                        let provinceColors = {
-                            "Ilocos Norte": "#FF0000", // Red
-                            "Ilocos Sur": "#0000FF", // Blue
-                            "La Union": "#008000", // Green
-                            "Pangasinan": "#FFA500" // Orange
-                        };
-                        return {
-                            color: provinceColors[feature.properties.name] || "#000", // Default black
-                            weight: 2
-                        };
-                    },
-                    onEachFeature: function(feature, layer) {
-                        layer.bindPopup(`<b>${feature.properties.name}</b>`); // Show province name on click
-                    }
-                }).addTo(map);
-            })
-            .catch(error => console.error('Error loading map:', error));
+    } catch (error) {
+        console.error('Error loading data:', error);
+    }
+});
 
-        // Add markers for the four provinces
-        var provinces = [{
-                name: "Ilocos Norte",
-                coords: [18.164, 120.592]
-            },
-            {
-                name: "Ilocos Sur",
-                coords: [17.575, 120.387]
-            },
-            {
-                name: "La Union",
-                coords: [16.616, 120.316]
-            },
-            {
-                name: "Pangasinan",
-                coords: [15.899, 120.397]
-            }
-        ];
-
-        provinces.forEach(province => {
-            L.marker(province.coords).addTo(map)
-                .bindPopup(`<b>${province.name}</b>`);
-        });
-
-    });
 </script>
 
 <style>
