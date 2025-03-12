@@ -1035,6 +1035,7 @@
             var interventionNames = [];
             var seedlingTypes = [];
             var quantities = [];
+            var applicable = []; // Array to store selected applicable checkboxes
 
             // Collect multiple inputs for intervention names, seedling types, and quantities
             $('select[name="intervention_name_distri[]"]').each(function() {
@@ -1045,6 +1046,11 @@
             });
             $('input[name="quantity_distri[]"]').each(function() {
                 quantities.push($(this).val());
+            });
+
+            // Collect selected applicable checkboxes
+            $('input[name="applicable[]"]:checked').each(function() {
+                applicable.push($(this).val());
             });
 
             // Prepare form data for submission
@@ -1063,8 +1069,24 @@
                 barangayCode: $('#barangay').val(), // Fetch barangay code
                 barangayName: $('#barangay option:selected').text(), // Fetch barangay name
                 cooperative_id: $('#cooperative').val() || 0, // Fetch cooperative ID, default to 0 if not selected
-                distribution_date: $('#distribution_date').val() // Fetch distribution date
+                distribution_date: $('#distribution_date').val(), // Fetch distribution date
+                rsbsa_no: $('#rsbsa_no').val(), // Fetch RSBSA No.
+                sex: $('input[name="sex"]:checked').val(), // Fetch selected sex
+                birthdate: $('#birthdate').val(), // Fetch birthdate
+                individual_type: $('input[name="individual_type"]:checked').val(), // Fetch selected individual type
+                group_type: $('input[name="group_type"]:checked').val(), // Fetch selected group type
+                applicable: applicable // Array of selected applicable checkboxes
             };
+
+            // Check if "Others" was selected for individual type
+            if ($('input[name="individual_type"]:checked').val() === 'Others') {
+                formData.others_specify = $('#others_specify').val(); // Add the specified "Others" input
+            }
+
+            // Check if "Others" was selected for group type
+            if ($('input[name="group_type"]:checked').val() === 'Others') {
+                formData.group_others_specify = $('#group_others_specify').val(); // Add the specified "Others" input
+            }
 
             // SweetAlert confirmation dialog
             Swal.fire({
