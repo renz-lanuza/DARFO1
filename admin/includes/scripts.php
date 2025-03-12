@@ -1558,52 +1558,83 @@
 
 <!-- fetch and dynamic int name and classification from distribution -->
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const updateModal = document.getElementById("updateDistributionModal");
+    document.addEventListener("DOMContentLoaded", function () {
+    const updateModal = document.getElementById("updateDistributionModal");
 
-        updateModal.addEventListener("show.bs.modal", function(event) {
-            const button = event.relatedTarget; // Button that triggered the modal
+    updateModal.addEventListener("show.bs.modal", function (event) {
+        const button = event.relatedTarget; // Button that triggered the modal
 
-            // Get elements inside the modal
-            let interventionDropdown = updateModal.querySelector("select[name='intervention_name_distrib[]']");
-            let classificationDropdown = updateModal.querySelector("select[name='seedling_type_distrib']");
-            let quantityField = updateModal.querySelector(".quantity-left");
+        // Get elements inside the modal
+        let interventionDropdown = updateModal.querySelector("select[name='intervention_name_distrib[]']");
+        let classificationDropdown = updateModal.querySelector("select[name='seedling_type_distrib']");
+        let quantityField = updateModal.querySelector(".quantity-left");
 
-            // Set values for text inputs and dropdowns
-            document.getElementById("update_beneficiary_name").value = button.getAttribute("data-beneficiary-name");
-            document.getElementById("update_province").innerHTML = `<option selected>${button.getAttribute("data-province")}</option>`;
-            document.getElementById("update_municipality").innerHTML = `<option selected>${button.getAttribute("data-municipality")}</option>`;
-            document.getElementById("update_barangay").innerHTML = `<option selected>${button.getAttribute("data-barangay")}</option>`;
-            document.querySelector("input[name='update_quantity[]']").value = button.getAttribute("data-quantity");
+        // Get full name and split it into parts
+        let fullName = button.getAttribute("data-beneficiary-name") || "";
+        let nameParts = fullName.split(" ");
 
-            // Fetch and update quantity left
-            let quantityLeft = button.getAttribute("data-quantity-left") || "0"; // Default to 0 if not provided
-            quantityField.textContent = quantityLeft;
+        let firstName = "";
+        let middleName = "";
+        let lastName = "";
 
-            // Step 1: Display the initial selection first
-            let selectedInterventionId = button.getAttribute("data-intervention-id");
-            let selectedInterventionName = button.getAttribute("data-intervention-name");
+        if (nameParts.length === 1) {
+            // Case: Only one name (e.g., "Juan")
+            firstName = nameParts[0];
+        } else if (nameParts.length === 2) {
+            // Case: First and last name (e.g., "Juan DelaCruz")
+            firstName = nameParts[0];
+            lastName = nameParts[1];
+        } else if (nameParts.length === 3) {
+            // Case: Standard First Middle Last (e.g., "Juan Miguel DelaCruz")
+            firstName = nameParts[0];
+            middleName = nameParts[1];
+            lastName = nameParts[2];
+        } else {
+            // Case: Multiple first names (e.g., "Juan Miguel Andres DelaCruz")
+            firstName = nameParts.slice(0, nameParts.length - 2).join(" "); // Everything before the last two words
+            middleName = nameParts[nameParts.length - 2]; // Second-to-last word
+            lastName = nameParts[nameParts.length - 1]; // Last word
+        }
 
-            interventionDropdown.innerHTML = `<option selected value="${selectedInterventionId}">${selectedInterventionName}</option>`;
+        // Assign values to the individual name fields
+        document.getElementById("update_fname").value = firstName;
+        document.getElementById("update_mname").value = middleName;
+        document.getElementById("update_lname").value = lastName;
 
-            // Set classification dropdown
-            classificationDropdown.innerHTML = `<option selected value="${button.getAttribute("data-seed-id")}">${button.getAttribute("data-seed-name")}</option>`;
+        // Update location fields
+        document.getElementById("update_province").innerHTML = `<option selected>${button.getAttribute("data-province")}</option>`;
+        document.getElementById("update_municipality").innerHTML = `<option selected>${button.getAttribute("data-municipality")}</option>`;
+        document.getElementById("update_barangay").innerHTML = `<option selected>${button.getAttribute("data-barangay")}</option>`;
 
-            // Step 2: Fetch interventions to update the dropdown
-            fetch("3distributionManagement/get_interventions.php")
-                .then(response => response.json())
-                .then(data => {
-                    interventionDropdown.innerHTML = `<option value="" disabled>Select Intervention:</option>`; // Reset dropdown
+        document.querySelector("input[name='update_quantity[]']").value = button.getAttribute("data-quantity");
 
-                    data.forEach(intervention => {
-                        let selected = (intervention.int_type_id === selectedInterventionId) ? "selected" : "";
-                        interventionDropdown.innerHTML += `<option value="${intervention.int_type_id}" ${selected}>${intervention.intervention_name}</option>`;
-                    });
-                })
-                .catch(error => console.error("Error fetching interventions:", error));
-        });
+        // Fetch and update quantity left
+        let quantityLeft = button.getAttribute("data-quantity-left") || "0"; 
+        quantityField.textContent = quantityLeft;
+
+        // Set intervention dropdown
+        let selectedInterventionId = button.getAttribute("data-intervention-id");
+        let selectedInterventionName = button.getAttribute("data-intervention-name");
+
+        interventionDropdown.innerHTML = `<option selected value="${selectedInterventionId}">${selectedInterventionName}</option>`;
+
+        // Set classification dropdown
+        classificationDropdown.innerHTML = `<option selected value="${button.getAttribute("data-seed-id")}">${button.getAttribute("data-seed-name")}</option>`;
+
+        // Fetch interventions to update the dropdown
+        fetch("3distributionManagement/get_interventions.php")
+            .then(response => response.json())
+            .then(data => {
+                interventionDropdown.innerHTML = `<option value="" disabled>Select Intervention:</option>`;
+
+                data.forEach(intervention => {
+                    let selected = (intervention.int_type_id === selectedInterventionId) ? "selected" : "";
+                    interventionDropdown.innerHTML += `<option value="${intervention.int_type_id}" ${selected}>${intervention.intervention_name}</option>`;
+                });
+            })
+            .catch(error => console.error("Error fetching interventions:", error));
     });
-
+});
 
     // jQuery for handling dropdown updates dynamically
     $(document).ready(function() {
@@ -2612,4 +2643,367 @@ document.addEventListener("DOMContentLoaded", function () {
             $('#beneficiariesTable tbody tr').show(); // Show all rows
         });
     });
+</script>
+<!-- fetch locations for update coop mngmnt -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let provinceSelect = document.getElementById("update_province");
+    let municipalitySelect = document.getElementById("update_municipality");
+    let barangaySelect = document.getElementById("update_barangay");
+
+    // Fetch provinces only when the user clicks the dropdown
+    provinceSelect.addEventListener("focus", function () {
+        if (provinceSelect.options.length === 1) { // Prevents refetching
+            fetchProvinces(provinceSelect);
+        }
+    });
+
+    // Fetch municipalities only when a province is selected
+    provinceSelect.addEventListener("change", function () {
+        let provinceCode = this.value;
+        resetDropdown(municipalitySelect, "Select Municipality");
+        resetDropdown(barangaySelect, "Select Barangay");
+        fetchMunicipalities(provinceCode, municipalitySelect);
+    });
+
+    // Fetch barangays only when a municipality is selected
+    municipalitySelect.addEventListener("change", function () {
+        let municipalityCode = this.value;
+        resetDropdown(barangaySelect, "Select Barangay");
+        fetchBarangays(municipalityCode, barangaySelect);
+    });
+
+    });
+
+// Helper function to reset dropdowns
+function resetDropdown(dropdown, placeholder) {
+    dropdown.innerHTML = `<option value="" disabled selected>${placeholder}</option>`;
+}
+
+// Fetch provinces
+function fetchProvinces(dropdown) {
+    fetch("6cooperativeManagement/fetch_location.php?type=provinces")
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(province => {
+                let option = document.createElement("option");
+                option.value = province.code;
+                option.textContent = province.name;
+                dropdown.appendChild(option);
+            });
+        })
+        .catch(error => console.error("Error fetching provinces:", error));
+}
+
+// Fetch municipalities
+function fetchMunicipalities(provinceCode, dropdown) {
+    fetch(`6cooperativeManagement/fetch_location.php?type=municipalities&code=${provinceCode}`)
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(municipality => {
+                let option = document.createElement("option");
+                option.value = municipality.code;
+                option.textContent = municipality.name;
+                dropdown.appendChild(option);
+            });
+        })
+        .catch(error => console.error("Error fetching municipalities:", error));
+}
+
+// Fetch barangays
+function fetchBarangays(municipalityCode, dropdown) {
+    fetch(`6cooperativeManagement/fetch_location.php?type=barangays&code=${municipalityCode}`)
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(barangay => {
+                let option = document.createElement("option");
+                option.value = barangay.code;
+                option.textContent = barangay.name;
+                dropdown.appendChild(option);
+            });
+        })
+        .catch(error => console.error("Error fetching barangays:", error));
+}
+
+
+</script>
+
+<!-- fetch for cooperative update modal coop mngmnt -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".update-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            let coopId = this.getAttribute("data-id").trim();
+
+            fetch("6cooperativeManagement/fetch_cooperative.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "coop_id=" + encodeURIComponent(coopId)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.error) {
+                    document.querySelector("#update_id").value = data.coop_id || "";
+                    document.querySelector("#update_cooperative_name").value = data.cooperative_name || "";
+
+                    // Populate Province Dropdown
+                    let provinceDropdown = document.querySelector("#update_province");
+                    provinceDropdown.innerHTML = `<option value="${data.province_name || ''}">${data.province_name || 'Select Province'}</option>`;
+
+                    // Populate Municipality Dropdown
+                    let municipalityDropdown = document.querySelector("#update_municipality");
+                    municipalityDropdown.innerHTML = `<option value="${data.municipality_name || ''}">${data.municipality_name || 'Select Municipality'}</option>`;
+
+                    // Populate Barangay Dropdown
+                    let barangayDropdown = document.querySelector("#update_barangay");
+                    barangayDropdown.innerHTML = `<option value="${data.barangay_name || ''}">${data.barangay_name || 'Select Barangay'}</option>`;
+
+                    // Open Modal
+                    let updateModal = new bootstrap.Modal(document.getElementById("updateCooperativeModal"));
+                    updateModal.show();
+                } else {
+                    console.error("Error:", data.message);
+                    Swal.fire("Error!", data.message, "error");
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+                Swal.fire("Error!", "Something went wrong.", "error");
+            });
+        });
+    });
+});
+</script>
+
+<!-- fetch update modal cooperative mngmnt -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const updateModal = document.getElementById("updateDistributionModal");
+
+    updateModal.addEventListener("show.bs.modal", function () {
+        console.log("Modal opened: Setting up event listeners"); // Debugging
+
+        const individualRadio = document.getElementById("update_individual");
+        const groupRadio = document.getElementById("update_group");
+        const cooperativeDiv = document.getElementById("cooperativeDiv");
+        const cooperativeSelect = document.getElementById("update_cooperative_name");
+
+        if (!individualRadio || !groupRadio || !cooperativeDiv || !cooperativeSelect) {
+            console.error("One or more elements not found!");
+            return;
+        }
+
+        function fetchCooperativeNames() {
+            console.log("Fetching cooperative names..."); // Debugging
+
+            fetch("3distributionManagement/fetch_cooperatives.php")
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Fetched data:", data); // Debugging
+
+                    if (data.error) {
+                        console.error("Error:", data.error);
+                        return;
+                    }
+
+                    cooperativeSelect.innerHTML = '<option value="" disabled selected>Select Cooperative</option>';
+                    data.forEach(coop => {
+                        cooperativeSelect.innerHTML += `<option value="${coop.id}">${coop.name}</option>`;
+                    });
+                })
+                .catch(error => console.error("Error fetching cooperatives:", error));
+        }
+
+        groupRadio.addEventListener("change", function () {
+            if (this.checked) {
+                cooperativeDiv.style.display = "block";
+                fetchCooperativeNames();
+            }
+        });
+
+        individualRadio.addEventListener("change", function () {
+            if (this.checked) {
+                cooperativeDiv.style.display = "none";
+                cooperativeSelect.innerHTML = '<option value="" disabled selected>Select Cooperative</option>';
+            }
+        });
+
+        // Ensure correct visibility on modal open
+        if (groupRadio.checked) {
+            cooperativeDiv.style.display = "block";
+            fetchCooperativeNames();
+        } else {
+            cooperativeDiv.style.display = "none";
+        }
+    });
+});
+
+
+</script>
+
+<!-- fetch update modal cooperative name for dstrib mngmnt -->
+<script>
+ document.addEventListener("DOMContentLoaded", function () {
+    const updateModal = document.getElementById("updateDistributionModal");
+
+    if (!updateModal) {
+        console.error("Modal not found!");
+        return;
+    }
+
+    updateModal.addEventListener("show.bs.modal", function (event) {
+        console.log("Modal opened: Setting up event listeners");
+
+        const button = event.relatedTarget;
+        if (!button) return;
+
+        // Fetching data attributes
+        const typeOfDistribution = button.getAttribute("data-type-of-distribution") || "";
+
+        const cooperativeName = button.getAttribute("data-cooperative-name") || "";
+        const province = button.getAttribute("data-province") || "";
+        const municipality = button.getAttribute("data-municipality") || "";
+        const barangay = button.getAttribute("data-barangay") || "";
+
+        document.getElementById("update_province").value = province;
+        document.getElementById("update_municipality").value = municipality;
+        document.getElementById("update_barangay").value = barangay;
+
+        const cooperativeDiv = document.getElementById("cooperativeDiv");
+        const cooperativeDropdown = document.getElementById("update_cooperative_name");
+
+        if (typeOfDistribution === "Group") {
+            document.getElementById("update_group").checked = true;
+            cooperativeDiv.style.display = "block";
+            fetchCooperatives(cooperativeDropdown, cooperativeName);
+        } else {
+            document.getElementById("update_individual").checked = true;
+            cooperativeDiv.style.display = "none";
+        }
+    });
+
+    document.getElementById("update_group").addEventListener("change", function () {
+        document.getElementById("cooperativeDiv").style.display = "block";
+        fetchCooperatives(document.getElementById("update_cooperative_name"));
+    });
+
+    document.getElementById("update_individual").addEventListener("change", function () {
+        document.getElementById("cooperativeDiv").style.display = "none";
+    });
+});
+
+function fetchCooperatives(dropdownElement, selectedCooperative = "") {
+    if (!dropdownElement) {
+        console.error("Dropdown element not found.");
+        return;
+    }
+
+    fetch("3distributionManagement/fetch_cooperatives.php")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            dropdownElement.innerHTML = '<option value="" disabled selected>Select Cooperative</option>';
+
+            if (!Array.isArray(data)) {
+                console.error("Invalid data format:", data);
+                return;
+            }
+
+            data.forEach(coop => {
+                const option = document.createElement("option");
+                option.value = coop.id;
+                option.textContent = coop.name;
+                
+                // Fix: Compare cooperative ID instead of name if ID is used in `data-cooperative-name`
+                if (coop.id == selectedCooperative || coop.name == selectedCooperative) {
+                    option.selected = true;
+                }
+
+                dropdownElement.appendChild(option);
+            });
+
+            console.log("Dropdown updated with cooperatives.");
+        })
+        .catch(error => console.error("Error fetching cooperatives:", error));
+}
+
+
+</script>
+
+<!-- fetch distribution date -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var updateModal = document.getElementById("updateDistributionModal");
+        updateModal.addEventListener("show.bs.modal", function (event) {
+            var button = event.relatedTarget;
+            var distributionDate = button.getAttribute("data-distribution-date");
+            
+            var dateInput = updateModal.querySelector("#update_distribution_date");
+            if (distributionDate) {
+                dateInput.value = distributionDate;
+            }
+        });
+    });
+</script>
+
+<!-- for update distribution mngmnt -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const updateDistributionForm = document.getElementById('updateDistributionForm');
+
+    updateDistributionForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to update this distribution record?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, update it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const formData = new FormData(updateDistributionForm);
+
+                fetch('3distributionManagement/update_distribution.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: "Updated!",
+                            text: "Distribution record has been updated successfully.",
+                            icon: "success",
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload(); // Reload the page to reflect changes
+                        });
+                    } else {
+                        Swal.fire("Error!", data.message, "error");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire("Error!", "Something went wrong. Please try again.", "error");
+                });
+            }
+        });
+    });
+});
+
 </script>
