@@ -1,0 +1,10 @@
+Array
+(
+    [userId] => 
+    [username] => sdas
+    [ulevel] => Viewer
+    [fname] => asdasSADS
+    [mname] => dsdsadDSAD
+    [lname] => asdsadSDASD
+    [station] => 5
+)
