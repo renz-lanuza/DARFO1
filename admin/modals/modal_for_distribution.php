@@ -651,8 +651,9 @@
             </div>
             <div class="modal-body">
                 <form id="updateDistributionForm" method="POST">
+                        
                     <div class="row">
-                        <div class="col-12 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label class="form-label">Type of Distribution</label><br>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" id="update_individual" name="type_of_distribution" value="Individual" required>
@@ -663,29 +664,50 @@
                                 <label class="form-check-label" for="update_group">Group</label>
                             </div>
                         </div>
-
-                        <div class="col-12 mb-3">
-                            <label for="update_beneficiary_name" class="form-label">Beneficiary Name</label>
-                            <input type="text" class="form-control" id="update_beneficiary_name" name="update_beneficiary_name" required autocomplete="off">
+                        <input type="hidden" id="distribution_id" name="distribution_id">
+                        <!-- Beneficiary Name Fields -->
+                        <div class="col-md-4 mb-3">
+                            <label for="update_fname" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="update_fname" name="update_fname" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="update_mname" class="form-label">Middle Name</label>
+                            <input type="text" class="form-control" id="update_mname" name="update_mname">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="update_lname" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="update_lname" name="update_lname" required>
                         </div>
 
-                        <div class="col-12 mb-3">
+                        <!-- Cooperative Name (Hidden by Default) -->
+                        <div class="col-md-4 mb-3" id="cooperativeDiv" style="display: none;">
+                            <label for="update_cooperative_name" class="form-label">Cooperative Name</label>
+                            <select id="update_cooperative_name" class="form-control" name="update_cooperative_name">
+                                <option value="" disabled selected>Select Cooperative</option>
+                            </select>
+                        </div>
+
+                        <!-- Location Details -->
+                        <div class="col-md-4 mb-3">
                             <label for="update_province">Province</label>
                             <select id="update_province" class="form-control" name="update_province" required></select>
                         </div>
-
-                        <div class="col-12 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label for="update_municipality">Municipality</label>
                             <select id="update_municipality" class="form-control" name="update_municipality" required></select>
                         </div>
-
-                        <div class="col-12 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label for="update_barangay">Barangay</label>
                             <select id="update_barangay" class="form-control" name="update_barangay" required></select>
                         </div>
+                        <!-- Date of Distribution -->
+                        <div class="col-md-4 mb-3">
+                            <label for="update_distribution_date" class="form-label">Date of Distribution</label>
+                            <input type="date" class="form-control" id="update_distribution_date" name="update_distribution_date" required>
+                        </div>
                     </div>
 
-                    <!-- Single Row Table for Interventions -->
+                    <!-- Table for Interventions -->
                     <div class="mb-3">
                         <label class="form-label">Intervention Details</label>
                         <table class="table table-bordered" id="updateinterventionTable">
@@ -699,18 +721,14 @@
                             <tbody>
                                 <tr>
                                     <td>
-                                    <?php
-                                        // Check if the user is logged in
+                                        <?php
+                                        
                                         if (!isset($_SESSION['uid'])) {
-                                            die("User  ID not found in session.");
+                                            die("User ID not found in session.");
                                         }
+                                        $uid = $_SESSION['uid'];
+                                        $conn = new mysqli("localhost", "root", "", "db_darfo1");
 
-                                        $uid = $_SESSION['uid']; // Get the uid from the session
-
-                                        // Connect to the database
-                                        $conn = mysqli_connect("localhost", "root", "", "db_darfo1");
-
-                                        // Retrieve the station_id based on the logged-in user's uid
                                         $stationQuery = $conn->prepare("SELECT station_id FROM tbl_user WHERE uid = ?");
                                         $stationQuery->bind_param("i", $uid);
                                         $stationQuery->execute();
@@ -718,12 +736,10 @@
                                         $stationQuery->fetch();
                                         $stationQuery->close();
 
-                                        // Check if station_id was found
                                         if (empty($stationId)) {
                                             die("No station found for the user.");
                                         }
 
-                                        // Fetch intervention names from the database filtered by station_id
                                         $sql = "SELECT int_type_id, intervention_name FROM tbl_intervention_type WHERE station_id = ? ORDER BY int_type_id";
                                         $stmt = $conn->prepare($sql);
                                         $stmt->bind_param("i", $stationId);
@@ -732,26 +748,18 @@
                                         ?>
 
                                         <select class="form-control intervention_name_distrib" name="intervention_name_distrib[]" required>
-                                            <option value="" disabled selected>Select Intervention:</option>
+                                            <option value="" disabled selected>Select Intervention</option>
                                             <?php
-                                            if ($result && $result->num_rows > 0) {
-                                                while ($row = $result->fetch_assoc()) {
-                                                    echo "<option value='{$row['int_type_id']}'>" . htmlspecialchars($row['intervention_name']) . "</option>";
-                                                }
+                                            while ($row = $result->fetch_assoc()) {
+                                                echo "<option value='{$row['int_type_id']}'>" . htmlspecialchars($row['intervention_name']) . "</option>";
                                             }
                                             ?>
                                         </select>
-
-
-                                        <?php
-                                        // Close the database connection
-                                        $conn->close();
-                                        ?>
-
+                                        <?php $conn->close(); ?>
                                     </td>
                                     <td>
-                                        <select class="form-control seedling_type_distrib" id="seedling_type_distrib" name="seedling_type_distrib" required>
-                                            <option value="" disabled selected>Select Classification:</option>
+                                        <select class="form-control seedling_type_distrib" name="seedling_type_distrib" required>
+                                            <option value="" disabled selected>Select Classification</option>
                                         </select>
                                     </td>
                                     <td>
@@ -762,6 +770,8 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Modal Footer -->
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-success">Update</button>
@@ -771,3 +781,4 @@
         </div>
     </div>
 </div>
+
