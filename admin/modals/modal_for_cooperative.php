@@ -141,29 +141,6 @@
     </div>
 </div>
 
-<!-- JS FOR CLOSE MODAL -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    let closeButtons = document.querySelectorAll("#closeUpdateModalBtn, #closeUpdateModalBtn2");
-    let modalElement = document.getElementById("updateCooperativeModal");
-    let modalInstance = new bootstrap.Modal(modalElement);
-
-    closeButtons.forEach(button => {
-        button.addEventListener("click", function () {
-            modalInstance.hide();
-            setTimeout(() => {
-                document.body.classList.remove("modal-open");
-                let backdrop = document.querySelector(".modal-backdrop");
-                if (backdrop) {
-                    backdrop.remove();
-                }
-            }, 300);
-            location.reload(); // Reload page after closing
-        });
-    });
-});
-</script>
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
@@ -199,62 +176,79 @@ document.addEventListener("DOMContentLoaded", function () {
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-document.getElementById("updateCooperativeBtn").addEventListener("click", function (event) {
-    event.preventDefault(); // Stop form from reloading
+document.addEventListener("DOMContentLoaded", function () {
+    let modalElement = document.getElementById("updateCooperativeModal");
+    let modalInstance = new bootstrap.Modal(modalElement);
 
-    Swal.fire({
-        title: "Are you sure?",
-        text: "Do you want to update this cooperative?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, update it!"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const formData = new FormData();
-            formData.append("update_id", document.getElementById("update_id").value);
-            formData.append("cooperative_name", document.getElementById("update_cooperative_name").value);
+    // Close modal and remove backdrop properly
+    function closeModalAndReload() {
+        modalInstance.hide();
+        setTimeout(() => {
+            document.body.classList.remove("modal-open");
+            let backdrop = document.querySelector(".modal-backdrop");
+            if (backdrop) {
+                backdrop.remove();
+            }
+            location.reload(); // Reload page after closing
+        }, 300);
+    }
 
-            let provinceDropdown = document.getElementById("update_province");
-            let municipalityDropdown = document.getElementById("update_municipality");
-            let barangayDropdown = document.getElementById("update_barangay");
+    // Attach event listeners to all close buttons
+    document.querySelectorAll("#closeUpdateModalBtn, #closeUpdateModalBtn2").forEach(button => {
+        button.addEventListener("click", closeModalAndReload);
+    });
 
-            formData.append("province", provinceDropdown.options[provinceDropdown.selectedIndex].text);
-            formData.append("municipality", municipalityDropdown.options[municipalityDropdown.selectedIndex].text);
-            formData.append("barangay", barangayDropdown.options[barangayDropdown.selectedIndex].text);
+    // Update button event
+    document.getElementById("updateCooperativeBtn").addEventListener("click", function (event) {
+        event.preventDefault(); // Stop form from reloading
 
-            fetch("6cooperativeManagement/update_cooperative.php", {
-                method: "POST",
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Server Response:", data); // Debugging
-                if (data.success) {
-                    Swal.fire({
-                        title: "Updated!",
-                        text: "Cooperative has been updated successfully.",
-                        icon: "success"
-                    }).then(() => {
-                        let modalElement = document.getElementById("updateCooperativeModal");
-                        let modalInstance = bootstrap.Modal.getInstance(modalElement);
-                        if (modalInstance) {
-                            modalInstance.hide(); // Hide modal properly
-                        }
-                        modalElement.addEventListener('hidden.bs.modal', function () {
-                            location.reload(); // Reload after modal is fully hidden
-                        }, { once: true }); // Ensure the event listener is only called once
-                    });
-                } else {
-                    Swal.fire("Error!", data.message, "error");
-                }
-            })
-            .catch(error => {
-                console.error("Fetch error:", error);
-                Swal.fire("Error!", "Something went wrong.", "error");
-            });
-        }
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to update this cooperative?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, update it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const formData = new FormData();
+                formData.append("update_id", document.getElementById("update_id").value);
+                formData.append("cooperative_name", document.getElementById("update_cooperative_name").value);
+
+                let provinceDropdown = document.getElementById("update_province");
+                let municipalityDropdown = document.getElementById("update_municipality");
+                let barangayDropdown = document.getElementById("update_barangay");
+
+                formData.append("province", provinceDropdown.options[provinceDropdown.selectedIndex].text);
+                formData.append("municipality", municipalityDropdown.options[municipalityDropdown.selectedIndex].text);
+                formData.append("barangay", barangayDropdown.options[barangayDropdown.selectedIndex].text);
+
+                fetch("6cooperativeManagement/update_cooperative.php", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Server Response:", data); // Debugging
+
+                    if (data.success) {
+                        Swal.fire({
+                            title: "Updated!",
+                            text: "Cooperative has been updated successfully.",
+                            icon: "success"
+                        }).then(closeModalAndReload); // Close modal and reload
+                    } else {
+                        Swal.fire("Error!", data.message, "error");
+                    }
+                })
+                .catch(error => {
+                    console.error("Fetch error:", error);
+                    Swal.fire("Error!", "Something went wrong.", "error");
+                });
+            }
+        });
     });
 });
 </script>
+
