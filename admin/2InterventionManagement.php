@@ -85,12 +85,12 @@ include('includes/navbar.php');
                             <span>Add Intervention</span>
                         </button>
 
-                        <form class="d-none d-sm-inline-block form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
+                       <form class="d-none d-sm-inline-block form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
                             <div class="input-group">
                                 <input type="text" id="search_id" class="form-control bg-light border-0 small"
-                                placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2" onkeyup="searchInterventionTable()">
+                                    placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
                                 <div class="input-group-append">
-                                    <button class="btn text-white" style="background-color: #DCFFB7;" type="button">
+                                    <button id="searchBtn" class="btn text-white" style="background-color: #DCFFB7;" type="button">
                                         <i class="fas fa-search fa-sm" style="color: black;"></i>
                                     </button>
                                 </div>
@@ -160,20 +160,23 @@ include('includes/navbar.php');
 
                                         // SQL query to fetch paginated data
                                         $sql = "SELECT 
-                                            tbl_intervention_inventory.intervention_id,
-                                            tbl_intervention_inventory.int_type_id, 
-                                            tbl_intervention_inventory.description, 
-                                            tbl_intervention_inventory.quantity, 
-                                            tbl_intervention_inventory.quantity_left,
-                                            tbl_intervention_inventory.seed_id,
-                                            tbl_intervention_inventory.unit,
-                                            tbl_intervention_type.intervention_name AS intervention_name,
-                                            tbl_seed_type.seed_name AS seedling_name
-                                        FROM tbl_intervention_inventory
-                                        INNER JOIN tbl_intervention_type ON tbl_intervention_inventory.int_type_id = tbl_intervention_type.int_type_id
-                                        LEFT JOIN tbl_seed_type ON tbl_intervention_inventory.seed_id = tbl_seed_type.seed_id
-                                        WHERE tbl_intervention_inventory.station_id = ?
-                                        LIMIT ? OFFSET ?";
+                                                    tbl_intervention_inventory.intervention_id,
+                                                    tbl_intervention_inventory.int_type_id, 
+                                                    tbl_intervention_inventory.description, 
+                                                    tbl_intervention_inventory.quantity, 
+                                                    tbl_intervention_inventory.quantity_left,
+                                                    tbl_intervention_inventory.seed_id,
+                                                    tbl_intervention_inventory.unit,
+                                                    tbl_intervention_type.intervention_name AS intervention_name,
+                                                    tbl_seed_type.seed_name AS seedling_name
+                                                FROM tbl_intervention_inventory
+                                                INNER JOIN tbl_intervention_type ON tbl_intervention_inventory.int_type_id = tbl_intervention_type.int_type_id
+                                                LEFT JOIN tbl_seed_type ON tbl_intervention_inventory.seed_id = tbl_seed_type.seed_id
+                                                WHERE 
+                                                    tbl_intervention_inventory.station_id = ? 
+                                                    AND (tbl_intervention_inventory.archived_at IS NULL OR tbl_intervention_inventory.archived_at = '')
+                                                LIMIT ? OFFSET ?
+                                                ";
 
                                         $stmt = $conn->prepare($sql);
                                         $stmt->bind_param("iii", $station_name, $entries_per_page, $offset);
