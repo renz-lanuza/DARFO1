@@ -90,20 +90,19 @@ include('includes/navbar.php');
                     <span>Add User</span>
                 </button>
 
-                <!-- Search Form -->
+                 <!-- Search Form -->
                 <form class="d-none d-sm-inline-block form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
                     <div class="input-group">
                         <input type="text" id="search_id" class="form-control bg-light border-0 small"
                             placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
                         <div class="input-group-append">
-                            <button class="btn text-white" style="background-color: #DCFFB7;" type="button">
+                            <button id="searchBtn" class="btn text-white" style="background-color: #DCFFB7;" type="button">
                                 <i class="fas fa-search fa-sm" style="color: black;"></i>
                             </button>
                         </div>
                     </div>
                 </form>
             </div>
-
             </div>
             <div id = "tab1" class="tab-content active">
                 <div class="card-body">
