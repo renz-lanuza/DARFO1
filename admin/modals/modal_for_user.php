@@ -26,15 +26,17 @@
             <label for="lastName" class="form-label">Last Name</label>
             <input type="text" class="form-control" id="lastName" name="lastName" required>
           </div>
-          <!-- Username -->
+         <!-- Username -->
           <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" class="form-control" id="username" name="username" required>
+              <label for="username" class="form-label">Username</label>
+              <input type="text" class="form-control" id="username" name="username" required>
+              <small id="usernameFeedback" class="invalid-feedback"></small>
           </div>
           <!-- Password -->
           <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" name="password" required>
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" id="password" name="password" required>
+              <small id="passwordFeedback" class="invalid-feedback">Password must be at least 8 characters long.</small>
           </div>
           <!-- User Level -->
           <div class="mb-3">
@@ -82,6 +84,56 @@
   </div>
 </div>
 
+<!-- inline validation for uname and pword -->
+<script>
+document.getElementById("username").addEventListener("input", function() {
+    let username = this.value.trim();
+    let feedback = document.getElementById("usernameFeedback");
+    let inputField = this;
+
+    // Reset previous validation styles
+    inputField.classList.remove("is-valid", "is-invalid");
+
+    if (username.length < 3) {
+        feedback.textContent = "Username must be at least 3 characters long.";
+        inputField.classList.add("is-invalid");
+        return;
+    }
+
+    fetch("1userManagement/check_username.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "username=" + encodeURIComponent(username)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.exists) {
+            feedback.textContent = "Username is already taken.";
+            inputField.classList.add("is-invalid");
+        } else {
+            feedback.textContent = "Username is available!";
+            inputField.classList.add("is-valid");
+        }
+    })
+    .catch(error => console.error("Error:", error));
+});
+
+document.getElementById("password").addEventListener("input", function() {
+    let password = this.value.trim();
+    let feedback = document.getElementById("passwordFeedback");
+    let inputField = this;
+
+    // Reset previous validation styles
+    inputField.classList.remove("is-valid", "is-invalid");
+
+    if (password.length < 8) {
+        inputField.classList.add("is-invalid"); // Turns red
+    } else {
+        inputField.classList.add("is-valid"); // Turns green
+    }
+});
+</script>
+
 <style>
   /* Enhance Select Dropdown */
   .form-select {
@@ -122,6 +174,7 @@
           <div class="form-group">
             <label for="uname">Username</label>
             <input type="text" class="form-control rounded-input" id="uname" name="username" required>
+            <small id="unameFeedback" class="invalid-feedback"></small>
           </div>
 
           <div class="form-group">
@@ -176,3 +229,40 @@
     </div>
   </div>
 </div>
+
+
+<script>
+document.getElementById("uname").addEventListener("input", function() {
+    let username = this.value.trim();
+    let feedback = document.getElementById("unameFeedback");
+    let inputField = this;
+
+    // Reset previous validation styles
+    inputField.classList.remove("is-valid", "is-invalid");
+
+    // Check minimum length
+    if (username.length < 3) {
+        feedback.textContent = "Username must be at least 3 characters long.";
+        inputField.classList.add("is-invalid");
+        return;
+    }
+
+    // AJAX request to check username in database
+    fetch("1userManagement/check_username.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "username=" + encodeURIComponent(username)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.exists) {
+            feedback.textContent = "Username is already taken.";
+            inputField.classList.add("is-invalid"); // Red border
+        } else {
+            feedback.textContent = ""; // Clear message
+            inputField.classList.add("is-valid"); // Green border
+        }
+    })
+    .catch(error => console.error("Error:", error));
+});
+</script>
