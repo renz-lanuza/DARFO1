@@ -2892,3 +2892,100 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 </script>
+<script>
+    $(document).ready(function() {
+        $("#addBeneficiaryForm").submit(function(e) {
+            e.preventDefault(); // Prevent default form submission
+
+            // Collect the form data
+            var applicable = []; // Array to store selected applicable checkboxes
+
+            // Collect selected applicable checkboxes
+            $('input[name="applicable[]"]:checked').each(function() {
+                applicable.push($(this).val());
+            });
+
+            // Prepare form data for submission
+            var formData = {
+                beneficiary_first_name: $('#beneficiary_first_name').val(), // Fetch beneficiary first name
+                beneficiary_middle_name: $('#beneficiary_middle_name').val(), // Fetch beneficiary middle name
+                beneficiary_last_name: $('#beneficiary_last_name').val(), // Fetch beneficiary last name
+                provinceCode: $('#province').val(), // Fetch province code
+                provinceName: $('#province option:selected').text(), // Fetch province name
+                municipalityCode: $('#municipality').val(), // Fetch municipality code
+                municipalityName: $('#municipality option:selected').text(), // Fetch municipality name
+                barangayCode: $('#barangay').val(), // Fetch barangay code
+                barangayName: $('#barangay option:selected').text(), // Fetch barangay name
+                cooperative_id: $('#cooperative').val() || 0, // Fetch cooperative ID, default to 0 if not selected
+                rsbsa_no: $('#rsbsa_no').val(), // Fetch RSBSA No.
+                sex: $('input[name="sex"]:checked').val(), // Fetch selected sex
+                birthdate: $('#birthdate').val(), // Fetch birthdate
+                individual_type: $('input[name="individual_type"]:checked').val(), // Fetch selected individual type
+                group_type: $('input[name="group_type"]:checked').val(), // Fetch selected group type
+                applicable: applicable, // Array of selected applicable checkboxes
+                contact_number: $('#contact_number').val() // Fetch contact number
+            };
+
+            // Check if "Others" was selected for individual type
+            if ($('input[name="individual_type"]:checked').val() === 'Others') {
+                formData.others_specify = $('#others_specify').val(); // Add the specified "Others" input
+            }
+
+            // Check if "Others" was selected for group type
+            if ($('input[name="group_type"]:checked').val() === 'Others') {
+                formData.group_others_specify = $('#group_others_specify').val(); // Add the specified "Others" input
+            }
+
+            // SweetAlert confirmation dialog
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Do you want to add this beneficiary?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#28a745",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, submit it!",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Perform AJAX request
+                    $.ajax({
+                        url: '8beneficiaryManagement/addBeneficiary.php', // Update with the correct path to your PHP file
+                        type: 'POST',
+                        data: formData, // Pass the form data to the PHP file
+                        dataType: 'json', // Expect a JSON response
+                        success: function(response) {
+                            if (response.status === "success") {
+                                Swal.fire({
+                                    title: "Success!",
+                                    text: response.message,
+                                    icon: "success",
+                                    confirmButtonColor: "#28a745",
+                                }).then(() => {
+                                    $("#addBeneficiaryModal").modal("hide"); // Close modal
+                                    $("#addBeneficiaryForm")[0].reset(); // Reset form
+                                    location.reload(); // Reload the page after success
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: response.message,
+                                    icon: "error",
+                                    confirmButtonColor: "#d33",
+                                });
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("AJAX Error:", xhr.responseText);
+                            Swal.fire({
+                                title: "Error!",
+                                text: "An error occurred while processing your request: " + xhr.responseText,
+                                icon: "error",
+                                confirmButtonColor: "#d33",
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
