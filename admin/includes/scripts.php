@@ -2892,6 +2892,8 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 </script>
+
+//add beneficiary management
 <script>
     $(document).ready(function() {
         $("#addBeneficiaryForm").submit(function(e) {
