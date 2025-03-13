@@ -2858,58 +2858,8 @@ function fetchCooperatives(dropdownElement, selectedCooperative = "") {
     });
 </script>
 
-<!-- for update distribution mngmnt -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const updateDistributionForm = document.getElementById('updateDistributionForm');
 
-    updateDistributionForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        Swal.fire({
-            title: "Are you sure?",
-            text: "Do you want to update this distribution record?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, update it!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const formData = new FormData(updateDistributionForm);
-
-                fetch('3distributionManagement/update_distribution.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            title: "Updated!",
-                            text: "Distribution record has been updated successfully.",
-                            icon: "success",
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => {
-                            location.reload(); // Reload the page to reflect changes
-                        });
-                    } else {
-                        Swal.fire("Error!", data.message, "error");
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire("Error!", "Something went wrong. Please try again.", "error");
-                });
-            }
-        });
-    });
-});
-
-</script>
 <!-- search users -->
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     let searchInput = document.getElementById("search_id");
