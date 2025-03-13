@@ -6,7 +6,29 @@
 
     /* Change table header background */
     #interventionTable thead {
-        background-color: #0D7C66;<!-- Add Distribution Modal -->
+        background-color: #0D7C66;
+        /* Custom Green */
+        color: white;
+    }
+
+    /* Change table body background */
+    #interventionTable tbody tr {
+        background-color: #E8F6F3;
+        /* Light Greenish */
+    }
+
+    #interventionTable tbody tr:hover {
+        background-color: #D1ECE4;
+        /* Slightly Darker Green on Hover */
+    }
+
+    /* Customize border */
+    #interventionTable {
+        border: 1px solid #0D7C66;
+    }
+</style>
+
+<!-- Add Distribution Modal -->
 <div class="modal fade" id="addDistributionModal" tabindex="-1" aria-labelledby="addDistributionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
