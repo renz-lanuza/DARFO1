@@ -2991,3 +2991,71 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 </script>
+<script>
+    $(document).ready(function() {
+        $("#addUnitForm").submit(function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Do you want to add this unit?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#28a745",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, add it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Serialize form data
+                    let formData = $(this).serialize();
+                    console.log("Sending Data:", formData); // Debugging
+
+                    // AJAX request to add the unit
+                    $.ajax({
+                        type: "POST",
+                        url: "7unitManagement/add_unit.php", // Change URL to match your unit adding script
+                        data: formData,
+                        dataType: "json",
+                        success: function(response) {
+                            console.log("Server Response:", response); // Debugging
+
+                            if (response.success) {
+                                Swal.fire({
+                                    title: "Success!",
+                                    text: response.message,
+                                    icon: "success",
+                                    confirmButtonColor: "#28a745",
+                                }).then(() => {
+                                    // Close the modal
+                                    $("#addUnitModal").modal("hide");
+                                    // Reset the form
+                                    $("#addUnitForm")[0].reset();
+                                    // Optionally, reload the page
+                                    setTimeout(() => {
+                                        window.location.href = window.location.href;
+                                    }, 1000);
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: response.message,
+                                    icon: "error",
+                                    confirmButtonColor: "#d33",
+                                });
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("AJAX Error:", xhr.responseText);
+                            Swal.fire({
+                                title: "Error!",
+                                text: "An error occurred while processing your request.",
+                                icon: "error",
+                                confirmButtonColor: "#d33",
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
