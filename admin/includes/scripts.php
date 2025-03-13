@@ -1033,9 +1033,24 @@
         });
     });
 </script>
+
 <!-- swal for adding distribution -->
 <script>
+    <script>
     $(document).ready(function() {
+        // Handle Add Distribution button click
+        $(document).on('click', '#btnAddDistribution', function() {
+            // Get the beneficiary ID from the data attribute
+            const beneficiaryId = $(this).data('beneficiary-id');
+
+            // Set the beneficiary ID in a hidden input field in the modal
+            $('#beneficiary_id').val(beneficiaryId);
+
+            // Optionally, you can display the beneficiary ID in the modal for debugging
+            console.log("Beneficiary ID:", beneficiaryId);
+        });
+
+        // Handle form submission
         $("#addDistributionForm").submit(function(e) {
             e.preventDefault(); // Prevent default form submission
 
@@ -1043,7 +1058,6 @@
             var interventionNames = [];
             var seedlingTypes = [];
             var quantities = [];
-            var applicable = []; // Array to store selected applicable checkboxes
 
             // Collect multiple inputs for intervention names, seedling types, and quantities
             $('select[name="intervention_name_distri[]"]').each(function() {
@@ -1056,45 +1070,14 @@
                 quantities.push($(this).val());
             });
 
-            // Collect selected applicable checkboxes
-            $('input[name="applicable[]"]:checked').each(function() {
-                applicable.push($(this).val());
-            });
-
             // Prepare form data for submission
             var formData = {
-                intervention_name_distri: interventionNames, // Array of intervention names
-                seedling_type_distri: seedlingTypes, // Array of seedling types
-                quantity_distri: quantities, // Array of quantities
-                beneficiary_first_name: $('#beneficiary_first_name').val(), // Fetch beneficiary first name
-                beneficiary_middle_name: $('#beneficiary_middle_name').val(), // Fetch beneficiary middle name
-                beneficiary_last_name: $('#beneficiary_last_name').val(), // Fetch beneficiary last name
-                type_of_distribution: $('input[name="type_of_distribution"]:checked').val(), // Fetch selected distribution type
-                provinceCode: $('#province').val(), // Fetch province code
-                provinceName: $('#province option:selected').text(), // Fetch province name
-                municipalityCode: $('#municipality').val(), // Fetch municipality code
-                municipalityName: $('#municipality option:selected').text(), // Fetch municipality name
-                barangayCode: $('#barangay').val(), // Fetch barangay code
-                barangayName: $('#barangay option:selected').text(), // Fetch barangay name
-                cooperative_id: $('#cooperative').val() || 0, // Fetch cooperative ID, default to 0 if not selected
                 distribution_date: $('#distribution_date').val(), // Fetch distribution date
-                rsbsa_no: $('#rsbsa_no').val(), // Fetch RSBSA No.
-                sex: $('input[name="sex"]:checked').val(), // Fetch selected sex
-                birthdate: $('#birthdate').val(), // Fetch birthdate
-                individual_type: $('input[name="individual_type"]:checked').val(), // Fetch selected individual type
-                group_type: $('input[name="group_type"]:checked').val(), // Fetch selected group type
-                applicable: applicable // Array of selected applicable checkboxes
+                beneficiary_id: $('#beneficiary_id').val(), // Fetch beneficiary ID from the hidden input
+                intervention_name_distri: interventionNames, // Array of intervention IDs
+                quantity_distri: quantities, // Array of quantities
+                seedling_type_distri: seedlingTypes // Array of seed IDs
             };
-
-            // Check if "Others" was selected for individual type
-            if ($('input[name="individual_type"]:checked').val() === 'Others') {
-                formData.others_specify = $('#others_specify').val(); // Add the specified "Others" input
-            }
-
-            // Check if "Others" was selected for group type
-            if ($('input[name="group_type"]:checked').val() === 'Others') {
-                formData.group_others_specify = $('#group_others_specify').val(); // Add the specified "Others" input
-            }
 
             // SweetAlert confirmation dialog
             Swal.fire({
@@ -1148,6 +1131,7 @@
             });
         });
     });
+</script>
 </script>
 <!-- fetch the seedlings in the distribution management -->
 <!-- script for fetching the seed type -->
