@@ -112,7 +112,7 @@ include('includes/navbar.php');
 
                             // Fetching the data with station filter
                             $queries = [
-                                "interventions" => "SELECT SUM(quantity) AS total_quantity FROM tbl_distribution WHERE station_id = ?;",
+                                "interventions" => "SELECT COUNT(*) AS total_interventions FROM tbl_distribution WHERE station_id = ?;",
                                 "individual_count" => "SELECT COUNT(*) AS individual_count FROM tbl_beneficiary WHERE coop_id = 0 AND station_id = ?;",
                                 "group_count" => "SELECT COUNT(DISTINCT coop_id) AS group_count FROM tbl_beneficiary WHERE coop_id > 0 AND station_id = ?;"
                             ];
@@ -152,7 +152,7 @@ include('includes/navbar.php');
 
                             // Dynamic card data
                             $cardData = [
-                                ["title" => "Intervention Distributed", "value" => $results["interventions"], "icon" => "fa-box-open", "color" => "primary", "link" => "3DistributionManagement.php"],
+                                ["title" => "Total Interventions", "value" => $results["interventions"], "icon" => "fa-box-open", "color" => "primary", "link" => "3DistributionManagement.php"],
                                 ["title" => "Individual Beneficiaries", "value" => number_format($results["individual_count"]), "icon" => "fa-user", "color" => "info", "link" => "individual_beneficiaries.php"],
                                 ["title" => "Group Beneficiaries", "value" => number_format($results["group_count"]), "icon" => "fa-users", "color" => "warning", "link" => "group_beneficiaries.php"]
                             ];
@@ -224,7 +224,7 @@ include('includes/navbar.php');
                     <div class="col-xl-6">
                         <div class="card border-left-warning shadow py-4">
                             <div class="card-body">
-                                <div class="text-xl font-weight-bold text-warning text-uppercase mb-3 text-center">
+                                <div class="text-xl font-weight-bold text-warning text-uppercase mb-3 mt-0 ">
                                     Region 1 (Ilocos Region)
                                 </div>
                                 <div id="map" style="width: 100%; height: 490px; border-radius: 10px;"></div>
