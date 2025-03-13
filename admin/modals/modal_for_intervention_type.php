@@ -9,6 +9,8 @@
             <div class="modal-body">
                 <form id="addInterventionForm">
                     <div class="mb-3">
+                        <input type="hidden" id="station_id" name="station_id" value="<?php echo $_SESSION['station_id']; ?>">
+
                         <label for="interventionName" class="form-label">Intervention Name</label>
                             <input type="text" class="form-control" id="interventionName" name="interventionName" placeholder="Enter Intervention Name" required>
                             <!-- <div id="nameHelp" class="form-text">Provide a unique name for the intervention.</div> -->
@@ -29,16 +31,17 @@
     $(document).ready(function () {
         $("#interventionName").on("input", function () {
             var interventionName = $(this).val().trim();
+            var stationId = $("#station_id").val(); // Get station ID from the hidden field
 
-            if (interventionName.length > 2) { // Validate only after 3+ characters
+            if (interventionName.length > 2) { // Validate after 3+ characters
                 $.ajax({
                     url: "4InterventionTypeManagement/check_interventiontype.php",
                     type: "POST",
-                    data: { interventionName: interventionName },
+                    data: { interventionName: interventionName, station_id: stationId },
                     success: function (response) {
-                        if (response === "exists") {
+                        if (response.trim() === "exists") {
                             $("#interventionName").addClass("is-invalid");
-                            $("#nameFeedback").text("Intervention name already exists.").show();
+                            $("#nameFeedback").text("Intervention name already exists in this station.").show();
                             $(".btn-success").prop("disabled", true);
                         } else {
                             $("#interventionName").removeClass("is-invalid");
@@ -69,12 +72,14 @@
                 <form id="updateInterventionForm">
                     <!-- Hidden field to hold the intervention type id -->
                     <input type="hidden" id="updateIntTypeId" name="int_type_id">
+                    <input type="hidden" id="station_id" name="station_id" value="<?php echo $_SESSION['station_id']; ?>">
 
                     <div class="mb-3">
                         <label for="updateInterventionName" class="form-label">Intervention Name</label>
                             <input type="text" class="form-control" id="updateInterventionName" name="intervention_name" placeholder="Enter Intervention Name" required>
                         <span id="updateNameFeedback" class="text-danger small" style="display: none;">Intervention name already exists.</span>
                     </div>
+
 
                     <!-- Validation feedback on input -->
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -93,30 +98,30 @@
 
 <script>
     $(document).ready(function () {
-        $("#updateInterventionName").on("input", function () {
+        $("#interventionName").on("input", function () {
             var interventionName = $(this).val().trim();
-            var intTypeId = $("#updateIntTypeId").val(); // Get the current intervention ID
+            var stationId = $("#station_id").val(); // Get station ID (ensure it's available in your form)
 
-            if (interventionName.length > 2) { // Validate only after 3+ characters
+            if (interventionName.length > 2) { 
                 $.ajax({
-                    url: "4InterventionTypeManagement/check_update_intervention.php",
+                    url: "4InterventionTypeManagement/check_update_interventiontype.php",
                     type: "POST",
-                    data: { interventionName: interventionName, int_type_id: intTypeId },
+                    data: { interventionName: interventionName, station_id: stationId },
                     success: function (response) {
-                        if (response === "exists") {
-                            $("#updateInterventionName").addClass("is-invalid");
-                            $("#updateNameFeedback").text("Intervention name already exists.").show();
+                        if (response.trim() === "exists") {
+                            $("#interventionName").addClass("is-invalid");
+                            $("#nameFeedback").text("Intervention name already exists in this station.").show();
                             $(".btn-success").prop("disabled", true);
                         } else {
-                            $("#updateInterventionName").removeClass("is-invalid");
-                            $("#updateNameFeedback").hide();
+                            $("#interventionName").removeClass("is-invalid");
+                            $("#nameFeedback").hide();
                             $(".btn-success").prop("disabled", false);
                         }
                     }
                 });
             } else {
-                $("#updateInterventionName").removeClass("is-invalid");
-                $("#updateNameFeedback").hide();
+                $("#interventionName").removeClass("is-invalid");
+                $("#nameFeedback").hide();
                 $(".btn-success").prop("disabled", false);
             }
         });
