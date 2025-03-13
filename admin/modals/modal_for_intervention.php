@@ -5,6 +5,7 @@
         /* White text for contrast */
     }
 </style>
+
 <!-- Modal -->
 <div class="modal fade" id="addInterventionModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -96,11 +97,25 @@
                         <label for="unit" class="form-label">Unit</label>
                         <select class="form-control" id="unit" name="unit" required>
                             <option value="" disabled selected>Select Unit</option>
-                            <option value="kg">No. of kg</option>
-                            <option value="kg">Kg no.</option>
-                            <option value="heads">No. of heads</option>
+                            <?php
+                            include('../conn.php'); // Include your database connection
+
+                            $query = "SELECT unit_id, unit_name FROM tbl_unit ORDER BY unit_name ASC";
+                            $result = $conn->query($query);
+
+                            if ($result->num_rows > 0) {
+                                while ($row = $result->fetch_assoc()) {
+                                    echo "<option value='" . htmlspecialchars($row['unit_id']) . "'>" . htmlspecialchars($row['unit_name']) . "</option>";
+                                }
+                            } else {
+                                echo "<option value='' disabled>No units available</option>";
+                            }
+
+                            $conn->close();
+                            ?>
                         </select>
                     </div>
+
                 </form>
             </div>
             <div class="modal-footer">
@@ -110,7 +125,6 @@
         </div>
     </div>
 </div>
-
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
