@@ -78,7 +78,7 @@ include('includes/navbar.php');
                             style="background-color: #DCFFB7; color: black; border: none; padding: 8px 16px;"
                             id="btnAddBeneficiary" data-bs-toggle="modal" data-bs-target="#addBeneficiaryModal">
                             <i class='bx bx-plus' style="font-size: 1.2rem;"></i>
-                            <span>Add BENEFICIARY</span>
+                            <span>Add Beneficiary</span>
                         </button>
 
                         <form class="d-none d-sm-inline-block form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
@@ -152,31 +152,30 @@ include('includes/navbar.php');
 
                                             // Output the table row
                                             echo "<tr>
-                <td>{$fullName}</td>
-                <td>{$rsbsa_no}</td>
-                <td>{$row['province_name']}</td>
-                <td>{$row['municipality_name']}</td>
-                <td>{$row['barangay_name']}</td>
-                <td>{$formattedBirthdate}</td>
-                <td>
-                    <button class='btn btn-primary btn-sm'>Edit</button>
-                    <button class='btn btn-danger btn-sm'>Delete</button>
-                    <button class='btn btn-info btn-sm' onclick='viewBeneficiary({$row['beneficiary_id']})'>View</button>
-                    <!-- Add Distribution Button with Beneficiary ID -->
-                    <button type='button' class='btn btn-success btn-sm' id='btnAddDistribution' data-bs-toggle='modal' data-bs-target='#addDistributionModal' data-beneficiary-id='{$row['beneficiary_id']}'>
-                        <i class='bx bx-plus'></i>
-                        <span>Add Distribution</span>
-                    </button>
-                </td>
-              </tr>";
-                                        }
-                                    } else {
-                                        // If no beneficiaries are found
-                                        echo "<tr>
-            <td colspan='7'>No beneficiaries found.</td>
-          </tr>";
-                                    }
-
+                                                    <td>{$fullName}</td>
+                                                    <td>{$rsbsa_no}</td>
+                                                    <td>{$row['province_name']}</td>
+                                                    <td>{$row['municipality_name']}</td>
+                                                    <td>{$row['barangay_name']}</td>
+                                                    <td>{$formattedBirthdate}</td>
+                                                    <td>
+                                                        <button class='btn btn-primary btn-sm'>Edit</button>
+                                                        <button class='btn btn-danger btn-sm'>Delete</button>
+                                                        <button class='btn btn-info btn-sm' onclick='viewBeneficiary({$row['beneficiary_id']})'>View</button>
+                                                        <!-- Add Distribution Button with Beneficiary ID -->
+                                                        <button type='button' class='btn btn-success btn-sm' id='btnAddDistribution' data-bs-toggle='modal' data-bs-target='#addDistributionModal' data-beneficiary-id='{$row['beneficiary_id']}'>
+                                                            <i class='bx bx-plus'></i>
+                                                            <span>Add Distribution</span>
+                                                        </button>
+                                                    </td>
+                                                  </tr>";
+                                                                                }
+                                                                            } else {
+                                                                                // If no beneficiaries are found
+                                                                                echo "<tr>
+                                                    <td colspan='7'>No beneficiaries found.</td>
+                                                  </tr>";
+                                                                            }
                                     // Close the database connection
                                     $conn->close();
                                     ?>
