@@ -78,15 +78,7 @@ include('includes/navbar.php');
             <div class="card shadow mb-4">
                 <div class="card-header py-3" style="background-color: #0D7C66;">
                     <div class="d-flex align-items-center">
-
-                        <!-- Button -->
-                        <button type="button" class="btn d-flex align-items-center gap-2 rounded-pill shadow-sm"
-                            style="background-color: #DCFFB7; color: black; border: none; padding: 8px 16px;"
-                            id="btnAddDistribution" data-bs-toggle="modal" data-bs-target="#addDistributionModal">
-                            <i class='bx bx-plus' style="font-size: 1.2rem;"></i>
-                            <span>Add Distribution</span>
-                        </button>
-
+                        
                         <form class="d-none d-sm-inline-block form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
                             <div class="input-group">
                                 <input type="text" id="search_id" class="form-control bg-light border-0 small"
@@ -182,14 +174,13 @@ include('includes/navbar.php');
                                     <thead class="thead" style="background-color: #0D7C66; color: white;">
                                         <tr>
                                             <th>Date</th>
-                                            <th>Intervention Name</th>
-                                            <th>Classification</th>
-                                            <th>Type of Beneficiary</th>
                                             <th>Beneficiary Name</th>
                                             <th>Province</th>
                                             <th>Municipality</th>
                                             <th>Barangay</th>
                                             <th>Cooperative</th>
+                                            <th>Intervention Name</th>
+                                            <th>Classification</th>
                                             <th>Quantity</th>
                                             <th>Action</th>
                                         </tr>
@@ -215,14 +206,13 @@ include('includes/navbar.php');
                                         ?>
                                                 <tr>
                                                     <td><?php echo htmlspecialchars($date); ?></td> <!-- Display the formatted date -->
-                                                    <td><?php echo htmlspecialchars($intervention_name); ?></td>
-                                                    <td><?php echo htmlspecialchars($seed_name); ?></td>
-                                                    <td><?php echo htmlspecialchars($type_beneficiary); ?></td>
                                                     <td><?php echo htmlspecialchars($beneficiary_name); ?></td>
                                                     <td><?php echo htmlspecialchars($province); ?></td>
                                                     <td><?php echo htmlspecialchars($municipality); ?></td>
                                                     <td><?php echo htmlspecialchars($barangay); ?></td>
-                                                    <td><?php echo htmlspecialchars($cooperative_name); ?></td> <!-- Display cooperative name or N/A -->
+                                                    <td><?php echo htmlspecialchars($cooperative_name); ?></td> 
+                                                    <td><?php echo htmlspecialchars($intervention_name); ?></td>
+                                                    <td><?php echo htmlspecialchars($seed_name); ?></td>
                                                     <td><?php echo htmlspecialchars($quantity); ?></td>
                                                     
                                                     <td>
