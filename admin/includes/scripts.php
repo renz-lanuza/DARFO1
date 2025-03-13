@@ -1454,85 +1454,6 @@
     });
 </script>
 
-<!-- fetching location for update distribution -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        let provinceSelect = document.getElementById("update_province");
-        let municipalitySelect = document.getElementById("update_municipality");
-        let barangaySelect = document.getElementById("update_barangay");
-
-        // Fetch provinces only when the user clicks the dropdown
-        provinceSelect.addEventListener("focus", function() {
-            if (provinceSelect.options.length === 1) { // Prevents refetching
-                fetchProvinces();
-            }
-        });
-
-        // Fetch municipalities only when a province is selected
-        provinceSelect.addEventListener("change", function() {
-            let provinceCode = this.value;
-            municipalitySelect.innerHTML = '<option selected disabled>Select a municipality</option>';
-            barangaySelect.innerHTML = '<option selected disabled>Select a barangay</option>'; // Reset barangay
-            fetchMunicipalities(provinceCode);
-        });
-
-        // Fetch barangays only when a municipality is selected
-        municipalitySelect.addEventListener("change", function() {
-            let municipalityCode = this.value;
-            barangaySelect.innerHTML = '<option selected disabled>Select a barangay</option>'; // Reset barangay
-            fetchBarangays(municipalityCode);
-        });
-    });
-
-    // Fetch provinces
-    function fetchProvinces() {
-        fetch("3distributionManagement/fetch_location.php?type=provinces")
-            .then(response => response.json())
-            .then(data => {
-                let provinceSelect = document.getElementById("update_province");
-                data.forEach(province => {
-                    let option = document.createElement("option");
-                    option.value = province.code;
-                    option.textContent = province.name;
-                    provinceSelect.appendChild(option);
-                });
-            })
-            .catch(error => console.error("Error fetching provinces:", error));
-    }
-
-    // Fetch municipalities
-    function fetchMunicipalities(provinceCode) {
-        fetch(`3distributionManagement/fetch_location.php?type=municipalities&code=${provinceCode}`)
-            .then(response => response.json())
-            .then(data => {
-                let municipalitySelect = document.getElementById("update_municipality");
-                data.forEach(municipality => {
-                    let option = document.createElement("option");
-                    option.value = municipality.code;
-                    option.textContent = municipality.name;
-                    municipalitySelect.appendChild(option);
-                });
-            })
-            .catch(error => console.error("Error fetching municipalities:", error));
-    }
-
-    // Fetch barangays
-    function fetchBarangays(municipalityCode) {
-        fetch(`3distributionManagement/fetch_location.php?type=barangays&code=${municipalityCode}`)
-            .then(response => response.json())
-            .then(data => {
-                let barangaySelect = document.getElementById("update_barangay");
-                data.forEach(barangay => {
-                    let option = document.createElement("option");
-                    option.value = barangay.code;
-                    option.textContent = barangay.name;
-                    barangaySelect.appendChild(option);
-                });
-            })
-            .catch(error => console.error("Error fetching barangays:", error));
-    }
-</script>
-
 <!-- fetch update type of distribution -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -2644,37 +2565,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 </script>
+
 <!-- fetch locations for update coop mngmnt -->
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    let provinceSelect = document.getElementById("update_province");
-    let municipalitySelect = document.getElementById("update_municipality");
-    let barangaySelect = document.getElementById("update_barangay");
-
-    // Fetch provinces only when the user clicks the dropdown
-    provinceSelect.addEventListener("focus", function () {
-        if (provinceSelect.options.length === 1) { // Prevents refetching
-            fetchProvinces(provinceSelect);
-        }
-    });
-
-    // Fetch municipalities only when a province is selected
-    provinceSelect.addEventListener("change", function () {
-        let provinceCode = this.value;
-        resetDropdown(municipalitySelect, "Select Municipality");
-        resetDropdown(barangaySelect, "Select Barangay");
-        fetchMunicipalities(provinceCode, municipalitySelect);
-    });
-
-    // Fetch barangays only when a municipality is selected
-    municipalitySelect.addEventListener("change", function () {
-        let municipalityCode = this.value;
-        resetDropdown(barangaySelect, "Select Barangay");
-        fetchBarangays(municipalityCode, barangaySelect);
-    });
-
-    });
-
 // Helper function to reset dropdowns
 function resetDropdown(dropdown, placeholder) {
     dropdown.innerHTML = `<option value="" disabled selected>${placeholder}</option>`;
