@@ -3060,6 +3060,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 </script>
+
 <script>
     $(document).ready(function() {
         // Show/hide individual or group fields based on beneficiary type
