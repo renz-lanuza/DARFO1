@@ -563,27 +563,35 @@
 </script>
 
 <!-- JS for Searching Users -->
-
 <script>
-    $(document).ready(function() {
-        // Trigger on 'keyup' event (when user types in the search box)
-        $("#search_id").on("keyup", function() {
-            var searchQuery = $(this).val(); // Get the value typed in the search input
-
-            // Send AJAX request to the server with the search query
-            $.ajax({
-                url: '', // Current page URL, no need for separate search file
-                type: 'GET',
-                data: {
-                    search: searchQuery
-                }, // Send search query as a parameter
-                success: function(response) {
-                    // Update the table body with filtered search results
-                    $('#dataTable').html($(response).find('#dataTable').html());
-                }
-            });
-        });
+      $(document).ready(function () {
+    // When user presses Enter inside the input
+    $("#search_id").keypress(function (event) {
+        if (event.which === 13) { // 13 is the keycode for Enter
+            event.preventDefault(); // Prevent form submission (if inside a form)
+            performSearch();
+        }
     });
+
+    // When user clicks the search button
+    $(".input-group-append button").click(function () {
+        performSearch();
+    });
+
+    function performSearch() {
+        var searchQuery = $("#search_id").val(); // Get input value
+
+        // Send AJAX request
+        $.ajax({
+            url: '', // Current page URL
+            type: 'GET',
+            data: { search: searchQuery },
+            success: function (response) {
+                $('#dataTable').html($(response).find('#dataTable').html());
+            }
+        });
+    }
+});
 </script>
 
 <script>
