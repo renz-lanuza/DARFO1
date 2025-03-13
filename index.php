@@ -22,7 +22,7 @@
 
     body {
       overflow: hidden;
-      background: linear-gradient(to bottom, darkgreen, seagreen, goldenrod);
+      background: linear-gradient(to bottom, black, darkgreen, seagreen, goldenrod, black);
       height: 100vh;
       display: flex;
       align-items: center;
@@ -257,7 +257,7 @@
       <div class="header-divider"></div>
       <div class="header-titles"> <!-- Container for titles -->
         <h1>STATIONS PORTAL</h1>
-        <h2>for DEPARTMENT OF AGRICULTURE REGIONAL FIELD OFFICE 1</h2>
+        <h2>DEPARTMENT OF AGRICULTURE REGIONAL FIELD OFFICE 1</h2>
       </div>
       <div class="menu"> <!-- Menu container -->
         <ul>
