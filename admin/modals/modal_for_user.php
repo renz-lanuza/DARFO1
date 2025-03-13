@@ -86,52 +86,71 @@
 
 <!-- inline validation for uname and pword -->
 <script>
-document.getElementById("username").addEventListener("input", function() {
-    let username = this.value.trim();
-    let feedback = document.getElementById("usernameFeedback");
-    let inputField = this;
+document.addEventListener("DOMContentLoaded", function () {
+    let usernameInput = document.getElementById("username");
+    let passwordInput = document.getElementById("password");
+    let addButton = document.querySelector("#addUserForm button[type='submit']");
 
-    // Reset previous validation styles
-    inputField.classList.remove("is-valid", "is-invalid");
-
-    if (username.length < 3) {
-        feedback.textContent = "Username must be at least 3 characters long.";
-        inputField.classList.add("is-invalid");
-        return;
+    function validateForm() {
+        // Check if any input has the "is-invalid" class
+        let isInvalid = document.querySelector(".is-invalid") !== null;
+        addButton.disabled = isInvalid;
     }
 
-    fetch("1userManagement/check_username.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "username=" + encodeURIComponent(username)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.exists) {
-            feedback.textContent = "Username is already taken.";
+    usernameInput.addEventListener("input", function () {
+        let username = this.value.trim();
+        let feedback = document.getElementById("usernameFeedback");
+        let inputField = this;
+
+        // Reset validation styles
+        inputField.classList.remove("is-valid", "is-invalid");
+
+        if (username.length < 3) {
+            feedback.textContent = "Username must be at least 3 characters long.";
+            inputField.classList.add("is-invalid");
+            validateForm();
+            return;
+        }
+
+        fetch("1userManagement/check_username.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "username=" + encodeURIComponent(username)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.exists) {
+                feedback.textContent = "Username is already taken.";
+                inputField.classList.add("is-invalid");
+            } else {
+                feedback.textContent = "Username is available!";
+                inputField.classList.add("is-valid");
+            }
+            validateForm();
+        })
+        .catch(error => console.error("Error:", error));
+    });
+
+    passwordInput.addEventListener("input", function () {
+        let password = this.value.trim();
+        let feedback = document.getElementById("passwordFeedback");
+        let inputField = this;
+
+        // Reset validation styles
+        inputField.classList.remove("is-valid", "is-invalid");
+
+        if (password.length < 8) {
             inputField.classList.add("is-invalid");
         } else {
-            feedback.textContent = "Username is available!";
             inputField.classList.add("is-valid");
         }
-    })
-    .catch(error => console.error("Error:", error));
+        validateForm();
+    });
+
+    // Disable button initially
+    addButton.disabled = true;
 });
 
-document.getElementById("password").addEventListener("input", function() {
-    let password = this.value.trim();
-    let feedback = document.getElementById("passwordFeedback");
-    let inputField = this;
-
-    // Reset previous validation styles
-    inputField.classList.remove("is-valid", "is-invalid");
-
-    if (password.length < 8) {
-        inputField.classList.add("is-invalid"); // Turns red
-    } else {
-        inputField.classList.add("is-valid"); // Turns green
-    }
-});
 </script>
 
 <style>
@@ -224,7 +243,7 @@ document.getElementById("password").addEventListener("input", function() {
 
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary close-modal" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-success" id="updateUserBtn">Save changes</button>
+        <button type="button" class="btn btn-success" id="updateUserBtn">Update</button>
       </div>
     </div>
   </div>
@@ -232,37 +251,54 @@ document.getElementById("password").addEventListener("input", function() {
 
 
 <script>
-document.getElementById("uname").addEventListener("input", function() {
-    let username = this.value.trim();
+document.addEventListener("DOMContentLoaded", function () {
+    let usernameInput = document.getElementById("uname");
     let feedback = document.getElementById("unameFeedback");
-    let inputField = this;
+    let updateUserBtn = document.getElementById("updateUserBtn");
 
-    // Reset previous validation styles
-    inputField.classList.remove("is-valid", "is-invalid");
-
-    // Check minimum length
-    if (username.length < 3) {
-        feedback.textContent = "Username must be at least 3 characters long.";
-        inputField.classList.add("is-invalid");
-        return;
+    function validateForm() {
+        // Check if any input has the "is-invalid" class
+        let isInvalid = document.querySelector(".is-invalid") !== null;
+        updateUserBtn.disabled = isInvalid;
     }
 
-    // AJAX request to check username in database
-    fetch("1userManagement/check_username.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "username=" + encodeURIComponent(username)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.exists) {
-            feedback.textContent = "Username is already taken.";
-            inputField.classList.add("is-invalid"); // Red border
-        } else {
-            feedback.textContent = ""; // Clear message
-            inputField.classList.add("is-valid"); // Green border
+    usernameInput.addEventListener("input", function () {
+        let username = this.value.trim();
+        let inputField = this;
+
+        // Reset validation styles
+        inputField.classList.remove("is-valid", "is-invalid");
+
+        // Check minimum length
+        if (username.length < 3) {
+            feedback.textContent = "Username must be at least 3 characters long.";
+            inputField.classList.add("is-invalid");
+            validateForm();
+            return;
         }
-    })
-    .catch(error => console.error("Error:", error));
+
+        // AJAX request to check if the username exists in the database
+        fetch("1userManagement/check_username.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "username=" + encodeURIComponent(username)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.exists) {
+                feedback.textContent = "Username is already taken.";
+                inputField.classList.add("is-invalid");
+            } else {
+                feedback.textContent = ""; // Clear message
+                inputField.classList.add("is-valid");
+            }
+            validateForm();
+        })
+        .catch(error => console.error("Error:", error));
+    });
+
+    // Disable button initially
+    updateUserBtn.disabled = true;
 });
+
 </script>
