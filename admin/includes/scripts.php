@@ -2991,6 +2991,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 </script>
+
 <script>
     $(document).ready(function() {
         $("#addUnitForm").submit(function(event) {
@@ -3056,6 +3057,40 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
                 }
             });
+        });
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        // Show/hide individual or group fields based on beneficiary type
+        $('input[name="beneficiary_type"]').change(function() {
+            if ($(this).val() === 'Individual') {
+                $('#individualTypeRadio').show();
+                $('#groupTypeRadio').show();
+                $('#cooperativeInput').hide(); // Hide cooperative input for individual
+            } else if ($(this).val() === 'Group') {
+                $('#individualTypeRadio').hide();
+                $('#groupTypeRadio').show();
+                $('#cooperativeInput').show(); // Show cooperative input for group
+            }
+        });
+
+        // Show/hide "Others" input for individual type
+        $('input[name="individual_type"]').change(function() {
+            if ($(this).val() === 'Others') {
+                $('#othersInput').show();
+            } else {
+                $('#othersInput').hide();
+            }
+        });
+
+        // Show/hide "Others" input for group type
+        $('input[name="group_type"]').change(function() {
+            if ($(this).val() === 'Others') {
+                $('#groupOthersInput').show();
+            } else {
+                $('#groupOthersInput').hide();
+            }
         });
     });
 </script>
