@@ -95,22 +95,20 @@
 
 
 <!-- Bootstrap 5 Modal -->
-<div class="modal fade" id="updateCooperativeModal" tabindex="-1" aria-labelledby="updateCooperativeModalLabel" aria-hidden="true">
+<div class="modal fade" id="updateCooperativeModal" tabindex="-1" aria-labelledby="updateCooperativeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="updateCooperativeModalLabel">Update Cooperative</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" id="closeUpdateModalBtn" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="updateCooperativeForm">
                     <input type="hidden" id="update_id">
-                    <input type="hidden" id="coop_id" name="coop_id" value="<!-- INSERT COOP ID HERE -->">
 
                     <div class="mb-3">
                         <label for="update_cooperative_name" class="form-label">Cooperative Name</label>
                         <input type="text" class="form-control" id="update_cooperative_name" required>
-                        <div class="invalid-feedback">Cooperative name is already taken.</div>
                     </div>
 
                     <div class="mb-3">
@@ -136,12 +134,36 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="updateCooperativeBtn">Save changes</button>
+                <button type="button" class="btn btn-secondary" id="closeUpdateModalBtn2">Close</button>
+                <button type="button" class="btn btn-primary" id="updateCooperativeBtn">Update</button>
             </div>
         </div>
     </div>
 </div>
+
+<!-- JS FOR CLOSE MODAL -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let closeButtons = document.querySelectorAll("#closeUpdateModalBtn, #closeUpdateModalBtn2");
+    let modalElement = document.getElementById("updateCooperativeModal");
+    let modalInstance = new bootstrap.Modal(modalElement);
+
+    closeButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            modalInstance.hide();
+            setTimeout(() => {
+                document.body.classList.remove("modal-open");
+                let backdrop = document.querySelector(".modal-backdrop");
+                if (backdrop) {
+                    backdrop.remove();
+                }
+            }, 300);
+            location.reload(); // Reload page after closing
+        });
+    });
+});
+</script>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
