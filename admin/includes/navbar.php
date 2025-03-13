@@ -69,6 +69,20 @@
             </a>
         </li>
 
+
+        <li class="nav-item">
+            <a class="nav-link" href="7UnitManagement.php">
+                <i class="fas fa-home"></i>
+                <span class="sidebar-text">Unit Management</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="8BeneficiaryManagement.php">
+                <i class="fas fa-home"></i>
+                <span class="sidebar-text">Beneficiary Management</span>
+            </a>
+        </li>
+
         <!-- Divider -->
         <hr class="sidebar-divider d-none d-md-block">
     </ul>
