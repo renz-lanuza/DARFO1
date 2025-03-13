@@ -2908,3 +2908,37 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 </script>
+<!-- search users -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let searchInput = document.getElementById("search_id");
+    let searchButton = document.getElementById("searchBtn");
+
+    function fetchSearchResults() {
+        let searchQuery = searchInput.value.trim();
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", "1userManagement/searchUser.php?search=" + encodeURIComponent(searchQuery), true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                document.getElementById("dataTable").innerHTML = xhr.responseText;
+            }
+        };
+        xhr.send();
+    }
+
+    // Trigger search on button click
+    searchButton.addEventListener("click", function () {
+        fetchSearchResults();
+    });
+
+    // Trigger search on Enter key press
+    searchInput.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevent form submission
+            fetchSearchResults();
+        }
+    });
+});
+
+</script>
