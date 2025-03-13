@@ -1036,7 +1036,6 @@
 
 <!-- swal for adding distribution -->
 <script>
-    <script>
     $(document).ready(function() {
         // Handle Add Distribution button click
         $(document).on('click', '#btnAddDistribution', function() {
@@ -1132,12 +1131,9 @@
         });
     });
 </script>
-</script>
+
 <!-- fetch the seedlings in the distribution management -->
 <!-- script for fetching the seed type -->
-
-
-
 <!-- JS for fetch update intervention -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
