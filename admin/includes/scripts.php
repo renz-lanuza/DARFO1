@@ -907,9 +907,6 @@
     });
 </script>
 
-
-
-
 <!-- api request to get the data inthe gitlab -->
 <script>
     $(document).ready(function() {
@@ -1485,69 +1482,75 @@
     });
 });
 
-    // jQuery for handling dropdown updates dynamically
-    $(document).ready(function() {
-        // Handle intervention selection change
-        $(document).on('change', '.intervention_name_distrib', function() {
-            var int_type_id = $(this).val(); // Get selected intervention ID
-            var $row = $(this).closest('tr'); // Get the current row
+$(document).ready(function() {
+    // Handle intervention selection change
+    $(document).on('change', '.intervention_name_distrib', function() {
+        var int_type_id = $(this).val(); // Get selected intervention ID
+        var $row = $(this).closest('tr'); // Get the current row
 
-            if (int_type_id) {
-                $.ajax({
-                    url: '3distributionManagement/fetch_intervention_data.php',
-                    type: 'GET',
-                    data: {
-                        int_type_id: int_type_id
-                    },
-                    success: function(response) {
-                        try {
-                            var data = JSON.parse(response);
-                            var $classificationDropdown = $row.find('.seedling_type_distrib');
-                            var $quantityField = $row.find('.quantity-left');
-                            var $interventionLabel = $row.find('.intervention_name_label'); // Label for intervention
+        if (int_type_id) {
+            $.ajax({
+                url: '3distributionManagement/fetch_intervention_data.php',
+                type: 'GET',
+                data: { int_type_id: int_type_id },
+                success: function(response) {
+                    try {
+                        var data = JSON.parse(response);
+                        var $classificationDropdown = $row.find('.seedling_type_distrib');
+                        var $quantityField = $row.find('.quantity-left');
 
-                            // Step 1: **Display selected intervention name**
-                            if (data.length > 0) {
-                                $interventionLabel.text(data[0].intervention_name);
-                            } else {
-                                $interventionLabel.text("No Intervention Found");
-                            }
+                        // Step 1: Clear and populate classification dropdown
+                        $classificationDropdown.empty();
+                        $classificationDropdown.append('<option value="" disabled selected>Select Classification</option>');
 
-                            // Step 2: **Clear and populate classification dropdown**
-                            $classificationDropdown.empty();
-                            $classificationDropdown.append('<option value="" disabled selected>Select Classification</option>');
-
-                            if (data.length > 0) {
-                                data.forEach(function(item) {
-                                    $classificationDropdown.append('<option value="' + item.seed_id + '" data-quantity="' + item.quantity + '">' + item.seed_name + '</option>');
-                                });
-                            } else {
-                                $classificationDropdown.append('<option value="" disabled>No classifications found</option>');
-                            }
-
-                            // Step 3: **Reset quantity display**
-                            $quantityField.text('0');
-                        } catch (error) {
-                            console.error("JSON Parse Error:", error);
+                        if (data.length > 0) {
+                            data.forEach(function(item) {
+                                $classificationDropdown.append(
+                                    `<option value="${item.seed_id}" data-quantity="${item.quantity}">${item.seed_name}</option>`
+                                );
+                            });
+                        } else {
+                            $classificationDropdown.append('<option value="" disabled>No classifications found</option>');
                         }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error fetching data:', error);
+
+                        // Reset quantity display
+                        $quantityField.text('0');
+                    } catch (error) {
+                        console.error("JSON Parse Error:", error);
                     }
-                });
-            }
-        });
-
-        // Handle classification selection change to update quantity
-        $(document).on('change', '.seedling_type_distrib', function() {
-            var selectedOption = $(this).find(':selected');
-            var availableQuantity = selectedOption.data('quantity') || 0;
-            var $row = $(this).closest('tr');
-
-            // Display available quantity
-            $row.find('.quantity-left').text(availableQuantity);
-        });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching data:', error);
+                }
+            });
+        }
     });
+
+    // Fetch quantity_left dynamically when classification is selected
+    $(document).on('change', '.seedling_type_distrib', function() {
+        var selectedOption = $(this).find(':selected');
+        var seed_id = selectedOption.val();
+        var $row = $(this).closest('tr');
+        var int_type_id = $row.find('.intervention_name_distrib').val();
+
+        if (seed_id) {
+            $.ajax({
+                url: '3distributionManagement/fetch_quantity_left.php',
+                type: 'GET',
+                data: { int_type_id: int_type_id, seed_id: seed_id },
+                success: function(response) {
+                    var quantityLeft = response ? response : '0';
+                    $row.find('.quantity-left').text(quantityLeft);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching quantity left:', error);
+                }
+            });
+        }
+    });
+});
+
+
 </script>
 
 <!-- Include jQuery -->
@@ -2395,99 +2398,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
-<!-- fetch update modal cooperative name for dstrib mngmnt -->
-<script>
- document.addEventListener("DOMContentLoaded", function () {
-    const updateModal = document.getElementById("updateDistributionModal");
-
-    if (!updateModal) {
-        console.error("Modal not found!");
-        return;
-    }
-
-    updateModal.addEventListener("show.bs.modal", function (event) {
-        console.log("Modal opened: Setting up event listeners");
-
-        const button = event.relatedTarget;
-        if (!button) return;
-
-        // Fetching data attributes
-        const typeOfDistribution = button.getAttribute("data-type-of-distribution") || "";
-
-        const cooperativeName = button.getAttribute("data-cooperative-name") || "";
-        const province = button.getAttribute("data-province") || "";
-        const municipality = button.getAttribute("data-municipality") || "";
-        const barangay = button.getAttribute("data-barangay") || "";
-
-        document.getElementById("update_province").value = province;
-        document.getElementById("update_municipality").value = municipality;
-        document.getElementById("update_barangay").value = barangay;
-
-        const cooperativeDiv = document.getElementById("cooperativeDiv");
-        const cooperativeDropdown = document.getElementById("update_cooperative_name");
-
-        if (typeOfDistribution === "Group") {
-            document.getElementById("update_group").checked = true;
-            cooperativeDiv.style.display = "block";
-            fetchCooperatives(cooperativeDropdown, cooperativeName);
-        } else {
-            document.getElementById("update_individual").checked = true;
-            cooperativeDiv.style.display = "none";
-        }
-    });
-
-    document.getElementById("update_group").addEventListener("change", function () {
-        document.getElementById("cooperativeDiv").style.display = "block";
-        fetchCooperatives(document.getElementById("update_cooperative_name"));
-    });
-
-    document.getElementById("update_individual").addEventListener("change", function () {
-        document.getElementById("cooperativeDiv").style.display = "none";
-    });
-});
-
-function fetchCooperatives(dropdownElement, selectedCooperative = "") {
-    if (!dropdownElement) {
-        console.error("Dropdown element not found.");
-        return;
-    }
-
-    fetch("3distributionManagement/fetch_cooperatives.php")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            dropdownElement.innerHTML = '<option value="" disabled selected>Select Cooperative</option>';
-
-            if (!Array.isArray(data)) {
-                console.error("Invalid data format:", data);
-                return;
-            }
-
-            data.forEach(coop => {
-                const option = document.createElement("option");
-                option.value = coop.id;
-                option.textContent = coop.name;
-                
-                // Fix: Compare cooperative ID instead of name if ID is used in `data-cooperative-name`
-                if (coop.id == selectedCooperative || coop.name == selectedCooperative) {
-                    option.selected = true;
-                }
-
-                dropdownElement.appendChild(option);
-            });
-
-            console.log("Dropdown updated with cooperatives.");
-        })
-        .catch(error => console.error("Error fetching cooperatives:", error));
-}
-
-
-</script>
-
 <!-- fetch distribution date -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -2740,3 +2650,4 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 </script>
+
