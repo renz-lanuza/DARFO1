@@ -137,7 +137,7 @@
         </div>
     </div>
 </div>
-                    
+</div>                
 <style>
     /* Modal Header Styling */
     .modal-header {
@@ -172,53 +172,9 @@
                 <form id="updateDistributionForm" method="POST">
                         
                     <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Type of Distribution</label><br>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="update_individual" name="type_of_distribution" value="Individual" required>
-                                <label class="form-check-label" for="update_individual">Individual</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="update_group" name="type_of_distribution" value="Group" required>
-                                <label class="form-check-label" for="update_group">Group</label>
-                            </div>
-                        </div>
+                        
                         <input type="hidden" id="distribution_id" name="distribution_id">
-                        <!-- Beneficiary Name Fields -->
-                        <div class="col-md-4 mb-3">
-                            <label for="update_fname" class="form-label">First Name</label>
-                            <input type="text" class="form-control" id="update_fname" name="update_fname" required>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="update_mname" class="form-label">Middle Name</label>
-                            <input type="text" class="form-control" id="update_mname" name="update_mname">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="update_lname" class="form-label">Last Name</label>
-                            <input type="text" class="form-control" id="update_lname" name="update_lname" required>
-                        </div>
-
-                        <!-- Cooperative Name (Hidden by Default) -->
-                        <div class="col-md-4 mb-3" id="cooperativeDiv" style="display: none;">
-                            <label for="update_cooperative_name" class="form-label">Cooperative Name</label>
-                            <select id="update_cooperative_name" class="form-control" name="update_cooperative_name">
-                                <option value="" disabled selected>Select Cooperative</option>
-                            </select>
-                        </div>
-
-                        <!-- Location Details -->
-                        <div class="col-md-4 mb-3">
-                            <label for="update_province">Province</label>
-                            <select id="update_province" class="form-control" name="update_province" required></select>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="update_municipality">Municipality</label>
-                            <select id="update_municipality" class="form-control" name="update_municipality" required></select>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="update_barangay">Barangay</label>
-                            <select id="update_barangay" class="form-control" name="update_barangay" required></select>
-                        </div>
+                        
                         <!-- Date of Distribution -->
                         <div class="col-md-4 mb-3">
                             <label for="update_distribution_date" class="form-label">Date of Distribution</label>
