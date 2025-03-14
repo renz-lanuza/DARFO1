@@ -132,7 +132,6 @@ include('includes/navbar.php');
                                             CONCAT(b.fname, ' ', IFNULL(b.mname, ''), ' ', b.lname) AS beneficiary_name, 
                                             st.seed_name, 
                                             it.intervention_name, 
-                                            d.type_of_distribution, 
                                             b.province_name, 
                                             b.municipality_name, 
                                             b.barangay_name, 
@@ -197,7 +196,6 @@ include('includes/navbar.php');
                                                 $municipality = $data['municipality_name'];
                                                 $barangay = $data['barangay_name'];
                                                 $intervention_name = $data['intervention_name'];
-                                                $type_beneficiary = $data['type_of_distribution'];
                                                 $quantity = $data['quantity'];
                                                 $cooperative_name = $data['cooperative_name']; // Fetch the cooperative name
                                                 $date = date("F j, Y", strtotime($data['distribution_date']));
@@ -227,7 +225,6 @@ include('includes/navbar.php');
                                                             data-quantity="<?php echo htmlspecialchars($quantity); ?>"
                                                             data-intervention-name="<?php echo htmlspecialchars($intervention_name); ?>"
                                                             data-seed-name="<?php echo htmlspecialchars($seed_name); ?>"
-                                                            data-type-of-distribution="<?php echo htmlspecialchars($type_beneficiary); ?>"
                                                             data-cooperative-name="<?php echo htmlspecialchars($cooperative_name); ?>"
                                                             data-distribution-date="<?php echo htmlspecialchars($data['distribution_date']); ?>">
                                                             Update
