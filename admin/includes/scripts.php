@@ -1450,6 +1450,11 @@
     updateModal.addEventListener("show.bs.modal", function (event) {
         const button = event.relatedTarget; // Button that triggered the modal
 
+        // Get elements inside the modal
+        let interventionDropdown = updateModal.querySelector("select[name='intervention_name_distrib[]']");
+        let classificationDropdown = updateModal.querySelector("select[name='seedling_type_distrib']");
+        let quantityField = updateModal.querySelector(".quantity-left");
+
         document.querySelector("input[name='update_quantity[]']").value = button.getAttribute("data-quantity");
 
         // Fetch and update quantity left
@@ -2388,6 +2393,99 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+</script>
+
+<!-- fetch update modal cooperative name for dstrib mngmnt -->
+<script>
+ document.addEventListener("DOMContentLoaded", function () {
+    const updateModal = document.getElementById("updateDistributionModal");
+
+    if (!updateModal) {
+        console.error("Modal not found!");
+        return;
+    }
+
+    updateModal.addEventListener("show.bs.modal", function (event) {
+        console.log("Modal opened: Setting up event listeners");
+
+        const button = event.relatedTarget;
+        if (!button) return;
+
+        // Fetching data attributes
+        const typeOfDistribution = button.getAttribute("data-type-of-distribution") || "";
+
+        const cooperativeName = button.getAttribute("data-cooperative-name") || "";
+        const province = button.getAttribute("data-province") || "";
+        const municipality = button.getAttribute("data-municipality") || "";
+        const barangay = button.getAttribute("data-barangay") || "";
+
+        document.getElementById("update_province").value = province;
+        document.getElementById("update_municipality").value = municipality;
+        document.getElementById("update_barangay").value = barangay;
+
+        const cooperativeDiv = document.getElementById("cooperativeDiv");
+        const cooperativeDropdown = document.getElementById("update_cooperative_name");
+
+        if (typeOfDistribution === "Group") {
+            document.getElementById("update_group").checked = true;
+            cooperativeDiv.style.display = "block";
+            fetchCooperatives(cooperativeDropdown, cooperativeName);
+        } else {
+            document.getElementById("update_individual").checked = true;
+            cooperativeDiv.style.display = "none";
+        }
+    });
+
+    document.getElementById("update_group").addEventListener("change", function () {
+        document.getElementById("cooperativeDiv").style.display = "block";
+        fetchCooperatives(document.getElementById("update_cooperative_name"));
+    });
+
+    document.getElementById("update_individual").addEventListener("change", function () {
+        document.getElementById("cooperativeDiv").style.display = "none";
+    });
+});
+
+function fetchCooperatives(dropdownElement, selectedCooperative = "") {
+    if (!dropdownElement) {
+        console.error("Dropdown element not found.");
+        return;
+    }
+
+    fetch("3distributionManagement/fetch_cooperatives.php")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            dropdownElement.innerHTML = '<option value="" disabled selected>Select Cooperative</option>';
+
+            if (!Array.isArray(data)) {
+                console.error("Invalid data format:", data);
+                return;
+            }
+
+            data.forEach(coop => {
+                const option = document.createElement("option");
+                option.value = coop.id;
+                option.textContent = coop.name;
+                
+                // Fix: Compare cooperative ID instead of name if ID is used in `data-cooperative-name`
+                if (coop.id == selectedCooperative || coop.name == selectedCooperative) {
+                    option.selected = true;
+                }
+
+                dropdownElement.appendChild(option);
+            });
+
+            console.log("Dropdown updated with cooperatives.");
+        })
+        .catch(error => console.error("Error fetching cooperatives:", error));
+}
+
+
 </script>
 
 <!-- fetch distribution date -->
