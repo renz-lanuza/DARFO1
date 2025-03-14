@@ -214,18 +214,12 @@ include('includes/navbar.php');
                                                     <td><?php echo htmlspecialchars($quantity); ?></td>
                                                     
                                                     <td>
-                                                           <button type="button" class="btn btn-success"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#updateDistributionModal"
-                                                            data-beneficiary-name="<?php echo htmlspecialchars($beneficiary_name); ?>"
-                                                            data-seed-name="<?php echo htmlspecialchars($seed_name); ?>"
-                                                            data-province="<?php echo htmlspecialchars($province); ?>"
-                                                            data-municipality="<?php echo htmlspecialchars($municipality); ?>"
-                                                            data-barangay="<?php echo htmlspecialchars($barangay); ?>"
+                                                            <!-- Button to trigger modal -->
+                                                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#updateDistributionModal"
+                                                            data-distribution-id="<?php echo htmlspecialchars($data['distribution_id']); ?>"
                                                             data-quantity="<?php echo htmlspecialchars($quantity); ?>"
                                                             data-intervention-name="<?php echo htmlspecialchars($intervention_name); ?>"
                                                             data-seed-name="<?php echo htmlspecialchars($seed_name); ?>"
-                                                            data-cooperative-name="<?php echo htmlspecialchars($cooperative_name); ?>"
                                                             data-distribution-date="<?php echo htmlspecialchars($data['distribution_date']); ?>">
                                                             Update
                                                         </button>
