@@ -231,7 +231,162 @@ include('includes/navbar.php');
                             </div>
                         </div>
                     </div>
-                </div>  
+                
+                    <div class="col-xl-12 mb-4">
+                        <div class="card border-left-info shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <!-- Header with Title and Filter Dropdown -->
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div class="text-lg font-weight-bold text-info text-uppercase">
+                                                Beneficiaries
+                                            </div>
+                                            <!-- Filter Dropdown -->
+                                            <div>
+                                                <select id="filterType" class="form-control">
+                                                    <option value="all">All</option>
+                                                    <option value="Farmer">Farmer</option>
+                                                    <option value="Fisher">Fisher</option>
+                                                    <option value="AEW">AEW</option>
+                                                    <option value="FCA">FCA</option>
+                                                    <option value="Cluster">Cluster</option>
+                                                    <option value="LGU">LGU</option>
+                                                    <option value="School">School</option>
+                                                    <option value="Others">Others</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Table -->
+                                        <div class="table-responsive mt-3" style="max-height: 400px; overflow-y: auto;">
+                                            <?php
+                                                include("../conn.php");
+                                                $station_id = intval($_SESSION['station_id']); // Get the logged-in user's station_id
+
+                                                // Prepare the SQL query
+                                                $query = "SELECT 
+                                                                b.beneficiary_id,
+                                                                b.fname,
+                                                                b.mname,
+                                                                b.lname,
+                                                                b.province_name,
+                                                                b.municipality_name,
+                                                                b.barangay_name,
+                                                                b.beneficiary_type,
+                                                                IF(b.coop_id = 0, 'N/A', c.cooperative_name) AS cooperative_name
+                                                            FROM 
+                                                                tbl_beneficiary b
+                                                            LEFT JOIN 
+                                                                tbl_distribution d ON b.beneficiary_id = d.beneficiary_id
+                                                            LEFT JOIN 
+                                                                tbl_cooperative c ON b.coop_id = c.coop_id
+                                                            WHERE 
+                                                                b.station_id = ?  -- ✅ Filter based on logged-in user's station
+                                                            GROUP BY 
+                                                                b.beneficiary_id";
+
+                                                // ✅ Use prepared statements
+                                                $stmt = mysqli_prepare($conn, $query);
+                                                if (!$stmt) {
+                                                    die("SQL Error: " . mysqli_error($conn)); // Debugging error message
+                                                }
+
+                                                // ✅ Bind parameter (station_id as integer)
+                                                mysqli_stmt_bind_param($stmt, "i", $station_id);
+
+                                                // ✅ Execute the statement
+                                                mysqli_stmt_execute($stmt);
+
+                                                // ✅ Get the result
+                                                $result = mysqli_stmt_get_result($stmt);
+
+                                                    // ✅ Fetch the data
+                                                $beneficiaries_data = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+                                                // ✅ Close the statement and connection
+                                                mysqli_stmt_close($stmt);
+                                                mysqli_close($conn);
+                                            ?>
+                                           <table class="table table-bordered table-striped table-hover text-center" style="width: 100%; border-radius: 10px; overflow: hidden;">
+                                                <thead style="background-color: #0D7C66; color: white;">
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th id="nameHeader">Name</th>
+                                                        <th>Barangay</th>
+                                                        <th>Municipality</th>
+                                                        <th>Province</th>
+                                                        <th>Type of Beneficiary</th>
+                                                        <th>Cooperative Name</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php if (!empty($beneficiaries_data)): ?>
+                                                        <?php foreach ($beneficiaries_data as $index => $beneficiary): ?>
+                                                            <tr data-type="<?= $beneficiary['beneficiary_type'] ?>">
+                                                                <td><?= $index + 1 ?></td>
+                                                                <td>
+                                                                    <?= htmlspecialchars($beneficiary['fname'] . ' ' . $beneficiary['mname'] . ' ' . $beneficiary['lname']) ?>
+                                                                </td>
+                                                                <td><?= htmlspecialchars($beneficiary['barangay_name']) ?></td>
+                                                                <td><?= htmlspecialchars($beneficiary['municipality_name']) ?></td>
+                                                                <td><?= htmlspecialchars($beneficiary['province_name']) ?></td>
+                                                                <td><?= ucfirst($beneficiary['beneficiary_type']) ?></td>
+                                                                <td>
+                                                                    <?= ($beneficiary['beneficiary_type'] === 'Group') ? htmlspecialchars($beneficiary['cooperative_name'] ?? 'N/A') : 'N/A' ?>
+                                                                </td>
+                                                                <td>
+                                                                    <button class="btn btn-primary btn-sm view-interventions-btn" data-beneficiary-id="<?= $beneficiary['beneficiary_id'] ?>">
+                                                                        <i class="fas fa-eye"></i> View
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                    <?php else: ?>
+                                                        <tr>
+                                                            <td colspan="8" class="text-center">No beneficiaries found.</td>
+                                                        </tr>
+                                                    <?php endif; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- JavaScript for Filtering and Dynamic Header Change -->
+                    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                    <script>
+                        $(document).ready(function() {
+                            $('#filterType').on('change', function() {
+                                const selectedType = $(this).val(); // Get selected filter value
+
+                                // Change the Name header if the type is organization-based
+                                const nameHeader = $('#nameHeader');
+                                const groupCategories = ["FCA", "Cluster", "LGU", "School", "Others"]; // Define group categories
+                                
+                                if (groupCategories.includes(selectedType)) {
+                                    nameHeader.text('Representative Name'); // Change header for groups
+                                } else {
+                                    nameHeader.text('Name'); // Default header for individuals
+                                }
+
+                                // Filter the table rows
+                                $('table tbody tr').each(function() {
+                                    const rowType = $(this).data('type'); // Get row's type of beneficiary
+                                    if (selectedType === 'all' || rowType === selectedType) {
+                                        $(this).show(); // Show matching rows
+                                    } else {
+                                        $(this).hide(); // Hide non-matching rows
+                                    }
+                                });
+                            });
+                        });
+                    </script>
+                </div>
             </div>            
         </div>
     </div>
@@ -247,48 +402,48 @@ function downloadExcelWithImage() {
         return;
     }
 
-    let labels = window.myChart.data.labels;
-    let datasets = window.myChart.data.datasets;
+        let labels = window.myChart.data.labels;
+        let datasets = window.myChart.data.datasets;
 
-    let dataArray = [["Category", "Value"]]; // Header row
-    datasets.forEach(dataset => {
-        labels.forEach((label, index) => {
-            dataArray.push([label, dataset.data[index]]);
+        let dataArray = [["Category", "Value"]]; // Header row
+        datasets.forEach(dataset => {
+            labels.forEach((label, index) => {
+                dataArray.push([label, dataset.data[index]]);
+            });
         });
-    });
 
-    // Convert data to a worksheet
-    let ws = XLSX.utils.aoa_to_sheet(dataArray);
+        // Convert data to a worksheet
+        let ws = XLSX.utils.aoa_to_sheet(dataArray);
 
-    // Capture chart as Base64 image
-    let canvas = document.getElementById("barChart");
-    let imgData = canvas.toDataURL("image/png");
+        // Capture chart as Base64 image
+        let canvas = document.getElementById("barChart");
+        let imgData = canvas.toDataURL("image/png");
 
-    // Insert image placeholder text
-    XLSX.utils.sheet_add_aoa(ws, [["Chart Image Below"]], { origin: { r: dataArray.length + 2, c: 0 } });
+        // Insert image placeholder text
+        XLSX.utils.sheet_add_aoa(ws, [["Chart Image Below"]], { origin: { r: dataArray.length + 2, c: 0 } });
 
-    // Convert Base64 image to a downloadable file
-    fetch(imgData)
-        .then(res => res.blob())
-        .then(blob => blob.arrayBuffer())
-        .then(buffer => {
-            let wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Chart Data");
+        // Convert Base64 image to a downloadable file
+        fetch(imgData)
+            .then(res => res.blob())
+            .then(blob => blob.arrayBuffer())
+            .then(buffer => {
+                let wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Chart Data");
 
-            // Prompt user to manually insert image
-            alert("The Excel file contains data. Please manually insert the downloaded chart image into the sheet.");
+                // Prompt user to manually insert image
+                alert("The Excel file contains data. Please manually insert the downloaded chart image into the sheet.");
 
-            // Download Excel file
-            XLSX.writeFile(wb, "chart_data.xlsx");
+                // Download Excel file
+                XLSX.writeFile(wb, "chart_data.xlsx");
 
-            // Automatically trigger image download
-            let link = document.createElement("a");
-            link.href = imgData;
-            link.download = "chart_image.png";
-            link.click();
-        })
-        .catch(err => console.error("Error processing image:", err));
-}
+                // Automatically trigger image download
+                let link = document.createElement("a");
+                link.href = imgData;
+                link.download = "chart_image.png";
+                link.click();
+            })
+            .catch(err => console.error("Error processing image:", err));
+    }
 </script>
 <script>
  document.addEventListener("DOMContentLoaded", function () {
