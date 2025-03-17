@@ -2480,7 +2480,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 individual_type: $('input[name="individual_type"]:checked').val(), // Fetch selected individual type
                 group_type: $('input[name="group_type"]:checked').val(), // Fetch selected group type
                 applicable: applicable, // Array of selected applicable checkboxes
-                contact_number: $('#contact_number').val() // Fetch contact number
+                contact_number: $('#contact_number').val(), // Fetch contact number
+                beneficiary_category: $('input[name="beneficiary_category"]:checked').val(), // Fetch selected beneficiary category
+                streetPurok: $('#streetPurok').val() // Fetch Street/Purok input
             };
 
             // Check if "Others" was selected for individual type
