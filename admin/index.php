@@ -561,81 +561,105 @@ function downloadExcelWithImage() {
     }
 </script>
 <script>
-document.addEventListener("DOMContentLoaded", async function () {
-    var map = L.map('map').setView([16.616, 120.316], 8);
+    document.addEventListener("DOMContentLoaded", async function () {
+        var map = L.map('map').setView([16.616, 120.316], 8);
 
-    // Add OpenStreetMap tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    let interventionData = {}; // Store intervention counts
-
-    try {
-        // Fetch intervention data first
-        let response = await fetch('map/get_intervention_data.php');
-        interventionData = await response.json();
-        
-        // Fetch and process GeoJSON after intervention data is loaded
-        response = await fetch('map/map.geojson');
-        let geoData = await response.json();
-
-        // Process and add GeoJSON to map
-        L.geoJSON(geoData, {
-            style: function (feature) {
-                let provinceColors = {
-                    "Ilocos Norte": "#B22222",
-                    "Ilocos Sur": "#00008B",
-                    "La Union": "#006400",
-                    "Pangasinan": "#FF8C00"
-                };
-                return {
-                    fillColor: provinceColors[feature.properties.adm2_en] || "#CCCCCC",
-                    color: "#000",
-                    weight: 0.5,
-                    fillOpacity: 0.6
-                };
-            },
-            onEachFeature: function (feature, layer) {
-                let municipalityName = feature.properties.adm3_en;
-                let interventionCount = interventionData[municipalityName] || 0;
-
-                // Bind province popup on click (with intervention data)
-                layer.bindPopup(`<b>${municipalityName}</b><br>Interventions Distributed: <b>${interventionCount}</b>`);
-
-                // Show municipality name and intervention count tooltip on hover
-                layer.on({
-                    mouseover: function (e) {
-                        let layer = e.target;
-                        layer.setStyle({
-                            fillOpacity: 0.9,
-                            color: "#FFFF00"
-                        });
-
-                        // Show tooltip with municipality name and intervention data
-                        layer.bindTooltip(`<b>${municipalityName}</b><br>Interventions: ${interventionCount}`, {
-                            permanent: false,
-                            direction: "top"
-                        }).openTooltip();
-                    },
-                    mouseout: function (e) {
-                        let layer = e.target;
-                        layer.setStyle({
-                            fillOpacity: 0.6,
-                            color: "#000"
-                        });
-
-                        // Close the tooltip
-                        layer.closeTooltip();
-                    }
-                });
-            }
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-    } catch (error) {
-        console.error('Error loading data:', error);
-    }
-});
+        try {
+            // Fetch intervention data
+            let response = await fetch('map/get_intervention_data.php');
+            let interventionData = await response.json();
+
+            console.log("Intervention Data:", interventionData); // Debugging Output
+
+            if (interventionData.error) {
+                console.error("Error from PHP:", interventionData.error);
+                return;
+            }
+
+            // Normalize intervention data keys (lowercase & trim spaces)
+            let normalizedInterventionData = {};
+            Object.keys(interventionData).forEach(key => {
+                let normalizedKey = key.trim().toLowerCase();
+                normalizedInterventionData[normalizedKey] = interventionData[key];
+            });
+
+            // Fetch GeoJSON data
+            response = await fetch('map/map.geojson');
+            let geoData = await response.json();
+
+            let provinceColors = {
+                "Ilocos Norte": "#B22222", // Dark Red
+                "Ilocos Sur": "#00008B",   // Dark Blue
+                "La Union": "#006400",     // Dark Green
+                "Pangasinan": "#FF8C00"    // Dark Orange
+            };
+
+            L.geoJSON(geoData, {
+                style: function (feature) {
+                    let municipalityName = feature.properties.adm3_en 
+                        ? feature.properties.adm3_en.trim().toLowerCase()
+                        : "";
+
+                    let interventionCount = normalizedInterventionData[municipalityName] || 0;
+
+                    // Get province color
+                    let province = feature.properties.adm2_en;
+                    let baseColor = provinceColors[province] || "#444241"; // Default if province not found
+
+                    // If interventions = 0, use grey, otherwise use province color
+                    let fillColor = interventionCount > 0 ? baseColor : "#CCCCCC";
+
+                    return {
+                        fillColor: fillColor,
+                        color: "#000",
+                        weight: 0.5,
+                        fillOpacity: 0.6
+                    };
+                },
+                onEachFeature: function (feature, layer) {
+                    let municipalityName = feature.properties.adm3_en 
+                        ? feature.properties.adm3_en.trim().toLowerCase()
+                        : "";
+
+                    let interventionCount = normalizedInterventionData[municipalityName] || 0;
+
+                    layer.bindPopup(`<b>${feature.properties.adm3_en}</b><br>Interventions Distributed: <b>${interventionCount}</b>`);
+
+                    layer.on({
+                        mouseover: function (e) {
+                            let layer = e.target;
+                            layer.setStyle({
+                                fillOpacity: 0.9,
+                                color: "#FFFF00"
+                            });
+
+                            layer.bindTooltip(`<b>${feature.properties.adm3_en}</b><br>Interventions: ${interventionCount}`, {
+                                permanent: false,
+                                direction: "top"
+                            }).openTooltip();
+                        },
+                        mouseout: function (e) {
+                            let layer = e.target;
+                            layer.setStyle({
+                                fillOpacity: 0.6,
+                                color: "#000"
+                            });
+
+                            layer.closeTooltip();
+                        }
+                    });
+                }
+            }).addTo(map);
+
+        } catch (error) {
+            console.error('Error loading data:', error);
+        }
+    });
 
 </script>
 
