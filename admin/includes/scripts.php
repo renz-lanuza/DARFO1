@@ -2474,7 +2474,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 barangayCode: $('#barangay').val(), // Fetch barangay code
                 barangayName: $('#barangay option:selected').text(), // Fetch barangay name
                 cooperative_id: $('#cooperative').val() || 0, // Fetch cooperative ID, default to 0 if not selected
-                rsbsa_no: $('#rsbsa_no').val(), // Fetch RSBSA No.
+                rsbsa_no: $('#rsbsa-no').val(), // Fetch RSBSA No.
                 sex: $('input[name="sex"]:checked').val(), // Fetch selected sex
                 birthdate: $('#birthdate').val(), // Fetch birthdate
                 individual_type: $('input[name="individual_type"]:checked').val(), // Fetch selected individual type
