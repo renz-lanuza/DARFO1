@@ -51,39 +51,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $applicable = array_map('sanitizeInput', $applicable); // Sanitize each value in the array
     $applicable_string = !empty($applicable) ? implode(',', $applicable) : ''; // Default to empty string
 
-    // Determine beneficiary type
-    $individual_type = isset($_POST["individual_type"]) ? sanitizeInput($_POST["individual_type"]) : null;
-    $group_type = isset($_POST["group_type"]) ? sanitizeInput($_POST["group_type"]) : null;
+    // Get Street/Purok input
+    $streetPurok = isset($_POST['streetPurok']) ? sanitizeInput($_POST['streetPurok']) : null; // Allow NULL
 
+    // Determine beneficiary type (Individual or Group)
+    $beneficiary_category = sanitizeInput($_POST["beneficiary_category"]); // Individual or Group
 
-    // Initialize beneficiary_type
-    $beneficiary_type = null;
+    // Handle Individual Type
+    if ($beneficiary_category === "Individual") {
+        $individual_type = isset($_POST["individual_type"]) ? sanitizeInput($_POST["individual_type"]) : null;
 
-    // Check if "Others" was selected for individual type
-    if ($individual_type === 'Others') {
-        $others_specify = isset($_POST["others_specify"]) ? sanitizeInput($_POST["others_specify"]) : null;
-        if (!empty($others_specify)) {
-            $beneficiary_type = $others_specify; // Use the specified value
+        // Check if "Others" was selected for individual type
+        if ($individual_type === 'Others') {
+            $others_specify = isset($_POST["others_specify"]) ? sanitizeInput($_POST["others_specify"]) : null;
+            if (!empty($others_specify)) {
+                $beneficiary_type = $others_specify; // Use the specified value
+            } else {
+                echo json_encode(["status" => "error", "message" => "Please specify the individual type."]);
+                exit;
+            }
         } else {
-            echo json_encode(["status" => "error", "message" => "Please specify the beneficiary type."]);
-            exit;
+            $beneficiary_type = $individual_type; // Use the selected individual type
         }
-    } else {
-        $beneficiary_type = $individual_type; // Use the selected individual type
     }
 
-    // Check if "Others" was selected for group type
-    if ($group_type === 'Others') {
-        $group_others_specify = isset($_POST["group_others_specify"]) ? sanitizeInput($_POST["group_others_specify"]) : null;
-        if (!empty($group_others_specify)) {
-            $beneficiary_type = $group_others_specify; // Use the specified value
+    // Handle Group Type
+    if ($beneficiary_category === "Group") {
+        $group_type = isset($_POST["group_type"]) ? sanitizeInput($_POST["group_type"]) : null;
+
+        // Check if "Others" was selected for group type
+        if ($group_type === 'Others') {
+            $group_others_specify = isset($_POST["group_others_specify"]) ? sanitizeInput($_POST["group_others_specify"]) : null;
+            if (!empty($group_others_specify)) {
+                $beneficiary_type = $group_others_specify; // Use the specified value
+            } else {
+                echo json_encode(["status" => "error", "message" => "Please specify the group type."]);
+                exit;
+            }
         } else {
-            echo json_encode(["status" => "error", "message" => "Please specify the group type."]);
-            exit;
-        }
-    } else {
-        // If group type is selected, but not "Others", use it
-        if ($group_type) {
             $beneficiary_type = $group_type; // Use the selected group type
         }
     }
@@ -160,9 +165,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt_check_beneficiary->close();
 
         // Insert new beneficiary
-        $sql_insert_beneficiary = "INSERT INTO tbl_beneficiary (fname, mname, lname, province_name, municipality_name, barangay_name, station_id, coop_id, rsbsa_no, sex, birthdate, beneficiary_type, if_applicable,contact_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+        $sql_insert_beneficiary = "INSERT INTO tbl_beneficiary (
+            fname, mname, lname, province_name, municipality_name, barangay_name, 
+            StreetPurok, station_id, coop_id, rsbsa_no, sex, birthdate, 
+            beneficiary_type, if_applicable, contact_no, beneficiary_category
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt_insert_beneficiary = $conn->prepare($sql_insert_beneficiary);
-        $stmt_insert_beneficiary->bind_param("ssssssiissssss", $beneficiary_first_name, $beneficiary_middle_name, $beneficiary_last_name, $provinceName, $municipalityName, $barangayName, $station_id, $cooperative_id, $rsbsa_no, $sex, $birthdate, $beneficiary_type, $applicable_string, $contact_number);
+        if (!$stmt_insert_beneficiary) {
+            die("Prepare failed: " . $conn->error);
+        }
+        $stmt_insert_beneficiary->bind_param(
+            "sssssssiisssssss",
+            $beneficiary_first_name,
+            $beneficiary_middle_name,
+            $beneficiary_last_name,
+            $provinceName,
+            $municipalityName,
+            $barangayName,
+            $streetPurok,
+            $station_id,
+            $cooperative_id,
+            $rsbsa_no,
+            $sex,
+            $birthdate,
+            $beneficiary_type,
+            $applicable_string,
+            $contact_number,
+            $beneficiary_category
+        );
         if (!$stmt_insert_beneficiary->execute()) {
             throw new Exception("Error inserting beneficiary: " . $stmt_insert_beneficiary->error);
         }
