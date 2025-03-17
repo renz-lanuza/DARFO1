@@ -24,7 +24,7 @@
         <!-- Nav Item - User Management -->
         <li class="nav-item">
             <a class="nav-link" href="1UserManagement.php">
-                <i class="fas fa-fw fa-users"></i>
+                <i class="fas fa-fw fa-user"></i>
                 <span class="sidebar-text">User Management</span>
             </a>
         </li>
@@ -45,21 +45,21 @@
             </a>
         </li>
 
-        <!-- Nav Item - Intervention Type Management -->
+        <!-- Nav Item - Intervention Type Management
         <li class="nav-item">
             <a class="nav-link" href="4InterventionType.php">
                 <i class="fas fa-fw fa-tools"></i>
                 <span class="sidebar-text">Intervention Type Management</span>
             </a>
-        </li>
+        </li> -->
 
         <!-- Nav Item - Seed Type Management -->
-        <li class="nav-item">
+        <!-- <li class="nav-item">
             <a class="nav-link" href="5SeedType.php">
                 <i class="fas fa-tags"></i>
                 <span class="sidebar-text">Classification Management</span>
             </a>
-        </li>
+        </li> -->
 
         <!-- Nav Item - Seed Type Management -->
         <li class="nav-item">
@@ -68,21 +68,44 @@
                 <span class="sidebar-text">Cooperative Management</span>
             </a>
         </li>
-
+<!-- 
 
         <li class="nav-item">
             <a class="nav-link" href="7UnitManagement.php">
                 <i class="fas fa-home"></i>
                 <span class="sidebar-text">Unit Management</span>
             </a>
-        </li>
+        </li> -->
         <li class="nav-item">
             <a class="nav-link" href="8BeneficiaryManagement.php">
-                <i class="fas fa-home"></i>
+                <i class="fas fa-users"></i>
                 <span class="sidebar-text">Beneficiary Management</span>
             </a>
         </li>
 
+        <!-- Nav Item - Utilities Collapse Menu -->
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" 
+            aria-expanded="false" aria-controls="collapseUtilities">
+                <i class="fas fa-wrench"></i>
+                <span class="sidebar-text">Utilities</span>
+            </a>
+            <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+                <div class="bg-gradient-light py-2 collapse-inner rounded utilities-scroll">
+                    <h6 class="collapse-header text-uppercase font-weight-bold text-dark">Utility Options:</h6>
+                    <a class="collapse-item" href="4InterventionType.php">
+                        <i class="fas fa-tools mr-2"></i> Intervention Type 
+                    </a>
+                    <a class="collapse-item" href="5SeedType.php">
+                        <i class="fas fa-tags mr-2"></i> Classification 
+                    </a>
+                    <a class="collapse-item" href="7UnitManagement.php">
+                        <i class="fas fa-th-large mr-2"></i> Unit Management
+                    </a>
+                    <!-- Add more items if needed -->
+                </div>
+            </div>
+        </li>
         <!-- Divider -->
         <hr class="sidebar-divider d-none d-md-block">
     </ul>
@@ -117,6 +140,39 @@
 
     <!-- Custom Styles (for enhancement) -->
     <style>
+        .utilities-scroll {
+            max-height: 200px; /* Adjust height as needed */
+            overflow-y: auto; /* Enables vertical scrolling */
+            scrollbar-width: thin; /* For Firefox */
+            scrollbar-color: #ccc #f8f9fa; /* Custom scrollbar color */
+        }
+
+        /* Custom scrollbar for Webkit (Chrome, Edge, Safari) */
+        .utilities-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .utilities-scroll::-webkit-scrollbar-thumb {
+            background-color: #aaa;
+            border-radius: 4px;
+        }
+
+        .utilities-scroll::-webkit-scrollbar-track {
+            background: #f8f9fa;
+        }
+        /* Enhancing the dropdown items */  
+        .collapse-item {
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease-in-out;
+            font-weight: 500;
+        }
+
+        /* Change background on hover */
+        .collapse-item:hover {
+            background-color: #e3f2fd; /* Light blue shade */
+            transform: translateX(5px); /* Slight movement effect */
+        }
         /* Custom Green Gradient for Sidebar */
         .bg-gradient-custom {
             background: linear-gradient(to right, #0D7C66, #0A6B5A);
@@ -244,13 +300,13 @@
             text-align: center;
             color: #fff;
             /* Matching the sidebar text color */
-            font-weight: 600;
+            font-weight: 300;
             font-size: 16px;
             margin-top: 5px;
             /* Adjust spacing */
         }
+        
     </style>
-
     <!-- JavaScript to toggle sidebar visibility with animation -->
     <script>
         function toggleSidebar() {
