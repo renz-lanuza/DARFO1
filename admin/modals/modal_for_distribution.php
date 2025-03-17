@@ -2,64 +2,29 @@
     .modal-header {
         background-color: #0D7C66;
         color: white;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
     }
 
-    .modal-content {
-        border-radius: 10px;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Table Styles */
-    #interventionTable {
-        border-radius: 10px;
-        overflow: hidden;
-        border: 1px solid #0D7C66;
-    }
-
+    /* Change table header background */
     #interventionTable thead {
         background-color: #0D7C66;
+        /* Custom Green */
         color: white;
     }
 
+    /* Change table body background */
     #interventionTable tbody tr {
         background-color: #E8F6F3;
-        transition: 0.3s;
+        /* Light Greenish */
     }
 
     #interventionTable tbody tr:hover {
         background-color: #D1ECE4;
+        /* Slightly Darker Green on Hover */
     }
 
-    /* Button Styles */
-    .btn-custom {
-        border-radius: 5px;
-        font-weight: 600;
-    }
-
-    .btn-primary {
-        background-color: #0D7C66;
-        border-color: #0A5C4B;
-    }
-
-    .btn-primary:hover {
-        background-color: #0A5C4B;
-    }
-
-    .btn-success {
-        background-color: #28a745;
-        border-color: #218838;
-    }
-
-    .btn-success:hover {
-        background-color: #218838;
-    }
-
-    /* Modal Footer */
-    .modal-footer {
-        justify-content: space-between;
-        border-top: none;
+    /* Customize border */
+    #interventionTable {
+        border: 1px solid #0D7C66;
     }
 </style>
 
@@ -68,91 +33,111 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addDistributionModalLabel">
-                     Add Distribution
-                </h5>
+                <h5 class="modal-title" id="addDistributionModalLabel">Add Distribution</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="addDistributionForm" method="POST">
-                    <input type="hidden" id="beneficiary_id" name="beneficiary_id">
+                    <div class="row">
+                        <input type="hidden" id="beneficiary_id" name="beneficiary_id">
 
-                    <!-- Date of Distribution -->
-                    <div class="mb-3">
-                        <label for="distribution_date" class="form-label"> Date of Distribution</label>
-                        <input type="date" class="form-control" id="distribution_date" name="distribution_date" required>
-                    </div>
+                        <!-- Date of Distribution -->
+                        <div class="col-12 mb-3">
+                            <label for="distribution_date" class="form-label">Date of Distribution</label>
+                            <input type="date" class="form-control" id="distribution_date" name="distribution_date" required>
+                        </div>
 
-                    <!-- Intervention Details Table -->
-                    <div class="mb-3">
-                        <label class="form-label"> Intervention Details</label>
-                        <table class="table table-bordered text-center" id="interventionTable">
-                            <thead>
-                                <tr>
-                                    <th>Intervention Name</th>
-                                    <th>Seedling Type</th>
-                                    <th>Quantity</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <select class="form-control intervention_name_distri" name="intervention_name_distri[]" required>
-                                            <option value="" disabled selected>Select Intervention</option>
-                                            <!-- PHP: Populate options dynamically -->
+                        <!-- Table for Interventions -->
+                        <div class="mb-3">
+                            <label class="form-label">Intervention Details</label>
+                            <table class="table table-bordered" id="interventionTable">
+                                <thead>
+                                    <tr>
+                                        <th>Intervention Name</th>
+                                        <th>Seedling Type</th>
+                                        <th>Quantity</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
                                             <?php
-                                            include("../conn.php");
-                                            $station_id = $_SESSION['station_id']; // Get the user's station_id
-                                            $sql = "SELECT int_type_id, intervention_name FROM tbl_intervention_type WHERE station_id = ? ORDER BY intervention_name";
+                                            // Check if the user is logged in
+                                            if (!isset($_SESSION['uid'])) {
+                                                die("User  ID not found in session.");
+                                            }
+
+                                            $uid = $_SESSION['uid']; // Get the uid from the session
+
+                                            // Connect to the database
+                                            $conn = mysqli_connect("localhost", "root", "", "db_darfo1");
+
+                                            // Retrieve the station_id based on the logged-in user's uid
+                                            $stationQuery = $conn->prepare("SELECT station_id FROM tbl_user WHERE uid = ?");
+                                            $stationQuery->bind_param("i", $uid);
+                                            $stationQuery->execute();
+                                            $stationQuery->bind_result($stationId);
+                                            $stationQuery->fetch();
+                                            $stationQuery->close();
+
+                                            // Check if station_id was found
+                                            if (empty($stationId)) {
+                                                die("No station found for the user.");
+                                            }
+
+                                            // Fetch intervention names from the database filtered by station_id
+                                            $sql = "SELECT int_type_id, intervention_name FROM tbl_intervention_type WHERE station_id = ? ORDER BY int_type_id";
                                             $stmt = $conn->prepare($sql);
-                                            $stmt->bind_param("i", $station_id);
+                                            $stmt->bind_param("i", $stationId);
                                             $stmt->execute();
                                             $result = $stmt->get_result();
-
-                                            while ($row = $result->fetch_assoc()) {
-                                                echo "<option value='{$row['int_type_id']}'>" . htmlspecialchars($row['intervention_name']) . "</option>";
-                                            }
                                             ?>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <select class="form-control seedling_type_distri" name="seedling_type_distri[]" required>
-                                            <option value="" disabled selected>Select Seedling Type</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="number" class="form-control" name="quantity_distri[]" required>
-                                        <small class="form-text text-muted quantity-left">Quantity Left: 0</small>
-                                    </td>
-                                    <!-- <td>
-                                        <button type="button" class="btn btn-danger btn-sm remove-row">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    </td> -->
-                                </tr>
-                            </tbody>
-                        </table>
-                        <button type="button" class="btn btn-primary btn-sm" id="addRowButton">
-                            <i class="fas fa-plus-circle"></i> Add Row
-                        </button>
-                    </div>
 
-                    <!-- Modal Footer -->
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-custom" data-bs-dismiss="modal">
-                             Close
-                        </button>
-                        <button type="submit" class="btn btn-success btn-custom">
-                             Add Distribution
-                        </button>
-                    </div>
+                                            <select class="form-control intervention_name_distri" name="intervention_name_distri[]" required>
+                                                <option value="" disabled selected>Select Intervention</option>
+                                                <?php
+                                                if ($result && $result->num_rows > 0) {
+                                                    while ($row = $result->fetch_assoc()) {
+                                                        echo "<option value='{$row['int_type_id']}'>" . htmlspecialchars($row['intervention_name']) . "</option>";
+                                                    }
+                                                } else {
+                                                    echo "<option value='' disabled>No interventions available for this station</option>";
+                                                }
+                                                ?>
+                                            </select>
+
+                                            <?php
+                                            // Close the database connection
+                                            $conn->close();
+                                            ?>
+                                        </td>
+                                        <td>
+                                            <select class="form-control seedling_type_distri" name="seedling_type_distri[]" required>
+                                                <option value="" disabled selected>Select Seedling Type</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control" name="quantity_distri[]" required>
+                                            <small class="form-text text-muted quantity-left">Quantity Left: 0</small>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <button type="button" class="btn btn-primary btn-sm" id="addRowButton">Add Row</button>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-success">Add</button>
+                        </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
-                    
+</div>                
 <style>
     /* Modal Header Styling */
     .modal-header {
@@ -185,55 +170,8 @@
             </div>
             <div class="modal-body">
                 <form id="updateDistributionForm" method="POST">
-                        
+                    <input type="hidden" name="distribution_id" id="distribution_id">
                     <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Type of Distribution</label><br>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="update_individual" name="type_of_distribution" value="Individual" required>
-                                <label class="form-check-label" for="update_individual">Individual</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="update_group" name="type_of_distribution" value="Group" required>
-                                <label class="form-check-label" for="update_group">Group</label>
-                            </div>
-                        </div>
-                        <input type="hidden" id="distribution_id" name="distribution_id">
-                        <!-- Beneficiary Name Fields -->
-                        <div class="col-md-4 mb-3">
-                            <label for="update_fname" class="form-label">First Name</label>
-                            <input type="text" class="form-control" id="update_fname" name="update_fname" required>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="update_mname" class="form-label">Middle Name</label>
-                            <input type="text" class="form-control" id="update_mname" name="update_mname">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="update_lname" class="form-label">Last Name</label>
-                            <input type="text" class="form-control" id="update_lname" name="update_lname" required>
-                        </div>
-
-                        <!-- Cooperative Name (Hidden by Default) -->
-                        <div class="col-md-4 mb-3" id="cooperativeDiv" style="display: none;">
-                            <label for="update_cooperative_name" class="form-label">Cooperative Name</label>
-                            <select id="update_cooperative_name" class="form-control" name="update_cooperative_name">
-                                <option value="" disabled selected>Select Cooperative</option>
-                            </select>
-                        </div>
-
-                        <!-- Location Details -->
-                        <div class="col-md-4 mb-3">
-                            <label for="update_province">Province</label>
-                            <select id="update_province" class="form-control" name="update_province" required></select>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="update_municipality">Municipality</label>
-                            <select id="update_municipality" class="form-control" name="update_municipality" required></select>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="update_barangay">Barangay</label>
-                            <select id="update_barangay" class="form-control" name="update_barangay" required></select>
-                        </div>
                         <!-- Date of Distribution -->
                         <div class="col-md-4 mb-3">
                             <label for="update_distribution_date" class="form-label">Date of Distribution</label>
@@ -255,41 +193,29 @@
                             <tbody>
                                 <tr>
                                     <td>
-                                        <?php
-                                        
-                                        if (!isset($_SESSION['uid'])) {
-                                            die("User ID not found in session.");
-                                        }
-                                        $uid = $_SESSION['uid'];
-                                        $conn = new mysqli("localhost", "root", "", "db_darfo1");
-
-                                        $stationQuery = $conn->prepare("SELECT station_id FROM tbl_user WHERE uid = ?");
-                                        $stationQuery->bind_param("i", $uid);
-                                        $stationQuery->execute();
-                                        $stationQuery->bind_result($stationId);
-                                        $stationQuery->fetch();
-                                        $stationQuery->close();
-
-                                        if (empty($stationId)) {
-                                            die("No station found for the user.");
-                                        }
-
-                                        $sql = "SELECT int_type_id, intervention_name FROM tbl_intervention_type WHERE station_id = ? ORDER BY int_type_id";
-                                        $stmt = $conn->prepare($sql);
-                                        $stmt->bind_param("i", $stationId);
-                                        $stmt->execute();
-                                        $result = $stmt->get_result();
-                                        ?>
-
                                         <select class="form-control intervention_name_distrib" name="intervention_name_distrib[]" required>
                                             <option value="" disabled selected>Select Intervention</option>
                                             <?php
-                                            while ($row = $result->fetch_assoc()) {
-                                                echo "<option value='{$row['int_type_id']}'>" . htmlspecialchars($row['intervention_name']) . "</option>";
-                                            }
+                                                $conn = new mysqli("localhost", "root", "", "db_darfo1");
+                                                $uid = $_SESSION['uid'];
+                                                $stationQuery = $conn->prepare("SELECT station_id FROM tbl_user WHERE uid = ?");
+                                                $stationQuery->bind_param("i", $uid);
+                                                $stationQuery->execute();
+                                                $stationQuery->bind_result($stationId);
+                                                $stationQuery->fetch();
+                                                $stationQuery->close();
+
+                                                $sql = "SELECT int_type_id, intervention_name FROM tbl_intervention_type WHERE station_id = ? ORDER BY int_type_id";
+                                                $stmt = $conn->prepare($sql);
+                                                $stmt->bind_param("i", $stationId);
+                                                $stmt->execute();
+                                                $result = $stmt->get_result();
+                                                while ($row = $result->fetch_assoc()) {
+                                                    echo "<option value='{$row['int_type_id']}'>" . htmlspecialchars($row['intervention_name']) . "</option>";
+                                                }
+                                                $conn->close();
                                             ?>
                                         </select>
-                                        <?php $conn->close(); ?>
                                     </td>
                                     <td>
                                         <select class="form-control seedling_type_distrib" name="seedling_type_distrib" required>
@@ -316,3 +242,83 @@
     </div>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var updateDistributionModal = document.getElementById('updateDistributionModal');
+    updateDistributionModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget; // Button that triggered the modal
+        var distributionId = button.getAttribute('data-distribution-id');
+        var quantity = button.getAttribute('data-quantity');
+        var interventionName = button.getAttribute('data-intervention-name');
+        var seedName = button.getAttribute('data-seed-name');
+        var distributionDate = button.getAttribute('data-distribution-date');
+
+        // Update the modal's content.
+        var modalTitle = updateDistributionModal.querySelector('.modal-title');
+        var distributionIdInput = updateDistributionModal.querySelector('#distribution_id');
+        var updateQuantityInput = updateDistributionModal.querySelector('input[name="update_quantity[]"]');
+        var updateDistributionDateInput = updateDistributionModal.querySelector('#update_distribution_date');
+
+        modalTitle.textContent = 'Update Distribution ' + distributionId;
+        distributionIdInput.value = distributionId;
+        updateQuantityInput.value = quantity;
+        updateDistributionDateInput.value = distributionDate;
+    });
+});
+</script>
+
+<!-- function for update distribution -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+ <script>
+document.getElementById('updateDistributionForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    // SweetAlert confirmation
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You are about to update this distribution.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, update it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const formData = new FormData(this);
+
+            fetch('3DistributionManagement/updateDistribution.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: data.message,
+                    }).then(() => {
+                        $('#updateDistributionModal').modal('hide');
+                        // Optionally, refresh the page or update the table
+                        location.reload(); // Reload the page to reflect changes
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: data.message,
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'An error occurred while updating the distribution.',
+                });
+            });
+        }
+    });
+});
+ </script>
