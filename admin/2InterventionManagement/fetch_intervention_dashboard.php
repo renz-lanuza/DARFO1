@@ -1,6 +1,4 @@
 <?php
-// fetch_interventions.php
-
 // Check if beneficiary_id is provided
 if (!isset($_GET['beneficiary_id'])) {
     die("Beneficiary ID is missing.");
@@ -16,20 +14,32 @@ $dbname = "db_darfo1";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
+// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
 // Fetch beneficiary details
-$beneficiary_query = "SELECT fname, mname, lname FROM tbl_beneficiary WHERE beneficiary_id = $beneficiary_id";
-$beneficiary_result = $conn->query($beneficiary_query);
+$beneficiary_query = "SELECT fname, mname, lname FROM tbl_beneficiary WHERE beneficiary_id = ?";
+$stmt = $conn->prepare($beneficiary_query);
+$stmt->bind_param("i", $beneficiary_id);
+$stmt->execute();
+$beneficiary_result = $stmt->get_result();
 
+// Check if query was successful
+if ($beneficiary_result === false) {
+    die("Query Error: " . $conn->error);
+}
+
+// Check if beneficiary exists
 if ($beneficiary_result->num_rows === 0) {
     die("Beneficiary not found.");
 }
 
 $beneficiary = $beneficiary_result->fetch_assoc();
-$beneficiary_name = htmlspecialchars($beneficiary['fname'] . ' ' . $beneficiary['mname'] . ' ' . $beneficiary['lname']);
+$beneficiary_name = htmlspecialchars(trim($beneficiary['fname'] . ' ' . $beneficiary['mname'] . ' ' . $beneficiary['lname']));
+
+$stmt->close();
 
 // Fetch interventions received by the beneficiary
 $query = "
@@ -38,7 +48,7 @@ $query = "
         CONCAT(b.fname, ' ', IFNULL(b.mname, ''), ' ', b.lname) AS beneficiary_name, 
         st.seed_name, 
         it.intervention_name, 
-        d.type_of_distribution, 
+        b.beneficiary_type, 
         b.province_name, 
         b.municipality_name, 
         b.barangay_name, 
@@ -55,20 +65,27 @@ $query = "
     LEFT JOIN 
         tbl_cooperative AS c ON b.coop_id = c.coop_id
     WHERE 
-        d.beneficiary_id = $beneficiary_id
-";
+        d.beneficiary_id = ?";
 
-$interventions_result = $conn->query($query);
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $beneficiary_id);
+$stmt->execute();
+$interventions_result = $stmt->get_result();
 
-$interventions_data = [];
-if ($interventions_result->num_rows > 0) {
-    while ($row = $interventions_result->fetch_assoc()) {
-        $interventions_data[] = $row;
-    }
+// Check if query was successful
+if ($interventions_result === false) {
+    die("Query Error: " . $conn->error);
 }
 
+$interventions_data = [];
+while ($row = $interventions_result->fetch_assoc()) {
+    $interventions_data[] = $row;
+}
+
+$stmt->close();
 $conn->close();
 ?>
+
 <!-- Display beneficiary name -->
 <h5 style="color: black;">Interventions Received by: <strong><?= $beneficiary_name ?></strong></h5>
 
@@ -82,7 +99,7 @@ $conn->close();
                     <th>Distribution Date</th>
                     <th>Seed Name</th>
                     <th>Intervention Name</th>
-                    <th>Type of Distribution</th>
+                    <th>Type of Beneficiary</th>
                     <th>Province</th>
                     <th>Municipality</th>
                     <th>Barangay</th>
@@ -97,7 +114,7 @@ $conn->close();
                         <td><?= htmlspecialchars($intervention['distribution_date']) ?></td>
                         <td><?= htmlspecialchars($intervention['seed_name']) ?></td>
                         <td><?= htmlspecialchars($intervention['intervention_name']) ?></td>
-                        <td><?= htmlspecialchars($intervention['type_of_distribution']) ?></td>
+                        <td><?= htmlspecialchars($intervention['beneficiary_type']) ?></td>
                         <td><?= htmlspecialchars($intervention['province_name']) ?></td>
                         <td><?= htmlspecialchars($intervention['municipality_name']) ?></td>
                         <td><?= htmlspecialchars($intervention['barangay_name']) ?></td>
