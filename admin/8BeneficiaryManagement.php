@@ -2,6 +2,7 @@
 include('includes/header.php');
 include('includes/navbar.php');
 ?>
+<link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
 <!-- Content Wrapper -->
 <div id="content-wrapper" class="d-flex flex-column">
 
@@ -19,52 +20,51 @@ include('includes/navbar.php');
                 BENEFICIARY MANAGEMENT
             </span>
 
-            <div style="padding-left: 20px; color: black; display: flex; flex-direction: column; line-height: 1;">
-                <?php
-                if (isset($_SESSION['fname']) && isset($_SESSION['lname'])) {
-                    $fullName = htmlspecialchars($_SESSION['fname']) . ' ' . htmlspecialchars($_SESSION['mname']) . ' ' . htmlspecialchars($_SESSION['lname']);
-                    echo '<span class="navbar-brand font-weight-bold" style="font-size: 18px;">' . $fullName . '</span>';
-                }
+                <div style="padding-left: 20px; color: black; display: flex; flex-direction: column; line-height: 1;">
+                    <?php
+                        if (isset($_SESSION['fname']) && isset($_SESSION['lname'])) {
+                            $fullName = htmlspecialchars($_SESSION['fname']) . ' ' . htmlspecialchars($_SESSION['mname']) . ' ' . htmlspecialchars($_SESSION['lname']);
+                            echo '<span class="navbar-brand font-weight-bold" style="font-size: 18px;">' . $fullName . '</span>';
+                        }
 
-                if (isset($_SESSION['station_name'])) {
-                    echo '<span class="navbar-brand" style="font-size: 16px;">' . htmlspecialchars($_SESSION['station_name']) . '</span>';
-                }
-                ?>
-            </div>
+                        if (isset($_SESSION['station_name'])) {
+                            echo '<span class="navbar-brand" style="font-size: 16px;">' . htmlspecialchars($_SESSION['station_name']) . '</span>';
+                        }
+                    ?>
+                </div>
 
             <!-- Topbar Navbar -->
             <div class="topbar-divider d-none d-sm-block"></div>
 
-            <ul class="navbar-nav ml-auto">
-                <!-- Nav Item - User Information -->
-                <li class="nav-item dropdown no-arrow">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                <ul class="navbar-nav ml-auto">
+                    <!-- Nav Item - User Information -->
+                    <li class="nav-item dropdown no-arrow">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
                         data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span class="mr-2 d-none d-lg-inline text-black small font-weight-bold" style="color: grey">
-                            <?php
-                            // Retrieve the username from the session
-                            $username = $_SESSION['user'];
-                            echo 'Logged in as ' . htmlspecialchars($username);
-                            ?>
-                        </span>
-                        <i style="font-size: 40px; color: black;" class="bx bxs-user-circle"></i>
-                    </a>
-
-                    <!-- Dropdown - User Information -->
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                        aria-labelledby="userDropdown">
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#" id="logout-button">
-                            <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Logout
+                            <span class="mr-2 d-none d-lg-inline text-black small font-weight-bold" style="color: grey">
+                                <?php
+                                // Retrieve the username from the session
+                                $username = $_SESSION['user'];
+                                echo 'Logged in as ' . htmlspecialchars($username);
+                                ?>
+                            </span>
+                            <i style="font-size: 40px; color: black;" class="bx bxs-user-circle"></i>
                         </a>
-                        <form id="logout-form" action="logout.php" method="POST" style="display: none;">
-                            <input type="hidden" name="logout" value="1">
-                        </form>
-                    </div>
-                </li>
-            </ul>
 
+                        <!-- Dropdown - User Information -->
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" 
+                            aria-labelledby="userDropdown">
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" id="logout-button">
+                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Logout
+                            </a>
+                            <form id="logout-form" action="logout.php" method="POST" style="display: none;">
+                                <input type="hidden" name="logout" value="1">
+                            </form>
+                        </div>
+                    </li>
+                </ul>
         </nav>
         <!-- End of Topbar -->
 
@@ -97,7 +97,7 @@ include('includes/navbar.php');
 
                 <div id="tab1" class="tab-content active">
                     <div class="card-body">
-                        <div style="max-height: 430px; overflow: auto; width: 100%; border: 1px solid #ddd;">
+                        <div style="max-height: 430px; overflow: auto; width: 100%; border: 1px solid #ddd; border-radius: 10px;">
                             <!-- Table to display beneficiaries -->
                             <table class="table table-bordered text-center" width="100%" cellspacing="0" id="beneficiaryTable">
                                 <thead class="thead" style="background-color: #0D7C66; color: white;">
@@ -168,14 +168,15 @@ include('includes/navbar.php');
                                                             <span>Add Distribution</span>
                                                         </button>
                                                     </td>
-                                                  </tr>";
-                                                                                }
-                                                                            } else {
-                                                                                // If no beneficiaries are found
-                                                                                echo "<tr>
-                                                    <td colspan='7'>No beneficiaries found.</td>
-                                                  </tr>";
+                                                </tr>";
                                                                             }
+                                                                        } else {
+                                                                            // If no beneficiaries are found
+                                                                            echo "<tr>
+                                                <td colspan='7'>No beneficiaries found.</td>
+                                            </tr>";
+                                    }
+
                                     // Close the database connection
                                     $conn->close();
                                     ?>
@@ -188,14 +189,98 @@ include('includes/navbar.php');
         </div>
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
-            dropdownElementList.map(function(dropdownToggleEl) {
-                new bootstrap.Dropdown(dropdownToggleEl);
-            });
+    <style>
+        /* Reduce table font size */
+        .table {
+            font-size: 14px; /* Adjust as needed */
+        }
+
+        /* Reduce navbar text size */
+        .navbar-brand {
+            font-size: 16px !important;
+        }
+
+        /* Reduce pagination font size */
+        .pagination .page-link {
+            font-size: 14px;
+        }
+
+        /* Reduce input and button font size */
+        .form-control, .btn {
+            font-size: 14px;
+        }
+        /* Header row */
+        .table thead {
+            background-color: #0D7C66;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* Header cells */
+        .table thead th {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 2px solid #ffffff;
+        }
+
+        /* Body rows */
+        .table tbody tr {
+            background-color: #f8f9fa;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Alternate row colors */
+        .table tbody tr:nth-child(even) {
+            background-color: #e9ecef;
+        }
+
+        /* Hover effect */
+        .table tbody tr:hover {
+            background-color: #cde8e5;
+        }
+
+        /* Table data cells */
+        .table tbody td {
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+            text-align: center;
+            color: #333;
+        }
+
+        /* Action button */
+        .table tbody td .btn-info {
+            background-color: #0D7C66;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 6px;
+            color: white;
+            transition: 0.3s ease;
+        }
+
+        .table tbody td .btn-info:hover {
+            background-color: #066395;
+        }
+
+        #btnAddDistribution:hover {                                                                                 
+            background-color: #C8E6A0 !important;
+            /* Slightly darker green */
+        }
+    .custom-search-form {
+        margin-left: 30px; /* Adjust as needed */
+    }   
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+        dropdownElementList.map(function (dropdownToggleEl) {
+            new bootstrap.Dropdown(dropdownToggleEl);
         });
-    </script>
+    });
+</script>
     <?php
     include('includes/scripts.php');
     include('includes/footer.php');
