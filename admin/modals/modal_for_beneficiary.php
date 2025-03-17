@@ -172,10 +172,11 @@
                             <input type="text" id="streetPurok" class="form-control" name="streetPurok">
                         </div>
 
-                        <!-- Additional Fields -->
+                        
                         <div class="col-12 mb-3">
-                            <label for="rsbsa_no" class="form-label">RSBSA No.</label>
-                            <input type="text" class="form-control" id="rsbsa_no" name="rsbsa_no">
+                            <label for="rsbsa-no">RSBSA No.</label>
+                            <input type="text" class="form-control" name="rsbsa_no" placeholder="(e.g. 01-33-10-001-000000)"
+                                id="rsbsa-no" oninput="formatRSBSA(this)" required maxlength="19">
                             <small class="form-text text-muted" style="font-size: 1.1em;">
                                 If you don't know your RSBSA No.,
                                 <a href="https://finder-rsbsa.da.gov.ph/?fbclid=IwY2xjawI9yR5leHRuA2FlbQIxMAABHUH8-YVy-cRpNVJgrzYznFQpQhWH_XMvVASmOru156UDC97RjJKjxmYLAg_aem_Yg-2xPtYXEe4FvX8p4VcJg"
@@ -186,6 +187,35 @@
                                 </a>.
                             </small>
                         </div>
+
+                        <script>
+                            function formatRSBSA(input) {
+                                // Remove all non-digit characters
+                                let value = input.value.replace(/\D+/g, '');
+
+                                // Format the value as 01-33-10-001-000000
+                                let dashedValue = '';
+                                if (value.length > 0) {
+                                    dashedValue += value.substring(0, 2);
+                                }
+                                if (value.length > 2) {
+                                    dashedValue += '-' + value.substring(2, 4);
+                                }
+                                if (value.length > 4) {
+                                    dashedValue += '-' + value.substring(4, 6);
+                                }
+                                if (value.length > 6) {
+                                    dashedValue += '-' + value.substring(6, 9);
+                                }
+                                if (value.length > 9) {
+                                    dashedValue += '-' + value.substring(9, 15);
+                                }
+
+                                // Set the formatted value back to the input
+                                input.value = dashedValue;
+
+                            }
+                        </script>
                         <div class="col-12 mb-3">
                             <label class="form-label">Sex</label><br>
                             <div class="form-check form-check-inline">
