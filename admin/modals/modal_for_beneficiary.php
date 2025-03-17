@@ -13,11 +13,11 @@
                         <div class="col-12 mb-3">
                             <label class="form-label">Beneficiary Type</label><br>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="individual" name="beneficiary_type" value="Individual" required>
+                                <input class="form-check-input" type="radio" id="individual" name="beneficiary_category" value="Individual" required>
                                 <label class="form-check-label" for="individual">Individual</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="group" name="beneficiary_type" value="Group" required>
+                                <input class="form-check-input" type="radio" id="group" name="beneficiary_category" value="Group" required>
                                 <label class="form-check-label" for="group">Group</label>
                             </div>
                         </div>
@@ -167,6 +167,11 @@
                             </select>
                         </div>
 
+                        <div class="col-12 mb-3">
+                            <label for="streetPurok">Street/Purok</label>
+                            <input type="text" id="streetPurok" class="form-control" name="streetPurok">
+                        </div>
+
                         <!-- Additional Fields -->
                         <div class="col-12 mb-3">
                             <label for="rsbsa_no" class="form-label">RSBSA No.</label>
@@ -236,7 +241,7 @@
 <script>
     $(document).ready(function() {
         // Show/hide individual or group fields based on beneficiary type
-        $('input[name="beneficiary_type"]').change(function() {
+        $('input[name="beneficiary_category"]').change(function() {
             if ($(this).val() === 'Individual') {
                 $('#individualTypeRadio').show(); // Show individual type radio buttons
                 $('#groupTypeRadio').hide(); // Hide group type radio buttons
