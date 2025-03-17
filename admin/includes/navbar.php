@@ -32,18 +32,12 @@
         <!-- Nav Item - Intervention Management -->
         <li class="nav-item">
             <a class="nav-link" href="2InterventionManagement.php">
-                <i class="fas fa-fw fa-cogs"></i>
-                <span class="sidebar-text">Intervention Management</span>
+                <i class="fas fa-clipboard-list"></i>
+                <span class="sidebar-text">Inventory Management</span>
             </a>
         </li>
 
-        <!-- Nav Item - Distribution Management -->
-        <li class="nav-item">
-            <a class="nav-link" href="3DistributionManagement.php">
-                <i class="fas fa-fw fa-truck"></i>
-                <span class="sidebar-text">Distribution Management</span>
-            </a>
-        </li>
+        
 
         <!-- Nav Item - Intervention Type Management
         <li class="nav-item">
@@ -80,6 +74,14 @@
             <a class="nav-link" href="8BeneficiaryManagement.php">
                 <i class="fas fa-users"></i>
                 <span class="sidebar-text">Beneficiary Management</span>
+            </a>
+        </li>
+
+        <!-- Nav Item - Distribution Management -->
+        <li class="nav-item">
+            <a class="nav-link" href="3DistributionManagement.php">
+                <i class="fas fa-fw fa-truck"></i>
+                <span class="sidebar-text">Distribution Management</span>
             </a>
         </li>
 
