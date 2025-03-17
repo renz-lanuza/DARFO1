@@ -101,7 +101,7 @@ include('includes/navbar.php');
 
                 <div id="tab1" class="tab-content active">
                     <div class="card-body">
-                        <div style="max-height: 430px; overflow: auto; width: 100%; border: 1px solid #ddd;">
+                        <div style="max-height: 430px; overflow: auto; width: 100%; border: 1px solid #ddd; border-radius: 10px;">
                             <table class="table table-bordered text-center" width="100%" cellspacing="0">
                                 <thead class="thead" style="background-color: #0D7C66; color: white;">
                                     <tr>
