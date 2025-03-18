@@ -42,6 +42,7 @@ $query = "
         b.beneficiary_type, 
         b.if_applicable, 
         b.coop_id, 
+        b.beneficiary_category,
         c.cooperative_name 
     FROM 
         tbl_beneficiary b
