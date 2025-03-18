@@ -169,9 +169,10 @@ include('includes/navbar.php');
                                             <tr>
                                                 <td><?php echo htmlspecialchars($row['unit_name']); ?></td>
                                                 <td>
-                                                    <a href="#" class="btn" style="background-color: #DCFFB7; color: black;"
-                                                        data-toggle="modal" data-target="#updateUnitModal"
-                                                        data-unit-id="<?php echo $row['unit_id']; ?>">Update</a>
+                                                <a href="#" class="btn update-btn" style="background-color: #DCFFB7; color: black;"
+                                                    data-toggle="modal" data-target="#updateUnitModal"
+                                                    data-unit-id="<?php echo htmlspecialchars($row['unit_id']); ?>"
+                                                    data-unit-name="<?php echo htmlspecialchars($row['unit_name']); ?>">Update</a>
 
                                                     <a href="#" class="btn btn-warning archive-unit-btn"
                                                         data-unit-id="<?php echo htmlspecialchars($row['unit_id']); ?>">
