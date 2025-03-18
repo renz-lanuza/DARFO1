@@ -173,8 +173,8 @@
 
                     <!-- Indicator -->
                     <div class="mb-3">
-                        <label for="unit" class="form-label">Indicator</label>
-                        <select class="form-control" id="unit" name="unit" required>
+                        <label for="unit_name" class="form-label">Indicator</label>
+                        <select class="form-control" id="unit_name" name="unit" required>
                             <option value="" disabled>Select Indicator</option>
                             <?php
                             include('../conn.php');
@@ -192,6 +192,9 @@
                             ?>
                         </select>
                     </div>
+                    <!-- Hidden Unit ID (For Form Submission) -->
+                    <input type="hidden" id="unit_id" name="unit_id">
+
                 </form>
             </div>
             <div class="modal-footer">
