@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 14, 2025 at 01:07 AM
+-- Generation Time: Mar 18, 2025 at 03:42 AM
 -- Server version: 10.4.14-MariaDB
 -- PHP Version: 7.4.11
 
@@ -62,6 +62,7 @@ INSERT INTO `barangays` (`barangay_code`, `barangay_name`, `municipality_code`) 
 (12816018, 'Pasil', 12816000),
 (12817004, 'Caruan', 12817000),
 (12817016, 'Ngabangab', 12817000),
+(12818013, 'Lagandit', 12818000),
 (12818015, 'Loing (Pob.)', 12818000),
 (12819013, 'Liliputen', 12819000),
 (12820003, 'San Agustin', 12820000),
@@ -70,6 +71,8 @@ INSERT INTO `barangays` (`barangay_code`, `barangay_name`, `municipality_code`) 
 (12901002, 'Amilongan', 12901000),
 (12902002, 'Banbanaal', 12902000),
 (12903011, 'Guimod', 12903000),
+(12903012, 'Lingsat', 12903000),
+(12903013, 'Malingeb', 12903000),
 (12905023, 'Pug-os', 12905000),
 (12909003, 'Bidbiday', 12909000),
 (12911008, 'Poblacion Sur', 12911000),
@@ -83,6 +86,7 @@ INSERT INTO `barangays` (`barangay_code`, `barangay_name`, `municipality_code`) 
 (12914016, 'Lungog', 12914000),
 (12914017, 'Margaay', 12914000),
 (12915002, 'Cayus', 12915000),
+(12915003, 'Patungcaleo', 12915000),
 (12915004, 'Malideg', 12915000),
 (12915005, 'Namitpit', 12915000),
 (12915006, 'Patiacan', 12915000),
@@ -92,6 +96,7 @@ INSERT INTO `barangays` (`barangay_code`, `barangay_name`, `municipality_code`) 
 (12916017, 'Poblacion Norte', 12916000),
 (12917002, 'Kalumsing', 12917000),
 (12917003, 'Lancuas', 12917000),
+(12917005, 'Paltoc', 12917000),
 (12918008, 'San Pablo', 12918000),
 (12918010, 'Villa Quirino', 12918000),
 (12928003, 'Borobor', 12928000),
@@ -110,12 +115,14 @@ INSERT INTO `barangays` (`barangay_code`, `barangay_name`, `municipality_code`) 
 (13313013, 'Cataguingtingan', 13313000),
 (13315002, 'Amontoc', 13315000),
 (13315017, 'Lon-oy', 13315000),
+(13315020, 'Polipol', 13315000),
 (13316005, 'Bambanay', 13316000),
 (13316012, 'Calincamasan', 13316000),
 (13316013, 'Casilagan', 13316000),
 (13317003, 'Balaoc', 13317000),
 (13318002, 'Corrooy', 13318000),
 (13318013, 'Sapdaan', 13318000),
+(13318014, 'Sasaba', 13318000),
 (15504007, 'Curareng', 15504000),
 (15519016, 'Tambac', 15519000),
 (15520013, 'Potol', 15520000);
@@ -215,6 +222,7 @@ CREATE TABLE `tbl_beneficiary` (
   `province_name` varchar(255) NOT NULL,
   `municipality_name` varchar(255) NOT NULL,
   `barangay_name` varchar(255) NOT NULL,
+  `StreetPurok` varchar(100) NOT NULL,
   `station_id` int(8) NOT NULL,
   `coop_id` int(8) NOT NULL,
   `beneficiary_type` varchar(100) NOT NULL,
@@ -222,16 +230,20 @@ CREATE TABLE `tbl_beneficiary` (
   `Sex` varchar(100) NOT NULL,
   `rsbsa_no` varchar(15) DEFAULT NULL,
   `if_applicable` varchar(100) NOT NULL,
-  `contact_no` char(11) NOT NULL
+  `contact_no` char(11) NOT NULL,
+  `beneficiary_category` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tbl_beneficiary`
 --
 
-INSERT INTO `tbl_beneficiary` (`beneficiary_id`, `fname`, `mname`, `lname`, `province_name`, `municipality_name`, `barangay_name`, `station_id`, `coop_id`, `beneficiary_type`, `birthdate`, `Sex`, `rsbsa_no`, `if_applicable`, `contact_no`) VALUES
-(6, 'Vien Daryl', NULL, 'Saliganan', 'Ilocos Sur', 'Narvacan', 'Lungog', 1, 0, 'Farmer', '2025-03-08', 'Male', '101010101010101', '', '09686434343'),
-(7, 'KUTON', 'TI', 'TALTALON', 'La Union', 'Pugo', 'Tavora East', 1, 10, 'Cluster', '2025-03-30', 'Female', '', '', '09686434656');
+INSERT INTO `tbl_beneficiary` (`beneficiary_id`, `fname`, `mname`, `lname`, `province_name`, `municipality_name`, `barangay_name`, `StreetPurok`, `station_id`, `coop_id`, `beneficiary_type`, `birthdate`, `Sex`, `rsbsa_no`, `if_applicable`, `contact_no`, `beneficiary_category`) VALUES
+(14, 'KUTON', 'ako', 'TALTALON', 'Ilocos Sur', 'Quirino', 'Patungcaleo', '102 gegettt', 1, 0, 'Fisher', '2025-03-22', 'Female', '111111111111111', '', '09686434688', 'Individual'),
+(16, 'gangster', 'ako', 'zae', 'Ilocos Norte', 'Piddig', 'Lagandit', '', 1, 10, 'School', '2025-03-18', 'Male', '', '', '09686434364', 'Group'),
+(17, 'gangster', 'ako', 'zae', 'Ilocos Norte', 'Piddig', 'Lagandit', '', 1, 0, 'Farmer', '2025-03-18', 'Male', '', '', '09686434664', 'Individual'),
+(18, 'Vien Daryl', 'Sagantiyoc', 'Saliganan', 'La Union', 'Bacnotan', 'Casiaman', '', 1, 11, 'Cluster', '2025-02-28', 'Male', '', '', '09686434664', 'Group'),
+(19, 'Vien Daryl', 'Sagantiyoc', 'Saliganan', 'La Union', 'Bacnotan', 'Casiaman', '', 1, 0, 'Farmer', '2025-03-18', 'Male', '', '', '09686434645', 'Individual');
 
 -- --------------------------------------------------------
 
@@ -287,10 +299,8 @@ INSERT INTO `tbl_distribution` (`distribution_id`, `intervention_id`, `beneficia
 (4, 1, 6, 2, 5, 1, '2025-04-06', NULL),
 (5, 1, 6, 1, 5, 1, '2025-03-09', NULL),
 (6, 1, 6, 1, 5, 1, '2025-03-13', NULL),
-(9, 1, 6, 1, 5, 1, '2025-03-13', NULL),
-(11, 4, 6, 3, 4, 1, '2025-03-13', NULL),
-(12, 1, 6, 10, 5, 1, '2025-03-14', NULL),
-(13, 1, 7, 10, 5, 1, '2025-03-14', NULL);
+(7, 1, 7, 1, 5, 1, '2025-03-14', NULL),
+(8, 1, 14, 14, 5, 1, '2025-03-18', NULL);
 
 -- --------------------------------------------------------
 
@@ -318,8 +328,7 @@ INSERT INTO `tbl_intervention_inventory` (`intervention_id`, `int_type_id`, `des
 (1, 1, 'hh', 100, 0, 1, 1, 1, NULL),
 (2, 2, 'hh', 100, 64, 2, 1, 2, NULL),
 (3, 3, 'hh', 100, 77, 3, 1, 2, NULL),
-(6, 1, '1gg', 1000, 970, 5, 1, 1, NULL),
-(7, 4, 'asdffdsaa', 11, 5, 4, 1, 1, NULL);
+(6, 1, '1gg', 1000, 976, 5, 1, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -526,7 +535,7 @@ ALTER TABLE `tbl_user`
 -- AUTO_INCREMENT for table `tbl_beneficiary`
 --
 ALTER TABLE `tbl_beneficiary`
-  MODIFY `beneficiary_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `beneficiary_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `tbl_cooperative`
@@ -538,13 +547,13 @@ ALTER TABLE `tbl_cooperative`
 -- AUTO_INCREMENT for table `tbl_distribution`
 --
 ALTER TABLE `tbl_distribution`
-  MODIFY `distribution_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `distribution_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `tbl_intervention_inventory`
 --
 ALTER TABLE `tbl_intervention_inventory`
-  MODIFY `intervention_id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `intervention_id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `tbl_intervention_type`
