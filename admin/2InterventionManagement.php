@@ -110,7 +110,7 @@ include('includes/navbar.php');
                                         <th>Description</th>
                                         <th>Quantity</th>
                                         <th>Quantity Left</th>
-                                        <th>Unit</th>
+                                        <th>Indicator</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
