@@ -615,7 +615,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         // Green color scale
         function interpolateGreen(value) {
-            if (value === 0) return "#E0FFD1"; 
+            if (value === 0) return "#d5d8dc"; 
 
             let intensity = (value - minValue) / (maxValue - minValue);
             if (isNaN(intensity)) intensity = 0;
