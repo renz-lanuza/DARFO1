@@ -2785,6 +2785,7 @@ $(document).ready(function() {
 });
 
  </script>
+
 <!-- for filter button in beneficiary management -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
