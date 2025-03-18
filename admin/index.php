@@ -548,8 +548,12 @@ include('includes/navbar.php');
         // Automatically set today's date for end date on page load
         setDefaultEndDate();
 
-        // Fetch data when the start date is selected
+        // Fetch data when the start date OR end date is selected
         startDateInput.addEventListener("change", () => {
+            fetchData(startDateInput.value, endDateInput.value);
+        });
+
+        endDateInput.addEventListener("change", () => {
             fetchData(startDateInput.value, endDateInput.value);
         });
 
