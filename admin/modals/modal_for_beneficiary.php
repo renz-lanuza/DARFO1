@@ -11,7 +11,7 @@
                     <div class="row">
                         <!-- Beneficiary Type -->
                         <div class="col-12 mb-3">
-                            <label class="form-label">Beneficiary Type</label><br>
+                            <label class="form-label">Beneficiary Type</label><span class="text-danger">*</span><br>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" id="individual" name="beneficiary_category" value="Individual" required>
                                 <label class="form-check-label" for="individual">Individual</label>
@@ -24,7 +24,7 @@
 
                         <!-- Individual Type (Hidden by Default) -->
                         <div class="col-12 mb-3" id="individualTypeRadio" style="display: none;">
-                            <label class="form-label">Individual Type</label><br>
+                            <label class="form-label">Individual Type</label><span class="text-danger">*</span><br>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" id="farmer" name="individual_type" value="Farmer">
                                 <label class="form-check-label" for="farmer">Farmer</label>
@@ -43,14 +43,14 @@
                             </div>
                             <!-- Input field for specifying "Others" -->
                             <div class="mt-2" id="othersInput" style="display: none;">
-                                <label for="others_specify" class="form-label">Please Specify</label>
+                                <label for="others_specify" class="form-label">Please Specify</label><span class="text-danger">*</span>
                                 <input type="text" class="form-control" id="others_specify" name="others_specify">
                             </div>
                         </div>
 
                         <!-- Group Type (Hidden by Default) -->
                         <div class="col-12 mb-3" id="groupTypeRadio" style="display: none;">
-                            <label class="form-label">Group Type</label><br>
+                            <label class="form-label">Group Type</label><span class="text-danger">*</span><br>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" id="fca" name="group_type" value="FCA">
                                 <label class="form-check-label" for="fca">FCA</label>
@@ -73,14 +73,14 @@
                             </div>
                             <!-- Input field for specifying "Others" -->
                             <div class="mt-2" id="groupOthersInput" style="display: none;">
-                                <label for="group_others_specify" class="form-label">Please Specify</label>
+                                <label for="group_others_specify" class="form-label">Please Specify</label><span class="text-danger">*</span>
                                 <input type="text" class="form-control" id="group_others_specify" name="group_others_specify">
                             </div>
                         </div>
 
                         <!-- Cooperative Input (Hidden by Default) -->
                         <div class="col-12 mb-3" id="cooperativeInput" style="display: none;">
-                            <label for="cooperative" class="form-label">Cooperative</label>
+                            <label for="cooperative" class="form-label">Cooperative</label><span class="text-danger">*</span>
                             <select class="form-control" id="cooperative" name="cooperative">
                                 <option value="" disabled selected>Select a Cooperative</option>
                                 <?php
@@ -134,7 +134,7 @@
 
                         <!-- Beneficiary Details -->
                         <div class="col-12 mb-3">
-                            <label for="beneficiary_first_name" class="form-label">First Name</label>
+                            <label for="beneficiary_first_name" class="form-label">First Name</label><span class="text-danger">*</span>
                             <input type="text" class="form-control" id="beneficiary_first_name" name="beneficiary_first_name" required>
                         </div>
                         <div class="col-12 mb-3">
@@ -142,26 +142,26 @@
                             <input type="text" class="form-control" id="beneficiary_middle_name" name="beneficiary_middle_name">
                         </div>
                         <div class="col-12 mb-3">
-                            <label for="beneficiary_last_name" class="form-label">Last Name</label>
+                            <label for="beneficiary_last_name" class="form-label">Last Name</label><span class="text-danger">*</span>
                             <input type="text" class="form-control" id="beneficiary_last_name" name="beneficiary_last_name" required>
                         </div>
 
                         <!-- Address Fields -->
                         <div class="col-12 mb-3">
-                            <label for="province">Province</label>
+                            <label for="province">Province</label><span class="text-danger">*</span>
                             <select id="province" class="form-control" name="province" required>
                                 <option selected disabled>Select a province</option>
                                 <!-- Populate dynamically using JavaScript or PHP -->
                             </select>
                         </div>
                         <div class="col-12 mb-3">
-                            <label for="municipality">Municipality</label>
+                            <label for="municipality">Municipality</label><span class="text-danger">*</span>
                             <select id="municipality" class="form-control" name="municipality" required>
                                 <option selected disabled>Select a municipality</option>
                             </select>
                         </div>
                         <div class="col-12 mb-3">
-                            <label for="barangay">Barangay</label>
+                            <label for="barangay">Barangay</label><span class="text-danger">*</span>
                             <select id="barangay" class="form-control" name="barangay" required>
                                 <option selected disabled>Select a barangay</option>
                             </select>
@@ -217,7 +217,7 @@
                             }
                         </script>
                         <div class="col-12 mb-3">
-                            <label class="form-label">Sex</label><br>
+                            <label class="form-label">Sex</label><span class="text-danger">*</span><br>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" id="sex_male" name="sex" value="Male" required>
                                 <label class="form-check-label" for="sex_male">Male</label>
@@ -228,7 +228,7 @@
                             </div>
                         </div>
                         <div class="col-12 mb-3">
-                            <label for="birthdate" class="form-label">Birthdate</label>
+                            <label for="birthdate" class="form-label">Birthdate</label><span class="text-danger">*</span>
                             <input type="date" class="form-control" id="birthdate" name="birthdate" required>
                         </div>
                         <div class="col-12 mb-3">
