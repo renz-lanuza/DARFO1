@@ -87,29 +87,28 @@
 
         <!-- Nav Item - Utilities Collapse Menu -->
         <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" 
-            aria-expanded="false" aria-controls="collapseUtilities">
+            <a class="nav-link collapsed" href="#" id="utilitiesToggle">
                 <i class="fas fa-wrench"></i>
                 <span class="sidebar-text">Utilities</span>
+                <i id="utilitiesIcon" class="fas fa-chevron-down ml-4 text-white"></i> <!-- Using Bootstrap -->
             </a>
             <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
-                <div class="bg-gradient-light py-2 collapse-inner rounded utilities-scroll">
+                <div class="bg-gradient-light py-2 collapse-inner rounded utilities-scroll" style="max-height: 300px; overflow-y: auto;">
                     <h6 class="collapse-header text-uppercase font-weight-bold text-dark">Utility Options:</h6>
-                    <a class="collapse-item" href="4InterventionType.php">
+                    <a class="collapse-item" href="4InterventionType.php" style="font-size: 14px; padding: 5px 10px;">
                         <i class="fas fa-tools mr-2"></i> Intervention Type 
                     </a>
-                    <a class="collapse-item" href="5SeedType.php">
+                    <a class="collapse-item" href="5SeedType.php" style="font-size: 14px; padding: 5px 10px;">
                         <i class="fas fa-tags mr-2"></i> Classification 
                     </a>
-                    <a class="collapse-item" href="7UnitManagement.php">
+                    <a class="collapse-item" href="7UnitManagement.php" style="font-size: 14px; padding: 5px 10px;">
                         <i class="fas fa-th-large mr-2"></i> Unit Management
                     </a>
-                    <!-- Add more items if needed -->
                 </div>
             </div>
         </li>
         <!-- Divider -->
-        <hr class="sidebar-divider d-none d-md-block">
+        <!-- <hr class="sidebar-divider d-none d-md-block"> -->
     </ul>
     <!-- End of Sidebar -->
 
@@ -315,4 +314,26 @@
             const sidebar = document.getElementById('accordionSidebar');
             sidebar.classList.toggle('hidden');
         }
+    </script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const utilitiesToggle = document.getElementById("utilitiesToggle");
+            const collapseUtilities = document.getElementById("collapseUtilities");
+            const utilitiesIcon = document.getElementById("utilitiesIcon");
+
+            utilitiesToggle.addEventListener("click", function (event) {
+                event.preventDefault(); // Prevent default anchor behavior
+
+                if (collapseUtilities.classList.contains("show")) {
+                    collapseUtilities.classList.remove("show"); // Close dropdown
+                    utilitiesIcon.classList.remove("fa-chevron-up"); // Change icon to down arrow
+                    utilitiesIcon.classList.add("fa-chevron-down");
+                } else {
+                    collapseUtilities.classList.add("show"); // Open dropdown
+                    utilitiesIcon.classList.remove("fa-chevron-down"); // Change icon to up arrow
+                    utilitiesIcon.classList.add("fa-chevron-up");
+                }
+            });
+        });
     </script>
