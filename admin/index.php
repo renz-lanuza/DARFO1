@@ -193,7 +193,7 @@ include('includes/navbar.php');
                                         <div class="row no-gutters align-items-center">
                                             <div class="col mr-2">
                                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                    Product Distributed
+                                                    Intervention Distributed
                                                 </div>
                                                 <!-- Date Filter -->
                                                 <div class="d-flex justify-content-start align-items-center mb-3">
@@ -265,26 +265,25 @@ include('includes/navbar.php');
                                                 $station_id = intval($_SESSION['station_id']); // Get the logged-in user's station_id
 
                                                 // Prepare the SQL query
-                                                $query = "SELECT 
-                                                                b.beneficiary_id,
-                                                                b.fname,
-                                                                b.mname,
-                                                                b.lname,
-                                                                b.province_name,
-                                                                b.municipality_name,
-                                                                b.barangay_name,
-                                                                b.beneficiary_type,
-                                                                IF(b.coop_id = 0, 'N/A', c.cooperative_name) AS cooperative_name
-                                                            FROM 
-                                                                tbl_beneficiary b
-                                                            LEFT JOIN 
-                                                                tbl_distribution d ON b.beneficiary_id = d.beneficiary_id
-                                                            LEFT JOIN 
-                                                                tbl_cooperative c ON b.coop_id = c.coop_id
-                                                            WHERE 
-                                                                b.station_id = ?  -- ✅ Filter based on logged-in user's station
-                                                            GROUP BY 
-                                                                b.beneficiary_id";
+                                                $query = "SELECT b.beneficiary_id,
+                                                                    b.fname,
+                                                                    b.mname,
+                                                                    b.lname,
+                                                                    b.province_name,
+                                                                    b.municipality_name,
+                                                                    b.barangay_name,
+                                                                    b.beneficiary_type,
+                                                                    COALESCE(c.cooperative_name, 'N/A') AS cooperative_name  -- ✅ Ensure cooperative_name is never NULL
+                                                                FROM 
+                                                                    tbl_beneficiary b
+                                                                LEFT JOIN 
+                                                                    tbl_distribution d ON b.beneficiary_id = d.beneficiary_id
+                                                                LEFT JOIN 
+                                                                    tbl_cooperative c ON b.coop_id = c.coop_id  -- ✅ Ensure coop_id properly maps
+                                                                WHERE 
+                                                                    b.station_id = ?  -- ✅ Filter based on logged-in user's station
+                                                                GROUP BY 
+                                                                    b.beneficiary_id";
 
                                                 // ✅ Use prepared statements
                                                 $stmt = mysqli_prepare($conn, $query);
@@ -333,9 +332,7 @@ include('includes/navbar.php');
                                                                 <td><?= htmlspecialchars($beneficiary['municipality_name']) ?></td>
                                                                 <td><?= htmlspecialchars($beneficiary['province_name']) ?></td>
                                                                 <td><?= ucfirst($beneficiary['beneficiary_type']) ?></td>
-                                                                <td>
-                                                                    <?= ($beneficiary['beneficiary_type'] === 'Group') ? htmlspecialchars($beneficiary['cooperative_name'] ?? 'N/A') : 'N/A' ?>
-                                                                </td>
+                                                                <td><?= htmlspecialchars($beneficiary['cooperative_name']) ?></td>
                                                                 <td>
                                                                     <button class="btn btn-primary btn-sm view-interventions-btn" data-beneficiary-id="<?= $beneficiary['beneficiary_id'] ?>">
                                                                         <i class="fas fa-eye"></i> View
@@ -396,157 +393,169 @@ include('includes/navbar.php');
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
-function downloadExcelWithImage() {
-    if (!window.myChart) {
-        alert("No chart data available.");
-        return;
-    }
+    function downloadExcelWithImage() {
+        if (!window.myChart) {
+            alert("No chart data available.");
+            return;
+        }
 
-        let labels = window.myChart.data.labels;
-        let datasets = window.myChart.data.datasets;
+            let labels = window.myChart.data.labels;
+            let datasets = window.myChart.data.datasets;
 
-        let dataArray = [["Category", "Value"]]; // Header row
-        datasets.forEach(dataset => {
-            labels.forEach((label, index) => {
-                dataArray.push([label, dataset.data[index]]);
+            let dataArray = [["Category", "Value"]]; // Header row
+            datasets.forEach(dataset => {
+                labels.forEach((label, index) => {
+                    dataArray.push([label, dataset.data[index]]);
+                });
             });
-        });
 
-        // Convert data to a worksheet
-        let ws = XLSX.utils.aoa_to_sheet(dataArray);
+            // Convert data to a worksheet
+            let ws = XLSX.utils.aoa_to_sheet(dataArray);
 
-        // Capture chart as Base64 image
-        let canvas = document.getElementById("barChart");
-        let imgData = canvas.toDataURL("image/png");
+            // Capture chart as Base64 image
+            let canvas = document.getElementById("barChart");
+            let imgData = canvas.toDataURL("image/png");
 
-        // Insert image placeholder text
-        XLSX.utils.sheet_add_aoa(ws, [["Chart Image Below"]], { origin: { r: dataArray.length + 2, c: 0 } });
+            // Insert image placeholder text
+            XLSX.utils.sheet_add_aoa(ws, [["Chart Image Below"]], { origin: { r: dataArray.length + 2, c: 0 } });
 
-        // Convert Base64 image to a downloadable file
-        fetch(imgData)
-            .then(res => res.blob())
-            .then(blob => blob.arrayBuffer())
-            .then(buffer => {
-                let wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Chart Data");
+            // Convert Base64 image to a downloadable file
+            fetch(imgData)
+                .then(res => res.blob())
+                .then(blob => blob.arrayBuffer())
+                .then(buffer => {
+                    let wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "Chart Data");
 
-                // Prompt user to manually insert image
-                alert("The Excel file contains data. Please manually insert the downloaded chart image into the sheet.");
+                    // Prompt user to manually insert image
+                    alert("The Excel file contains data. Please manually insert the downloaded chart image into the sheet.");
 
-                // Download Excel file
-                XLSX.writeFile(wb, "chart_data.xlsx");
+                    // Download Excel file
+                    XLSX.writeFile(wb, "chart_data.xlsx");
 
-                // Automatically trigger image download
-                let link = document.createElement("a");
-                link.href = imgData;
-                link.download = "chart_image.png";
-                link.click();
-            })
-            .catch(err => console.error("Error processing image:", err));
-    }
+                    // Automatically trigger image download
+                    let link = document.createElement("a");
+                    link.href = imgData;
+                    link.download = "chart_image.png";
+                    link.click();
+                })
+                .catch(err => console.error("Error processing image:", err));
+        }
 </script>
 <script>
- document.addEventListener("DOMContentLoaded", function () {
-    const startDateInput = document.getElementById("startDate");
-    const endDateInput = document.getElementById("endDate");
+    document.addEventListener("DOMContentLoaded", function () {
+        const startDateInput = document.getElementById("startDate");
+        const endDateInput = document.getElementById("endDate");
 
-    // Function to set the default end date (today)
-    function setDefaultEndDate() {
-        const today = new Date().toISOString().split("T")[0]; // Format YYYY-MM-DD
-        endDateInput.value = today;
-    }
+        // Function to set the default end date (today)
+        function setDefaultEndDate() {
+            const today = new Date().toISOString().split("T")[0]; // Format YYYY-MM-DD
+            endDateInput.value = today;
+        }
 
-    function fetchData(startDate, endDate) {
-        let url = `Dashboard/fetch_data.php`;
-        let params = [];
+        function fetchData(startDate, endDate) {
+            let url = `Dashboard/fetch_data.php`;
+            let params = [];
 
-        if (startDate) params.push(`start_date=${startDate}`);
-        if (endDate) params.push(`end_date=${endDate}`);
+            if (startDate) params.push(`start_date=${startDate}`);
+            if (endDate) params.push(`end_date=${endDate}`);
 
-        if (params.length) url += `?${params.join("&")}`;
+            if (params.length) url += `?${params.join("&")}`;
 
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                console.log("Fetched Data:", data);
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Fetched Data:", data);
 
-                if (!data || data.length === 0) {
-                    console.error("No data received.");
-                    document.getElementById("barChart").style.display = "none";
-                    return;
-                }
+                    const ctx = document.getElementById("barChart").getContext("2d");
 
-                document.getElementById("barChart").style.display = "block";
+                    if (window.myChart) {
+                        window.myChart.destroy();
+                    }
 
-                const labels = data.map(item => item.intervention_name);
-                const quantities = data.map(item => item.total_quantity);
+                    let labels, quantities, noDataMessage = false;
 
-                const colorPalette = [
-                    "rgba(255, 99, 132, 0.7)",
-                    "rgba(54, 162, 235, 0.7)",
-                    "rgba(255, 206, 86, 0.7)",
-                    "rgba(75, 192, 192, 0.7)",
-                    "rgba(153, 102, 255, 0.7)",
-                    "rgba(255, 159, 64, 0.7)"
-                ];
-                const backgroundColors = labels.map((_, index) => colorPalette[index % colorPalette.length]);
-                const borderColors = backgroundColors.map(color => color.replace("0.7", "1"));
+                    if (!data || data.length === 0) {
+                        console.warn("No data available. Displaying 'No Data Available' message.");
 
-                const ctx = document.getElementById("barChart").getContext("2d");
+                        // Placeholder to ensure chart remains visible
+                        labels = ["No Data Available"];
+                        quantities = [0]; // Zero quantity to keep the bar chart structure
+                        noDataMessage = true;
+                    } else {
+                        labels = data.map(item => item.intervention_name);
+                        quantities = data.map(item => item.total_quantity);
+                    }
 
-                if (window.myChart) {
-                    window.myChart.destroy();
-                }
+                    const colorPalette = [
+                        "rgba(255, 99, 132, 0.7)",
+                        "rgba(54, 162, 235, 0.7)",
+                        "rgba(255, 206, 86, 0.7)",
+                        "rgba(75, 192, 192, 0.7)",
+                        "rgba(153, 102, 255, 0.7)",
+                        "rgba(255, 159, 64, 0.7)"
+                    ];
+                    const backgroundColors = labels.map((_, index) => colorPalette[index % colorPalette.length]);
+                    const borderColors = backgroundColors.map(color => color.replace("0.7", "1"));
 
-                // Compute Y-axis max (always starts at 0)
-                const maxValue = Math.max(...quantities);
-                const adjustedMax = Math.ceil((maxValue + 10) / 10) * 10;
+                    // Compute Y-axis max dynamically, ensuring at least 10 for visibility
+                    const maxValue = Math.max(...quantities, 10);
+                    const adjustedMax = Math.ceil((maxValue + 10) / 10) * 10;
 
-                window.myChart = new Chart(ctx, {
-                    type: "bar",
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: "Quantity Distributed",
-                            data: quantities,
-                            backgroundColor: backgroundColors,
-                            borderColor: borderColors,
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                min: 0,
-                                max: adjustedMax,
-                                ticks: {
-                                    stepSize: 10
+                    window.myChart = new Chart(ctx, {
+                        type: "bar",
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: "Quantity Distributed",
+                                data: quantities,
+                                backgroundColor: backgroundColors,
+                                borderColor: borderColors,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    min: 0,
+                                    max: adjustedMax,
+                                    ticks: {
+                                        stepSize: 10
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: { display: true },
+                                annotation: {
+                                    annotations: noDataMessage ? [{
+                                        type: 'label',
+                                        content: 'No Data Available',
+                                        position: 'center',
+                                        font: { size: 14, weight: 'bold' },
+                                        color: 'red'
+                                    }] : []
                                 }
                             }
-                        },
-                        plugins: {
-                            legend: { display: true }
                         }
-                    }
-                });
-            })
-            .catch(error => console.error("Error fetching data:", error));
-    }
+                    });
+                })
+                .catch(error => console.error("Error fetching data:", error));
+        }
 
-    // Automatically set today's date for end date on page load
-    setDefaultEndDate();
 
-    // Fetch data when the start date is selected
-    startDateInput.addEventListener("change", () => {
-        fetchData(startDateInput.value, endDateInput.value);
-    });
+        // Automatically set today's date for end date on page load
+        setDefaultEndDate();
 
-    // Load chart with default start date empty & today's end date on page load
-    fetchData("", endDateInput.value);
-});
+        // Fetch data when the start date is selected
+        startDateInput.addEventListener("change", () => {
+            fetchData(startDateInput.value, endDateInput.value);
+        });
 
+        // Load chart with default start date empty & today's end date on page load
+        fetchData("", endDateInput.value);
+    }); 
 </script>
 <script>
     function filterChart() {
@@ -561,7 +570,7 @@ function downloadExcelWithImage() {
     }
 </script>
 <script>
-    document.addEventListener("DOMContentLoaded", async function () {
+document.addEventListener("DOMContentLoaded", async function () {
     var map = L.map('map').setView([16.616, 120.316], 8);
 
     // Add OpenStreetMap tile layer
@@ -596,7 +605,6 @@ function downloadExcelWithImage() {
             if (value < minValue) minValue = value;
         });
 
-        // Ensure minValue is not greater than maxValue (for single-value cases)
         if (minValue === maxValue) {
             minValue = 0;
         }
@@ -605,21 +613,84 @@ function downloadExcelWithImage() {
         response = await fetch('map/map.geojson');
         let geoData = await response.json();
 
-        // Green color scale (Dark Green → Light Green → Very Light Green)
+        // Green color scale
         function interpolateGreen(value) {
-            if (value === 0) return "#E0FFD1"; // Very Light Green for zero interventions
+            if (value === 0) return "#E0FFD1"; 
 
-            let intensity = (value - minValue) / (maxValue - minValue); // Normalize 0-1
-            if (isNaN(intensity)) intensity = 0; // Handle division by zero
+            let intensity = (value - minValue) / (maxValue - minValue);
+            if (isNaN(intensity)) intensity = 0;
 
-            let darkGreen = [0, 100, 0];  // RGB of #006400
-            let lightGreen = [173, 255, 47]; // RGB of #ADFF2F
+            let darkGreen = [0, 100, 0];  
+            let lightGreen = [173, 255, 47]; 
 
             let r = Math.round(lightGreen[0] + (darkGreen[0] - lightGreen[0]) * intensity);
             let g = Math.round(lightGreen[1] + (darkGreen[1] - lightGreen[1]) * intensity);
             let b = Math.round(lightGreen[2] + (darkGreen[2] - lightGreen[2]) * intensity);
 
             return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        function showModal(municipalityName) {
+            let modalTitle = document.getElementById("modalTitle");
+            let modalBody = document.getElementById("modalBody");
+
+            modalTitle.innerHTML = `Interventions in ${municipalityName}`;
+
+            // Fetch intervention data from PHP script
+            fetch(`map/get_data.php?municipality=${encodeURIComponent(municipalityName)}`)
+                .then(response => response.text()) // Get response as HTML
+                .then(html => {
+                    modalBody.innerHTML = html; // Insert into modal
+                    let modal = new bootstrap.Modal(document.getElementById("interventionModal"));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error("Error loading intervention data:", error);
+                    modalBody.innerHTML = `<p class="text-danger">Error loading data.</p>`;
+                });
+        }
+
+        function onEachFeature(feature, layer) {
+            let municipalityName = feature.properties.adm3_en 
+                ? feature.properties.adm3_en.trim().toLowerCase()
+                : "";
+
+            let interventionCount = normalizedInterventionData[municipalityName] || 0;
+
+            layer.bindPopup(`
+                <b>${feature.properties.adm3_en}</b><br>
+                <b>Interventions:</b> <b>${interventionCount}</b>
+            `);
+
+            layer.on({
+                mouseover: function (e) {
+                    let layer = e.target;
+                    layer.setStyle({
+                        fillOpacity: 1,
+                        color: "#FFFF00"
+                    });
+
+                    layer.bindTooltip(`
+                        <b>${feature.properties.adm3_en}</b><br>
+                        Interventions: ${interventionCount}
+                    `, {
+                        permanent: false,
+                        direction: "top"
+                    }).openTooltip();
+                },
+                mouseout: function (e) {
+                    let layer = e.target;
+                    layer.setStyle({
+                        fillOpacity: 0.8,
+                        color: "#000"
+                    });
+
+                    layer.closeTooltip();
+                },
+                click: function () {
+                    showModal(feature.properties.adm3_en, interventionCount);
+                }
+            });
         }
 
         L.geoJSON(geoData, {
@@ -630,7 +701,6 @@ function downloadExcelWithImage() {
 
                 let interventionCount = normalizedInterventionData[municipalityName] || 0;
 
-                // Determine fill color based on intervention count
                 let fillColor = interpolateGreen(interventionCount);
 
                 return {
@@ -640,52 +710,13 @@ function downloadExcelWithImage() {
                     fillOpacity: 0.8
                 };
             },
-            onEachFeature: function (feature, layer) {
-                let municipalityName = feature.properties.adm3_en 
-                    ? feature.properties.adm3_en.trim().toLowerCase()
-                    : "";
-
-                let interventionCount = normalizedInterventionData[municipalityName] || 0;
-
-                layer.bindPopup(`
-                    <b>${feature.properties.adm3_en}</b><br>
-                    <b>Interventions Distributed:</b> <b>${interventionCount}</b>
-                `);
-
-                layer.on({
-                    mouseover: function (e) {
-                        let layer = e.target;
-                        layer.setStyle({
-                            fillOpacity: 1,
-                            color: "#FFFF00"
-                        });
-
-                        layer.bindTooltip(`
-                            <b>${feature.properties.adm3_en}</b><br>
-                            Interventions: ${interventionCount}
-                        `, {
-                            permanent: false,
-                            direction: "top"
-                        }).openTooltip();
-                    },
-                    mouseout: function (e) {
-                        let layer = e.target;
-                        layer.setStyle({
-                            fillOpacity: 0.8,
-                            color: "#000"
-                        });
-
-                        layer.closeTooltip();
-                    }
-                });
-            }
+            onEachFeature: onEachFeature // Use the function properly
         }).addTo(map);
 
     } catch (error) {
         console.error('Error loading data:', error);
     }
 });
-
 </script>
 
 <style>
@@ -718,4 +749,5 @@ function downloadExcelWithImage() {
     include('includes/scripts.php');
     include('includes/footer.php');
     include('modals/modal_for_viewing_intervention.php');
+    include('modals/modal_for_map.php');
 ?>
