@@ -238,24 +238,16 @@ include('includes/navbar.php');
                                 <div class="row no-gutters align-items-center">
                                     <div class="col mr-2">
                                         <!-- Header with Title and Filter Dropdown -->
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">                                            
                                             <div class="text-lg font-weight-bold text-info text-uppercase">
                                                 Beneficiaries
-                                            </div>
-                                            <!-- Filter Dropdown -->
-                                            <div>
-                                                <select id="filterType" class="form-control">
-                                                    <option value="all">All</option>
-                                                    <option value="Farmer">Farmer</option>
-                                                    <option value="Fisher">Fisher</option>
-                                                    <option value="AEW">AEW</option>
-                                                    <option value="FCA">FCA</option>
-                                                    <option value="Cluster">Cluster</option>
-                                                    <option value="LGU">LGU</option>
-                                                    <option value="School">School</option>
-                                                    <option value="Others">Others</option>
-                                                </select>
-                                            </div>
+                                            </div>    
+                                        </div>
+                                        <!-- Filter Buttons Above Table -->
+                                        <div class="d-flex justify-content-start mb-3">
+                                            <button class="btn btn-outline-primary px-4 py-2 me-2 filter-btn active" data-filter="all">All</button>
+                                            <button class="btn btn-outline-primary px-4 py-2 me-2 filter-btn" data-filter="Individual">Individual</button>
+                                            <button class="btn btn-outline-success px-4 py-2 filter-btn" data-filter="Group">Group</button>
                                         </div>
 
                                         <!-- Table -->
@@ -272,7 +264,7 @@ include('includes/navbar.php');
                                                                     b.province_name,
                                                                     b.municipality_name,
                                                                     b.barangay_name,
-                                                                    b.beneficiary_type,
+                                                                    b.beneficiary_category,
                                                                     COALESCE(c.cooperative_name, 'N/A') AS cooperative_name  -- ✅ Ensure cooperative_name is never NULL
                                                                 FROM 
                                                                     tbl_beneficiary b
@@ -323,15 +315,13 @@ include('includes/navbar.php');
                                                 <tbody>
                                                     <?php if (!empty($beneficiaries_data)): ?>
                                                         <?php foreach ($beneficiaries_data as $index => $beneficiary): ?>
-                                                            <tr data-type="<?= $beneficiary['beneficiary_type'] ?>">
+                                                            <tr data-type="<?= htmlspecialchars($beneficiary['beneficiary_category']) ?>">
                                                                 <td><?= $index + 1 ?></td>
-                                                                <td>
-                                                                    <?= htmlspecialchars($beneficiary['fname'] . ' ' . $beneficiary['mname'] . ' ' . $beneficiary['lname']) ?>
-                                                                </td>
+                                                                <td><?= htmlspecialchars($beneficiary['fname'] . ' ' . $beneficiary['mname'] . ' ' . $beneficiary['lname']) ?></td>
                                                                 <td><?= htmlspecialchars($beneficiary['barangay_name']) ?></td>
                                                                 <td><?= htmlspecialchars($beneficiary['municipality_name']) ?></td>
                                                                 <td><?= htmlspecialchars($beneficiary['province_name']) ?></td>
-                                                                <td><?= ucfirst($beneficiary['beneficiary_type']) ?></td>
+                                                                <td><?= ucfirst(htmlspecialchars($beneficiary['beneficiary_category'])) ?></td>
                                                                 <td><?= htmlspecialchars($beneficiary['cooperative_name']) ?></td>
                                                                 <td>
                                                                     <button class="btn btn-primary btn-sm view-interventions-btn" data-beneficiary-id="<?= $beneficiary['beneficiary_id'] ?>">
@@ -346,6 +336,7 @@ include('includes/navbar.php');
                                                         </tr>
                                                     <?php endif; ?>
                                                 </tbody>
+
                                             </table>
                                         </div>
                                     </div>
@@ -548,12 +539,8 @@ include('includes/navbar.php');
         // Automatically set today's date for end date on page load
         setDefaultEndDate();
 
-        // Fetch data when the start date OR end date is selected
+        // Fetch data when the start date is selected
         startDateInput.addEventListener("change", () => {
-            fetchData(startDateInput.value, endDateInput.value);
-        });
-
-        endDateInput.addEventListener("change", () => {
             fetchData(startDateInput.value, endDateInput.value);
         });
 
@@ -755,3 +742,4 @@ document.addEventListener("DOMContentLoaded", async function () {
     include('modals/modal_for_viewing_intervention.php');
     include('modals/modal_for_map.php');
 ?>
+
