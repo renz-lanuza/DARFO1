@@ -2644,10 +2644,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 </script>
+
 <!-- for update and fetch classification mngmngt -->
 <!-- Include jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script>
 $(document).ready(function() {
     // When the "Update" button is clicked
