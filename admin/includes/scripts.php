@@ -2840,7 +2840,8 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error("Error fetching beneficiaries:", error));
     }
 });
-</script><!-- fetch for dashboard benefeciaries -->
+</script>
+<!-- fetch for dashboard benefeciaries -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
     const filterButtons = document.querySelectorAll(".filter-btn");
