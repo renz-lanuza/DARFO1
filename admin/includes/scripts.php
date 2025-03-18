@@ -2840,4 +2840,32 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error("Error fetching beneficiaries:", error));
     }
 });
+</script><!-- fetch for dashboard benefeciaries -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const filterButtons = document.querySelectorAll(".filter-btn");
+    const tableRows = document.querySelectorAll("tbody tr");
+
+    filterButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+            const filter = this.getAttribute("data-filter");
+
+            // Remove 'active' class from all buttons and add to clicked one
+            filterButtons.forEach((btn) => btn.classList.remove("active"));
+            this.classList.add("active");
+
+            // Loop through table rows and filter based on category
+            tableRows.forEach((row) => {
+                const beneficiaryType = row.getAttribute("data-type");
+
+                if (filter === "all" || beneficiaryType === filter) {
+                    row.style.display = ""; // Show row
+                } else {
+                    row.style.display = "none"; // Hide row
+                }
+            });
+        });
+    });
+});
+
 </script>
