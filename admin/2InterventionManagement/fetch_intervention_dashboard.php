@@ -20,7 +20,7 @@ if ($conn->connect_error) {
 }
 
 // Fetch beneficiary details
-$beneficiary_query = "SELECT fname, mname, lname FROM tbl_beneficiary WHERE beneficiary_id = ?";
+$beneficiary_query = "SELECT fname, mname, lname, beneficiary_category FROM tbl_beneficiary WHERE beneficiary_id = ?";
 $stmt = $conn->prepare($beneficiary_query);
 $stmt->bind_param("i", $beneficiary_id);
 $stmt->execute();
@@ -38,34 +38,41 @@ if ($beneficiary_result->num_rows === 0) {
 
 $beneficiary = $beneficiary_result->fetch_assoc();
 $beneficiary_name = htmlspecialchars(trim($beneficiary['fname'] . ' ' . $beneficiary['mname'] . ' ' . $beneficiary['lname']));
+$beneficiary_category = strtolower(trim($beneficiary['beneficiary_category'])); // Normalize beneficiary category
 
 $stmt->close();
 
 // Fetch interventions received by the beneficiary
 $query = "
-    SELECT 
-        d.distribution_date, 
-        CONCAT(b.fname, ' ', IFNULL(b.mname, ''), ' ', b.lname) AS beneficiary_name, 
-        st.seed_name, 
-        it.intervention_name, 
-        b.beneficiary_type, 
-        b.province_name, 
-        b.municipality_name, 
-        b.barangay_name, 
-        d.quantity, 
-        IF(b.coop_id = 0, 'N/A', c.cooperative_name) AS cooperative_name 
-    FROM 
-        tbl_distribution AS d
-    INNER JOIN 
-        tbl_beneficiary AS b ON d.beneficiary_id = b.beneficiary_id
-    INNER JOIN 
-        tbl_seed_type AS st ON d.seed_id = st.seed_id
-    INNER JOIN 
-        tbl_intervention_type AS it ON st.int_type_id = it.int_type_id
-    LEFT JOIN 
-        tbl_cooperative AS c ON b.coop_id = c.coop_id
-    WHERE 
-        d.beneficiary_id = ?";
+  SELECT 
+    d.distribution_date, 
+    CONCAT(b.fname, ' ', IFNULL(b.mname, ''), ' ', b.lname) AS beneficiary_name, 
+    st.seed_name, 
+    it.intervention_name, 
+    b.beneficiary_type, 
+    b.province_name, 
+    b.municipality_name, 
+    b.barangay_name, 
+    d.quantity, 
+    IF(b.coop_id = 0, 'N/A', c.cooperative_name) AS cooperative_name,
+    ii.unit_id, 
+    u.unit_name
+FROM 
+    tbl_distribution AS d
+INNER JOIN 
+    tbl_beneficiary AS b ON d.beneficiary_id = b.beneficiary_id
+INNER JOIN 
+    tbl_seed_type AS st ON d.seed_id = st.seed_id
+INNER JOIN 
+    tbl_intervention_type AS it ON st.int_type_id = it.int_type_id
+INNER JOIN 
+    tbl_intervention_inventory AS ii ON d.intervention_id = ii.intervention_id
+INNER JOIN 
+    tbl_unit AS u ON ii.unit_id = u.unit_id
+LEFT JOIN 
+    tbl_cooperative AS c ON b.coop_id = c.coop_id
+WHERE 
+    d.beneficiary_id = ?";
 
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $beneficiary_id);
@@ -97,14 +104,13 @@ $conn->close();
                 <tr>
                     <th>#</th>
                     <th>Distribution Date</th>
-                    <th>Seed Name</th>
+                    <th>Classification Name</th>
                     <th>Intervention Name</th>
                     <th>Type of Beneficiary</th>
-                    <th>Province</th>
-                    <th>Municipality</th>
-                    <th>Barangay</th>
                     <th>Quantity</th>
-                    <th>Cooperative Name</th>
+                    <?php if ($beneficiary_category !== 'individual'): ?>
+                        <th>Cooperative Name</th>
+                    <?php endif; ?>
                 </tr>
             </thead>
             <tbody>
@@ -115,18 +121,17 @@ $conn->close();
                         <td><?= htmlspecialchars($intervention['seed_name']) ?></td>
                         <td><?= htmlspecialchars($intervention['intervention_name']) ?></td>
                         <td><?= htmlspecialchars($intervention['beneficiary_type']) ?></td>
-                        <td><?= htmlspecialchars($intervention['province_name']) ?></td>
-                        <td><?= htmlspecialchars($intervention['municipality_name']) ?></td>
-                        <td><?= htmlspecialchars($intervention['barangay_name']) ?></td>
-                        <td><?= htmlspecialchars($intervention['quantity']) ?></td>
-                        <td><?= htmlspecialchars($intervention['cooperative_name']) ?></td>
+                        <td><?= htmlspecialchars($intervention['quantity'] . ' ' . $intervention['unit_name']) ?></td> <!-- Merged Column -->
+                        <?php if ($beneficiary_category !== 'individual'): ?>
+                            <td><?= htmlspecialchars($intervention['cooperative_name']) ?></td>
+                        <?php endif; ?>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     </div>
 <?php else: ?>
-    <p class="text-muted text-center">No interventions found for this beneficiary.</p>
+    <p>No interventions found for this beneficiary.</p>
 <?php endif; ?>
 
 <!-- Custom Table Styles -->
@@ -136,10 +141,12 @@ $conn->close();
         overflow: hidden;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     }
+
     .thead-dark th {
         background-color: #0D7C66 !important;
         color: white;
     }
+
     tbody tr:hover {
         background-color: rgba(13, 124, 102, 0.1);
     }
