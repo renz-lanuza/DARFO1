@@ -152,6 +152,7 @@
         </div>
     </div>
 </div>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // Get today's date in YYYY-MM-DD format
@@ -160,8 +161,8 @@
         // Set the default value of the date input field
         document.getElementById("distribution_date").value = today;
     });
-</script>
-                
+</script> 
+              
 <style>
     /* Modal Header Styling */
     .modal-header {
@@ -194,55 +195,8 @@
             </div>
             <div class="modal-body">
                 <form id="updateDistributionForm" method="POST">
-                        
+                    <input type="hidden" name="distribution_id" id="distribution_id">
                     <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Type of Distribution</label><br>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="update_individual" name="type_of_distribution" value="Individual" required>
-                                <label class="form-check-label" for="update_individual">Individual</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="update_group" name="type_of_distribution" value="Group" required>
-                                <label class="form-check-label" for="update_group">Group</label>
-                            </div>
-                        </div>
-                        <input type="hidden" id="distribution_id" name="distribution_id">
-                        <!-- Beneficiary Name Fields -->
-                        <div class="col-md-4 mb-3">
-                            <label for="update_fname" class="form-label">First Name</label>
-                            <input type="text" class="form-control" id="update_fname" name="update_fname" required>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="update_mname" class="form-label">Middle Name</label>
-                            <input type="text" class="form-control" id="update_mname" name="update_mname">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="update_lname" class="form-label">Last Name</label>
-                            <input type="text" class="form-control" id="update_lname" name="update_lname" required>
-                        </div>
-
-                        <!-- Cooperative Name (Hidden by Default) -->
-                        <div class="col-md-4 mb-3" id="cooperativeDiv" style="display: none;">
-                            <label for="update_cooperative_name" class="form-label">Cooperative Name</label>
-                            <select id="update_cooperative_name" class="form-control" name="update_cooperative_name">
-                                <option value="" disabled selected>Select Cooperative</option>
-                            </select>
-                        </div>
-
-                        <!-- Location Details -->
-                        <div class="col-md-4 mb-3">
-                            <label for="update_province">Province</label>
-                            <select id="update_province" class="form-control" name="update_province" required></select>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="update_municipality">Municipality</label>
-                            <select id="update_municipality" class="form-control" name="update_municipality" required></select>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="update_barangay">Barangay</label>
-                            <select id="update_barangay" class="form-control" name="update_barangay" required></select>
-                        </div>
                         <!-- Date of Distribution -->
                         <div class="col-md-4 mb-3">
                             <label for="update_distribution_date" class="form-label">Date of Distribution</label>
@@ -264,41 +218,29 @@
                             <tbody>
                                 <tr>
                                     <td>
-                                        <?php
-                                        
-                                        if (!isset($_SESSION['uid'])) {
-                                            die("User ID not found in session.");
-                                        }
-                                        $uid = $_SESSION['uid'];
-                                        $conn = new mysqli("localhost", "root", "", "db_darfo1");
-
-                                        $stationQuery = $conn->prepare("SELECT station_id FROM tbl_user WHERE uid = ?");
-                                        $stationQuery->bind_param("i", $uid);
-                                        $stationQuery->execute();
-                                        $stationQuery->bind_result($stationId);
-                                        $stationQuery->fetch();
-                                        $stationQuery->close();
-
-                                        if (empty($stationId)) {
-                                            die("No station found for the user.");
-                                        }
-
-                                        $sql = "SELECT int_type_id, intervention_name FROM tbl_intervention_type WHERE station_id = ? ORDER BY int_type_id";
-                                        $stmt = $conn->prepare($sql);
-                                        $stmt->bind_param("i", $stationId);
-                                        $stmt->execute();
-                                        $result = $stmt->get_result();
-                                        ?>
-
                                         <select class="form-control intervention_name_distrib" name="intervention_name_distrib[]" required>
                                             <option value="" disabled selected>Select Intervention</option>
                                             <?php
-                                            while ($row = $result->fetch_assoc()) {
-                                                echo "<option value='{$row['int_type_id']}'>" . htmlspecialchars($row['intervention_name']) . "</option>";
-                                            }
+                                                $conn = new mysqli("localhost", "root", "", "db_darfo1");
+                                                $uid = $_SESSION['uid'];
+                                                $stationQuery = $conn->prepare("SELECT station_id FROM tbl_user WHERE uid = ?");
+                                                $stationQuery->bind_param("i", $uid);
+                                                $stationQuery->execute();
+                                                $stationQuery->bind_result($stationId);
+                                                $stationQuery->fetch();
+                                                $stationQuery->close();
+
+                                                $sql = "SELECT int_type_id, intervention_name FROM tbl_intervention_type WHERE station_id = ? ORDER BY int_type_id";
+                                                $stmt = $conn->prepare($sql);
+                                                $stmt->bind_param("i", $stationId);
+                                                $stmt->execute();
+                                                $result = $stmt->get_result();
+                                                while ($row = $result->fetch_assoc()) {
+                                                    echo "<option value='{$row['int_type_id']}'>" . htmlspecialchars($row['intervention_name']) . "</option>";
+                                                }
+                                                $conn->close();
                                             ?>
                                         </select>
-                                        <?php $conn->close(); ?>
                                     </td>
                                     <td>
                                         <select class="form-control seedling_type_distrib" name="seedling_type_distrib" required>
@@ -325,3 +267,83 @@
     </div>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var updateDistributionModal = document.getElementById('updateDistributionModal');
+    updateDistributionModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget; // Button that triggered the modal
+        var distributionId = button.getAttribute('data-distribution-id');
+        var quantity = button.getAttribute('data-quantity');
+        var interventionName = button.getAttribute('data-intervention-name');
+        var seedName = button.getAttribute('data-seed-name');
+        var distributionDate = button.getAttribute('data-distribution-date');
+
+        // Update the modal's content.
+        var modalTitle = updateDistributionModal.querySelector('.modal-title');
+        var distributionIdInput = updateDistributionModal.querySelector('#distribution_id');
+        var updateQuantityInput = updateDistributionModal.querySelector('input[name="update_quantity[]"]');
+        var updateDistributionDateInput = updateDistributionModal.querySelector('#update_distribution_date');
+
+        modalTitle.textContent = 'Update Distribution ' + distributionId;
+        distributionIdInput.value = distributionId;
+        updateQuantityInput.value = quantity;
+        updateDistributionDateInput.value = distributionDate;
+    });
+});
+</script>
+
+<!-- function for update distribution -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+ <script>
+document.getElementById('updateDistributionForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    // SweetAlert confirmation
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You are about to update this distribution.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, update it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const formData = new FormData(this);
+
+            fetch('3DistributionManagement/updateDistribution.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: data.message,
+                    }).then(() => {
+                        $('#updateDistributionModal').modal('hide');
+                        // Optionally, refresh the page or update the table
+                        location.reload(); // Reload the page to reflect changes
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: data.message,
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'An error occurred while updating the distribution.',
+                });
+            });
+        }
+    });
+});
+ </script>
