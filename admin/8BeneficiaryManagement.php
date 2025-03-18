@@ -2,6 +2,9 @@
 include('includes/header.php');
 include('includes/navbar.php');
 ?>
+
+
+
 <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
 <!-- Content Wrapper -->
 <div id="content-wrapper" class="d-flex flex-column">
@@ -69,125 +72,108 @@ include('includes/navbar.php');
         <!-- End of Topbar -->
 
         <!-- Begin Page Content -->
-        <div class="container-fluid">
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color: #0D7C66;">
+            <div class="d-flex align-items-center">
+                <button type="button" class="btn d-flex align-items-center gap-2 rounded-pill shadow-sm"
+                    style="background-color: #DCFFB7; color: black; border: none; padding: 8px 16px;"
+                    id="btnAddBeneficiary" data-bs-toggle="modal" data-bs-target="#addBeneficiaryModal">
+                    <i class='bx bx-plus' style="font-size: 1.2rem;"></i>
+                    <span>Add Beneficiary</span>
+                </button>
 
-            <div class="card shadow mb-4">
-                <div class="card-header py-3" style="background-color: #0D7C66;">
-                    <div class="d-flex align-items-center">
-                        <button type="button" class="btn d-flex align-items-center gap-2 rounded-pill shadow-sm"
-                            style="background-color: #DCFFB7; color: black; border: none; padding: 8px 16px;"
-                            id="btnAddBeneficiary" data-bs-toggle="modal" data-bs-target="#addBeneficiaryModal">
-                            <i class='bx bx-plus' style="font-size: 1.2rem;"></i>
-                            <span>Add Beneficiary</span>
-                        </button>
-
-                        <form class="d-none d-sm-inline-block form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
-                            <div class="input-group">
-                                <input type="text" id="search_id" class="form-control bg-light border-0 small"
-                                    placeholder="Search for beneficiaries..." aria-label="Search" aria-describedby="basic-addon2" onkeyup="searchBeneficiaryTable()">
-                                <div class="input-group-append">
-                                    <button class="btn text-white" style="background-color: #DCFFB7;" type="button">
-                                        <i class="fas fa-search fa-sm" style="color: black;"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div id="tab1" class="tab-content active">
-                    <div class="card-body">
-                        <div style="max-height: 430px; overflow: auto; width: 100%; border: 1px solid #ddd; border-radius: 10px;">
-                            <!-- Table to display beneficiaries -->
-                            <table class="table table-bordered text-center" width="100%" cellspacing="0" id="beneficiaryTable">
-                                <thead class="thead" style="background-color: #0D7C66; color: white;">
-
-                                    <tr>
-                                        <th>Full Name</th>
-                                        <th>RSBSA No.</th>
-                                        <th>Province</th>
-                                        <th>Municipality</th>
-                                        <th>Barangay</th>
-                                        <th>Birthdate</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    // Include your database connection file
-                                    include('../conn.php');
-
-                                    // Function to format RSBSA number
-                                    function formatRsbsaNo($rsbsa_no)
-                                    {
-                                        // Check if the RSBSA number is valid and has the correct length
-                                        if (strlen($rsbsa_no) === 15) {
-                                            return substr($rsbsa_no, 0, 2) . '-' .
-                                                substr($rsbsa_no, 2, 2) . '-' .
-                                                substr($rsbsa_no, 4, 2) . '-' .
-                                                substr($rsbsa_no, 6, 3) . '-' .
-                                                substr($rsbsa_no, 9, 6);
-                                        }
-                                        return $rsbsa_no; // Return as is if not valid
-                                    }
-
-                                    // Fetch beneficiaries from the database
-                                    $query = "SELECT beneficiary_id, fname, mname, lname, rsbsa_no, province_name, municipality_name, barangay_name, birthdate FROM tbl_beneficiary"; // Adjust the query as needed
-                                    $result = $conn->query($query);
-
-                                    if ($result->num_rows > 0) {
-                                        while ($row = $result->fetch_assoc()) {
-                                            // Construct the full name
-                                            $fullName = $row['fname']; // First name
-                                            if (!empty($row['mname'])) {
-                                                $fullName .= ' ' . $row['mname']; // Add middle name if not empty
-                                            }
-                                            $fullName .= ' ' . $row['lname']; // Add last name
-
-                                            // Format the birthdate (optional)
-                                            $formattedBirthdate = date('F j, Y', strtotime($row['birthdate'])); // Format as needed
-
-                                            // Format the RSBSA number
-                                            $rsbsa_no = !empty($row['rsbsa_no']) ? formatRsbsaNo($row['rsbsa_no']) : 'N/A';
-
-                                            // Output the table row
-                                            echo "<tr>
-                                                    <td>{$fullName}</td>
-                                                    <td>{$rsbsa_no}</td>
-                                                    <td>{$row['province_name']}</td>
-                                                    <td>{$row['municipality_name']}</td>
-                                                    <td>{$row['barangay_name']}</td>
-                                                    <td>{$formattedBirthdate}</td>
-                                                    <td>
-                                                        <button class='btn btn-primary btn-sm'>Edit</button>
-                                                        <button class='btn btn-danger btn-sm'>Delete</button>
-                                                        <button class='btn btn-info btn-sm' onclick='viewBeneficiary({$row['beneficiary_id']})'>View</button>
-                                                        <!-- Add Distribution Button with Beneficiary ID -->
-                                                        <button type='button' class='btn btn-success btn-sm' id='btnAddDistribution' data-bs-toggle='modal' data-bs-target='#addDistributionModal' data-beneficiary-id='{$row['beneficiary_id']}'>
-                                                            <i class='bx bx-plus'></i>
-                                                            <span>Add Intervention</span>
-                                                        </button>
-                                                    </td>
-                                                </tr>";
-                                                                            }
-                                                                        } else {
-                                                                            // If no beneficiaries are found
-                                                                            echo "<tr>
-                                                <td colspan='7'>No beneficiaries found.</td>
-                                            </tr>";
-                                    }
-
-                                    // Close the database connection
-                                    $conn->close();
-                                    ?>
-                                </tbody>
-                            </table>
+                <form class="d-none d-sm-inline-block form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
+                    <div class="input-group">
+                        <input type="text" id="search_id" class="form-control bg-light border-0 small"
+                            placeholder="Search for beneficiaries..." aria-label="Search" aria-describedby="basic-addon2" onkeyup="searchBeneficiaryTable()">
+                        <div class="input-group-append">
+                            <button class="btn text-white" style="background-color: #DCFFB7;" type="button">
+                                <i class="fas fa-search fa-sm" style="color: black;"></i>
+                            </button>
                         </div>
                     </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="tab1" class="tab-content active">
+            <div class="card-body">
+            <div class="d-flex justify-content-start mb-3">
+                <button class="btn btn-outline-primary px-4 py-2 me-4" id="btnAll">All</button>
+                <button class="btn btn-outline-primary px-4 py-2 me-4" id="btnIndividual">Individual</button> 
+                <button class="btn btn-outline-success px-4 py-2" id="btnGroup">Group</button>
+            </div>
+                <div style="max-height: 430px; overflow: auto; width: 100%; border: 1px solid #ddd; border-radius: 10px;">
+                    <!-- Table to display beneficiaries -->
+                    <table class="table table-bordered text-center" width="100%" cellspacing="0" id="beneficiaryTable">
+                        <thead class="thead" style="background-color: #0D7C66; color: white;">
+                            <tr>
+                                <th>Full Name</th>
+                                <th>RSBSA No.</th>
+                                <th>Province</th>
+                                <th>Municipality</th>
+                                <th>Barangay</th>
+                                <th>Birthdate</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            include('../conn.php');
+
+                            function formatRsbsaNo($rsbsa_no) {
+                                if (strlen($rsbsa_no) === 15) {
+                                    return substr($rsbsa_no, 0, 2) . '-' .
+                                        substr($rsbsa_no, 2, 2) . '-' .
+                                        substr($rsbsa_no, 4, 2) . '-' .
+                                        substr($rsbsa_no, 6, 3) . '-' .
+                                        substr($rsbsa_no, 9, 6);
+                                }
+                                return $rsbsa_no;
+                            }
+
+                            $query = "SELECT beneficiary_id, fname, mname, lname, rsbsa_no, province_name, municipality_name, barangay_name, birthdate FROM tbl_beneficiary";
+                            $result = $conn->query($query);
+
+                            if ($result->num_rows > 0) {
+                                while ($row = $result->fetch_assoc()) {
+                                    $fullName = $row['fname'] . ' ' . (!empty($row['mname']) ? $row['mname'] . ' ' : '') . $row['lname'];
+                                    $formattedBirthdate = date('F j, Y', strtotime($row['birthdate']));
+                                    $rsbsa_no = !empty($row['rsbsa_no']) ? formatRsbsaNo($row['rsbsa_no']) : 'N/A';
+
+                                    echo "<tr>
+                                            <td>{$fullName}</td>
+                                            <td>{$rsbsa_no}</td>
+                                            <td>{$row['province_name']}</td>
+                                            <td>{$row['municipality_name']}</td>
+                                            <td>{$row['barangay_name']}</td>
+                                            <td>{$formattedBirthdate}</td>
+                                            <td>
+                                                <button class='btn btn-primary btn-sm'>Edit</button>
+                                                <button class='btn btn-danger btn-sm'>Delete</button>
+                                                <button class='btn btn-info btn-sm' onclick='viewBeneficiary({$row['beneficiary_id']})'>View</button>
+                                                <button type='button' class='btn btn-success btn-sm' id='btnAddDistribution' data-bs-toggle='modal' data-bs-target='#addDistributionModal' data-beneficiary-id='{$row['beneficiary_id']}'>
+                                                    <i class='bx bx-plus'></i>
+                                                    <span>Add Intervention</span>
+                                                </button>
+                                            </td>
+                                        </tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='7'>No beneficiaries found.</td></tr>";
+                            }
+
+                            $conn->close();
+                            ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
 
     <style>
         /* Reduce table font size */
