@@ -2644,4 +2644,73 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 </script>
+<!-- for update and fetch classification mngmngt -->
+<!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<script>
+$(document).ready(function() {
+    // When the "Update" button is clicked
+    $('.edit-btn').on('click', function() {
+        // Get the data attributes from the button
+        var seedId = $(this).data('id');
+        var seedName = $(this).data('seed-name');
+        var interventionName = $(this).data('intervention-name');
+
+        // Populate the modal fields with the data
+        $('#seed_id').val(seedId);
+        $('#seed_name').val(seedName);
+        $('#up_intervention_name').val(interventionName); // Fix: Ensure correct ID is used
+    });
+
+
+    // Handle form submission
+    $('#updateSeedForm').on('submit', function(e) {
+        e.preventDefault(); // Prevent the default form submission
+
+        // Show a confirmation dialog using SweetAlert2
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to update this seed?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, update it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // If the user confirms, proceed with the AJAX request
+                var formData = $(this).serialize();
+
+                // Send the data via AJAX
+                $.ajax({
+                    url: '5SeedtypeManagement/updateClassification.php', // PHP script to handle the update
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        // Show a success message using SweetAlert2
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Seed updated successfully!',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            $('#editSeedlingModal').modal('hide'); // Hide the modal
+                            location.reload(); // Reload the page or update the table
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        // Show an error message using SweetAlert2
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred while updating the seed.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            }
+        });
+    });
+});
+</script>
