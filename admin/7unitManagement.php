@@ -171,10 +171,10 @@ include('includes/navbar.php');
                                                 <td>
                                                     <a href="#" class="btn" style="background-color: #DCFFB7; color: black;"
                                                         data-toggle="modal" data-target="#updateUnitModal"
-                                                        data-unit-id="<?php echo $row['unit_no']; ?>">Update</a>
+                                                        data-unit-id="<?php echo $row['unit_id']; ?>">Update</a>
 
                                                     <a href="#" class="btn btn-warning archive-unit-btn"
-                                                        data-unit-id="<?php echo htmlspecialchars($row['unit_no']); ?>">
+                                                        data-unit-id="<?php echo htmlspecialchars($row['unit_id']); ?>">
                                                         Archive
                                                     </a>
                                                 </td>
