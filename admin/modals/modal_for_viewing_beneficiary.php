@@ -2,8 +2,8 @@
 <div class="modal fade" id="viewBeneficiaryModal" tabindex="-1" aria-labelledby="viewBeneficiaryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content shadow-lg rounded-3">
-            <div class="modal-header background-color: #0D7C66;">
-                <h5 class="modal-title" id="viewBeneficiaryModalLabel">
+            <div class="modal-header" style="background-color: #0D7C66;">
+                <h5 class="modal-title text-white" id="viewBeneficiaryModalLabel">
                     <i class="fas fa-user"></i> Beneficiary Details
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -17,9 +17,9 @@
                     </table>
                 </div>
             </div>
-            <div class="modal-footer bg-light justify-content-center"> <!-- Center Buttons -->
+            <div class="modal-footer bg-light justify-content-center">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                   Close
+                    Close
                 </button>
             </div>
         </div>
@@ -52,11 +52,24 @@
         $.ajax({
             url: '8beneficiaryManagement/get_beneficiary_details.php',
             type: 'GET',
-            data: { id: beneficiaryId }, 
+            data: {
+                id: beneficiaryId
+            },
             dataType: 'json',
             success: function(response) {
                 if (response.status === "success") {
                     const formattedBirthdate = formatDateToWords(response.data.birthdate);
+
+                    // Check the beneficiary category (normalize to lower case)
+                    const beneficiaryCategory = response.data.beneficiary_category.trim().toLowerCase();
+                    let cooperativeName = '';
+
+                    // Only add Cooperative Name if beneficiary category is not "individual"
+                    if (beneficiaryCategory !== 'individual') {
+                        cooperativeName = `
+                            <tr><td><i class="fas fa-handshake"></i> <strong>Cooperative Name:</strong></td><td>${response.data.cooperative_name || 'N/A'}</td></tr>
+                        `;
+                    }
 
                     // Populate table rows dynamically
                     const details = `
@@ -68,12 +81,13 @@
                         <tr><td><i class="fas fa-home"></i> <strong>Barangay:</strong></td><td>${response.data.barangay_name}</td></tr>
                         <tr><td><i class="fas fa-id-card"></i> <strong>RSBSA No.:</strong></td><td>${response.data.rsbsa_no || 'N/A'}</td></tr>
                         <tr><td><i class="fas fa-phone"></i> <strong>Contact Number:</strong></td><td>${response.data.contact_no || 'N/A'}</td></tr>
-                        <tr><td><i class="fas fa-venus-mars"></i> <strong>Sex:</strong></td><td>${response.data.sex}</td></tr>
+                        <tr><td><i class="fas fa-venus-mars"></i> < strong>Sex:</strong></td><td>${response.data.sex}</td></tr>
                         <tr><td><i class="fas fa-birthday-cake"></i> <strong>Birthdate:</strong></td><td>${formattedBirthdate}</td></tr>
                         <tr><td><i class="fas fa-users"></i> <strong>Beneficiary Type:</strong></td><td>${response.data.beneficiary_type}</td></tr>
                         <tr><td><i class="fas fa-check-circle"></i> <strong>Applicable:</strong></td><td>${response.data.if_applicable || 'N/A'}</td></tr>
-                        <tr><td><i class="fas fa-handshake"></i> <strong>Cooperative Name:</strong></td><td>${response.data.cooperative_name || 'N/A'}</td></tr>
+                        ${cooperativeName} <!-- Conditional Cooperative Name -->
                     `;
+
                     $('#beneficiaryDetails tbody').html(details);
                     $('#viewBeneficiaryModal').modal('show');
                 } else {
@@ -86,7 +100,6 @@
             }
         });
     }
-
 </script>
 
 <!-- FontAwesome Icons -->
