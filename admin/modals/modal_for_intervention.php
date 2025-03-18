@@ -94,9 +94,9 @@
                         <input type="number" class="form-control" id="interventionQty" name="interventionQty" required>
                     </div>
                     <div class="mb-3">
-                        <label for="unit" class="form-label">Unit</label>
+                        <label for="unit" class="form-label">Indicator</label>
                         <select class="form-control" id="unit" name="unit" required>
-                            <option value="" disabled selected>Select Unit</option>
+                            <option value="" disabled selected>Select Indicator</option>
                             <?php
                             include('../conn.php'); // Include your database connection
 
@@ -138,7 +138,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="updateInterventionForm">
+                <form id="updateIntForm">
                     <input type="hidden" id="intervention_id" name="intervention_id">
 
                     <!-- Intervention Name Input (Display only, not included in form submission) -->
@@ -171,11 +171,32 @@
                         <input type="number" id="quantity_left" name="quantity_left" class="form-control" required>
                     </div>
 
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-success">Update</button>
-                    </div>
+                    <!-- Indicator -->
+                    <div class="mb-3">
+                        <label for="unit" class="form-label">Indicator</label>
+                        <select class="form-control" id="unit" name="unit" required>
+                            <option value="" disabled>Select Indicator</option>
+                            <?php
+                            include('../conn.php');
+                            $query = "SELECT unit_id, unit_name FROM tbl_unit ORDER BY unit_name ASC";
+                            $result = $conn->query($query);
 
+                            if ($result->num_rows > 0) {
+                                while ($row = $result->fetch_assoc()) {
+                                    echo "<option value='" . htmlspecialchars($row['unit_id']) . "'>" . htmlspecialchars($row['unit_name']) . "</option>";
+                                }
+                            } else {
+                                echo "<option value='' disabled>No units available</option>";
+                            }
+                            $conn->close();
+                            ?>
+                        </select>
+                    </div>
                 </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="updateIntForm" class="btn btn-success">Update</button>
             </div>
         </div>
     </div>
