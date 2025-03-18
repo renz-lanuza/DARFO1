@@ -96,149 +96,154 @@ include('includes/navbar.php');
                 <div id="tab1" class="tab-content active">
                     <div class="card-body">
                         <div class="table-responsive" style="border-radius: 10px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
-                            <?php
-                                // Database connection
-                                include('../conn.php');
+                          <?php
+// Database connection
+include('../conn.php');
 
-                                // Retrieve the user's station ID from the session
-                                if (!isset($_SESSION['uid'])) {
-                                    echo "<tr><td colspan='11' class='text-center'>User not logged in.</td></tr>";
-                                    exit;
-                                }
+// Retrieve the user's station ID from the session
+if (!isset($_SESSION['uid'])) {
+    echo "<tr><td colspan='11' class='text-center'>User not logged in.</td></tr>";
+    exit;
+}
 
-                                $user_id = $_SESSION['uid'];
-                                $stationQuery = $conn->prepare("SELECT station_id FROM tbl_user WHERE uid = ?");
-                                $stationQuery->bind_param("i", $user_id);
-                                $stationQuery->execute();
-                                $stationQuery->bind_result($station_id);
-                                $stationQuery->fetch();
-                                $stationQuery->close();
+$user_id = $_SESSION['uid'];
+$stationQuery = $conn->prepare("SELECT station_id FROM tbl_user WHERE uid = ?");
+$stationQuery->bind_param("i", $user_id);
+$stationQuery->execute();
+$stationQuery->bind_result($station_id);
+$stationQuery->fetch();
+$stationQuery->close();
 
-                                $entries_per_page = 10;
-                                $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-                                $offset = ($page - 1) * $entries_per_page;
+$entries_per_page = 10;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $entries_per_page;
 
-                                $countQuery = "SELECT COUNT(*) as total FROM tbl_distribution WHERE station_id = ?";
-                                $stmt_count = $conn->prepare($countQuery);
-                                $stmt_count->bind_param("i", $station_id);
-                                $stmt_count->execute();
-                                $count_result = $stmt_count->get_result();
-                                $total_entries = $count_result->fetch_assoc()['total'];
-                                $stmt_count->close();
+$countQuery = "SELECT COUNT(*) as total FROM tbl_distribution WHERE station_id = ?";
+$stmt_count = $conn->prepare($countQuery);
+$stmt_count->bind_param("i", $station_id);
+$stmt_count->execute();
+$count_result = $stmt_count->get_result();
+$total_entries = $count_result->fetch_assoc()['total'];
+$stmt_count->close();
 
-                                // Define the query to fetch data filtered by station ID
-                                $query = "SELECT 
-                                            d.distribution_date, 
-                                            CONCAT(b.fname, ' ', IFNULL(b.mname, ''), ' ', b.lname) AS beneficiary_name, 
-                                            st.seed_name, 
-                                            it.intervention_name, 
-                                            b.province_name, 
-                                            b.municipality_name, 
-                                            b.barangay_name, 
-                                            distribution_id,
-                                            d.quantity, 
-                                            IF(b.coop_id = 0, 'N/A', c.cooperative_name) AS cooperative_name 
-                                        FROM 
-                                            tbl_distribution AS d
-                                        INNER JOIN 
-                                            tbl_beneficiary AS b ON d.beneficiary_id = b.beneficiary_id
-                                        INNER JOIN 
-                                            tbl_seed_type AS st ON d.seed_id = st.seed_id
-                                        INNER JOIN 
-                                            tbl_intervention_type AS it ON st.int_type_id = it.int_type_id
-                                        LEFT JOIN 
-                                            tbl_cooperative AS c ON b.coop_id = c.coop_id
-                                        WHERE 
-                                            d.station_id = ? 
-                                             AND (d.archived_at IS NULL OR d.archived_at = '') -- Ensures archived records are not shown
-                                        ORDER BY d.distribution_date DESC
-                                        
-                                        LIMIT $offset, $entries_per_page;"; // Concatenating LIMIT values
+// Define the query to fetch data filtered by station ID
+$query = "
+    SELECT 
+        d.distribution_date, 
+        CONCAT(b.fname, ' ', IFNULL(b.mname, ''), ' ', b.lname) AS beneficiary_name, 
+        st.seed_name, 
+        it.intervention_name, 
+        b.province_name, 
+        b.municipality_name, 
+        b.barangay_name, 
+        d.distribution_id,
+        CONCAT(d.quantity, ' ', u.unit_name) AS quantity_with_unit,  -- Concatenate quantity and unit_name
+        IF(b.coop_id = 0, 'N/A', c.cooperative_name) AS cooperative_name
+    FROM 
+        tbl_distribution AS d
+    INNER JOIN 
+        tbl_beneficiary AS b ON d.beneficiary_id = b.beneficiary_id
+    INNER JOIN 
+        tbl_seed_type AS st ON d.seed_id = st.seed_id
+    INNER JOIN 
+        tbl_intervention_type AS it ON st.int_type_id = it.int_type_id
+    INNER JOIN 
+        tbl_intervention_inventory AS ii ON it.int_type_id = ii.int_type_id AND st.seed_id = ii.seed_id
+    INNER JOIN 
+        tbl_unit AS u ON ii.unit_id = u.unit_id
+    LEFT JOIN 
+        tbl_cooperative AS c ON b.coop_id = c.coop_id
+    WHERE 
+        d.station_id = ? 
+        AND (d.archived_at IS NULL OR d.archived_at = '') -- Ensures archived records are not shown
+    ORDER BY 
+        d.distribution_date DESC
+    LIMIT ?, ?;
+";
 
-                                $stmt = $conn->prepare($query);
-                                if (!$stmt) {
-                                    die("Query preparation failed: " . $conn->error);
-                                }
-                                $stmt->bind_param("i", $station_id); // Only bind station_id
-                                $stmt->execute();
-                                $result = $stmt->get_result();
+$stmt = $conn->prepare($query);
+if (!$stmt) {
+    die("Query preparation failed: " . $conn->error);
+}
+$stmt->bind_param("iii", $station_id, $offset, $entries_per_page); // Bind station_id, offset, and entries_per_page
+$stmt->execute();
+$result = $stmt->get_result();
 
-                                // Check for errors in the query
-                                if (!$result) {
-                                    die("Query failed: " . $conn->error);
-                                }
-                            ?>
-                            <div style="max-height: 430px; overflow: auto; width: 100%; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
-                                <table class="table table-bordered text-center" width="100%" cellspacing="0">
-                                    <thead class="thead" style="background-color: #0D7C66; color: white;">
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Beneficiary Name</th>
-                                            <th>Province</th>
-                                            <th>Municipality</th>
-                                            <th>Barangay</th>
-                                            <th>Cooperative</th>
-                                            <th>Intervention Name</th>
-                                            <th>Classification</th>
-                                            <th>Quantity</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="dataTable3" style="color: black;">
-                                        <?php
-                                        // Loop through and display the records
-                                        if ($result->num_rows > 0) {
-                                            while ($data = $result->fetch_assoc()) {
-                                                // Fetch the values for each row
-                                                $beneficiary_name = $data['beneficiary_name'];
-                                                $seed_name = $data['seed_name'];
-                                                $province = $data['province_name'];
-                                                $municipality = $data['municipality_name'];
-                                                $barangay = $data['barangay_name'];
-                                                $intervention_name = $data['intervention_name'];
-                                                $quantity = $data['quantity'];
-                                                $cooperative_name = $data['cooperative_name']; // Fetch the cooperative name
-                                                $date = date("F j, Y", strtotime($data['distribution_date']));
+// Check for errors in the query
+if (!$result) {
+    die("Query failed: " . $conn->error);
+}
+?>
+<div style="max-height: 430px; overflow: auto; width: 100%; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
+    <table class="table table-bordered text-center" width="100%" cellspacing="0">
+        <thead class="thead" style="background-color: #0D7C66; color: white;">
+            <tr>
+                <th>Date</th>
+                <th>Beneficiary Name</th>
+                <th>Province</th>
+                <th>Municipality</th>
+                <th>Barangay</th>
+                <th>Cooperative</th>
+                <th>Intervention Name</th>
+                <th>Classification</th>
+                <th>Quantity</th> <!-- Combined quantity and unit -->
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="dataTable3" style="color: black;">
+            <?php
+            // Loop through and display the records
+            if ($result->num_rows > 0) {
+                while ($data = $result->fetch_assoc()) {
+                    // Fetch the values for each row
+                    $beneficiary_name = $data['beneficiary_name'];
+                    $seed_name = $data['seed_name'];
+                    $province = $data['province_name'];
+                    $municipality = $data['municipality_name'];
+                    $barangay = $data['barangay_name'];
+                    $intervention_name = $data['intervention_name'];
+                    $quantity_with_unit = $data['quantity_with_unit']; // Fetch the concatenated quantity and unit
+                    $cooperative_name = $data['cooperative_name'];
+                    $date = date("F j, Y", strtotime($data['distribution_date']));
 
-                                                // Format the date if needed (optional)
-                                        ?>
-                                                <tr>
-                                                    <td><?php echo htmlspecialchars($date); ?></td> <!-- Display the formatted date -->
-                                                    <td><?php echo htmlspecialchars($beneficiary_name); ?></td>
-                                                    <td><?php echo htmlspecialchars($province); ?></td>
-                                                    <td><?php echo htmlspecialchars($municipality); ?></td>
-                                                    <td><?php echo htmlspecialchars($barangay); ?></td>
-                                                    <td><?php echo htmlspecialchars($cooperative_name); ?></td> 
-                                                    <td><?php echo htmlspecialchars($intervention_name); ?></td>
-                                                    <td><?php echo htmlspecialchars($seed_name); ?></td>
-                                                    <td><?php echo htmlspecialchars($quantity); ?></td>
-                                                    
-                                                    <td>
-                                                         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#updateDistributionModal"
-                                                            data-distribution-id="<?php echo htmlspecialchars($data['distribution_id']); ?>"
-                                                            data-quantity="<?php echo htmlspecialchars($quantity ?? ''); ?>"
-                                                            data-intervention-name="<?php echo htmlspecialchars($intervention_name ?? ''); ?>"
-                                                            data-seed-name="<?php echo htmlspecialchars($seed_name ?? ''); ?>"
-                                                            data-distribution-date="<?php echo htmlspecialchars($data['distribution_date'] ?? ''); ?>"
-                                                            data-quantity-left="<?php echo isset($data['quantity_left']) ? htmlspecialchars($data['quantity_left']) : '0'; ?>">
-                                                            Update
-                                                        </button>
+                    // Display the row
+            ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($date); ?></td>
+                        <td><?php echo htmlspecialchars($beneficiary_name); ?></td>
+                        <td><?php echo htmlspecialchars($province); ?></td>
+                        <td><?php echo htmlspecialchars($municipality); ?></td>
+                        <td><?php echo htmlspecialchars($barangay); ?></td>
+                        <td><?php echo htmlspecialchars($cooperative_name); ?></td>
+                        <td><?php echo htmlspecialchars($intervention_name); ?></td>
+                        <td><?php echo htmlspecialchars($seed_name); ?></td>
+                        <td><?php echo htmlspecialchars($quantity_with_unit); ?></td> <!-- Display the concatenated quantity and unit -->
+                        <td>
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#updateDistributionModal"
+                                data-distribution-id="<?php echo htmlspecialchars($data['distribution_id']); ?>"
+                                data-quantity="<?php echo htmlspecialchars($data['quantity'] ?? ''); ?>"
+                                data-intervention-name="<?php echo htmlspecialchars($intervention_name ?? ''); ?>"
+                                data-seed-name="<?php echo htmlspecialchars($seed_name ?? ''); ?>"
+                                data-distribution-date="<?php echo htmlspecialchars($data['distribution_date'] ?? ''); ?>"
+                                data-quantity-left="<?php echo isset($data['quantity_left']) ? htmlspecialchars($data['quantity_left']) : '0'; ?>">
+                                Update
+                            </button>
 
-                                                        <button class="btn btn-warning archivedistribution-btn"
-                                                            data-distribution-id="<?php echo htmlspecialchars($data['distribution_id']); ?>">
-                                                            Archive
-                                                        </button>
-                                                    </td>
-
-                                                </tr>
-                                        <?php
-                                            }
-                                        } else {
-                                            echo "<tr><td colspan='11' class='text-center'>No records found</td></tr>";
-                                        }
-                                        ?>
-                                    </tbody>
-                                </table>
+                            <button class="btn btn-warning archivedistribution-btn"
+                                data-distribution-id="<?php echo htmlspecialchars($data['distribution_id']); ?>">
+                                Archive
+                            </button>
+                        </td>
+                    </tr>
+            <?php
+                }
+            } else {
+                echo "<tr><td colspan='11' class='text-center'>No records found</td></tr>";
+            }
+            ?>
+        </tbody>
+    </table>
+</div>
                             </div>
                         </div>
                         </div>
