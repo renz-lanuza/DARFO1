@@ -165,7 +165,7 @@ include('includes/navbar.php');
                                                         <!-- Add Distribution Button with Beneficiary ID -->
                                                         <button type='button' class='btn btn-success btn-sm' id='btnAddDistribution' data-bs-toggle='modal' data-bs-target='#addDistributionModal' data-beneficiary-id='{$row['beneficiary_id']}'>
                                                             <i class='bx bx-plus'></i>
-                                                            <span>Add Distribution</span>
+                                                            <span>Add Intervention</span>
                                                         </button>
                                                     </td>
                                                 </tr>";
