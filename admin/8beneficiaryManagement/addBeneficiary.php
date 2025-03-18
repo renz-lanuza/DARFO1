@@ -142,24 +142,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt_insert_barangay->execute();
         $stmt_insert_barangay->close();
 
-        // Check if beneficiary already exists (excluding rsbsa_no)
+        // Check if beneficiary already exists with the same cooperative ID
         if ($beneficiary_middle_name === null) {
             // Handle NULL middle name
-            $sql_check_beneficiary = "SELECT beneficiary_id FROM tbl_beneficiary WHERE fname = ? AND mname IS NULL AND lname = ? AND province_name = ? AND municipality_name = ? AND barangay_name = ?";
+            $sql_check_beneficiary = "SELECT beneficiary_id FROM tbl_beneficiary 
+                                      WHERE fname = ? AND mname IS NULL AND lname = ? 
+                                      AND province_name = ? AND municipality_name = ? 
+                                      AND barangay_name = ? AND coop_id = ?";
             $stmt_check_beneficiary = $conn->prepare($sql_check_beneficiary);
-            $stmt_check_beneficiary->bind_param("sssss", $beneficiary_first_name, $beneficiary_last_name, $provinceName, $municipalityName, $barangayName);
+            $stmt_check_beneficiary->bind_param("sssssi", $beneficiary_first_name, $beneficiary_last_name, $provinceName, $municipalityName, $barangayName, $cooperative_id);
         } else {
             // Handle non-NULL middle name
-            $sql_check_beneficiary = "SELECT beneficiary_id FROM tbl_beneficiary WHERE fname = ? AND mname = ? AND lname = ? AND province_name = ? AND municipality_name = ? AND barangay_name = ?";
+            $sql_check_beneficiary = "SELECT beneficiary_id FROM tbl_beneficiary 
+                                      WHERE fname = ? AND mname = ? AND lname = ? 
+                                      AND province_name = ? AND municipality_name = ? 
+                                      AND barangay_name = ? AND coop_id = ?";
             $stmt_check_beneficiary = $conn->prepare($sql_check_beneficiary);
-            $stmt_check_beneficiary->bind_param("ssssss", $beneficiary_first_name, $beneficiary_middle_name, $beneficiary_last_name, $provinceName, $municipalityName, $barangayName);
+            $stmt_check_beneficiary->bind_param("ssssssi", $beneficiary_first_name, $beneficiary_middle_name, $beneficiary_last_name, $provinceName, $municipalityName, $barangayName, $cooperative_id);
         }
         $stmt_check_beneficiary->execute();
         $stmt_check_beneficiary->store_result();
 
-        // If beneficiary already exists, return an error
+        // If beneficiary already exists with the same cooperative ID, return an error
         if ($stmt_check_beneficiary->num_rows > 0) {
-            echo json_encode(["status" => "error", "message" => "Beneficiary already exists."]);
+            echo json_encode(["status" => "error", "message" => "Beneficiary already exists"]);
             exit;
         }
         $stmt_check_beneficiary->close();
