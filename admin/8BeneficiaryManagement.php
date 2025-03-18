@@ -100,9 +100,9 @@ include('includes/navbar.php');
         <div id="tab1" class="tab-content active">
             <div class="card-body">
             <div class="d-flex justify-content-start mb-3">
-                <button class="btn btn-outline-primary px-4 py-2 me-4" id="btnAll">All</button>
-                <button class="btn btn-outline-primary px-4 py-2 me-4" id="btnIndividual">Individual</button> 
-                <button class="btn btn-outline-success px-4 py-2" id="btnGroup">Group</button>
+               <button class="btn btn-outline-primary px-4 py-2 me-2 filter-btn active" id="btnAll">All</button>
+                <button class="btn btn-outline-primary px-4 py-2 me-2 filter-btn"" id="btnIndividual">Individual</button> 
+                <button class="btn btn-outline-success px-4 py-2 filter-btn" id="btnGroup">Group</button>
             </div>
                 <div style="max-height: 430px; overflow: auto; width: 100%; border: 1px solid #ddd; border-radius: 10px;">
                     <!-- Table to display beneficiaries -->
