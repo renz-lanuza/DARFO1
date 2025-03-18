@@ -2713,4 +2713,73 @@ $(document).ready(function() {
         });
     });
 });
-</script>
+</script><!-- for update unit management -->
+ <script>
+  $(document).ready(function () {
+    // When the "Update" button is clicked
+    $(document).on("click", ".btn[data-target='#updateUnitModal']", function () {
+        // Get the unit details from the button's data attributes
+        var unitId = $(this).data('unit-id');
+        var unitName = $(this).data('unit-name'); // Get unit name directly from the button
+
+        // Populate the modal fields
+        $('#unit_id').val(unitId);
+        $('#up_unit_name').val(unitName); // Fix: Ensure correct ID is used in modal
+
+        // Optional: If you still want to fetch from PHP
+        $.ajax({
+            url: '7unitManagement/fetchUnit.php',
+            type: 'GET',
+            data: { unit_id: unitId },
+            dataType: 'json',
+            success: function (data) {
+                $('#unit_id').val(data.unit_id);
+                $('#up_unit_name').val(data.unit_name); // Update modal with fetched data
+            },
+            error: function () {
+                console.error("Error fetching data.");
+            }
+        });
+    });
+
+    // Handle update form submission with confirmation
+    $('#updateUnitForm').on('submit', function (e) {
+        e.preventDefault();
+
+        var formData = new FormData(this);
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You are about to update this unit.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, update it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '7unitManagement/updateunit.php',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.success) {
+                            Swal.fire("Updated!", "The unit has been updated.", "success")
+                                .then(() => location.reload()); // Reload page after success
+                        } else {
+                            Swal.fire("Error!", data.message, "error");
+                        }
+                    },
+                    error: function () {
+                        console.error("Error updating.");
+                    }
+                });
+            }
+        });
+    });
+});
+
+ </script>
