@@ -116,3 +116,38 @@
         color: #6c757d;
     }
 </style>
+
+<!-- Edit Seedling Modal -->
+<div class="modal fade" id="editSeedlingModal" tabindex="-1" aria-labelledby="editSeedlingLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editSeedlingLabel">Update Classification</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+           
+            <div class="modal-body">
+                <form id="updateSeedForm">
+                    <input type="hidden" id="seed_id" name="seed_id">
+
+                    <!-- Intervention Name (Fixed ID) -->
+                    <div class="mb-3">
+                        <label for="up_intervention_name" class="form-label">Intervention Name</label>
+                        <input type="text" id="up_intervention_name" name="intervention_name" class="form-control" required disabled>
+                    </div>
+
+                    <!-- Seed Name -->
+                    <div class="mb-3">
+                        <label for="seed_name" class="form-label">Classification</label>
+                        <input type="text" id="seed_name" name="seed_name" class="form-control" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="updateSeedForm" class="btn btn-success">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
