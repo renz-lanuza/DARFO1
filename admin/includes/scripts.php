@@ -2713,7 +2713,9 @@ $(document).ready(function() {
         });
     });
 });
-</script><!-- for update unit management -->
+</script>
+
+<!-- for update unit management -->
  <script>
   $(document).ready(function () {
     // When the "Update" button is clicked
