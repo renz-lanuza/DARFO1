@@ -1133,96 +1133,89 @@
 <!-- script for fetching the seed type -->
 <!-- JS for fetch update intervention -->
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const updateModal = document.getElementById("updateInterventionModal");
+  document.addEventListener("DOMContentLoaded", function() {
+    const updateModal = document.getElementById("updateInterventionModal");
 
-        // When the modal is triggered, populate the modal with the correct data
-        updateModal.addEventListener("show.bs.modal", function(event) {
-            let button = event.relatedTarget; // The button that triggered the modal
-            let interventionId = button.getAttribute("data-intervention-id"); // Get intervention_id from the button
+    updateModal.addEventListener("show.bs.modal", function(event) {
+        let button = event.relatedTarget;
+        let interventionId = button.getAttribute("data-intervention-id");
 
-            // Make an AJAX request to fetch intervention details using the intervention_id
-            fetch("2InterventionManagement/fetch_intervention.php", {
+        fetch("2InterventionManagement/fetch_intervention.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `intervention_id=${interventionId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error(data.error);
+                return;
+            }
+
+            document.getElementById("intervention_id").value = data.intervention_id;
+            document.getElementById("intervention_type").value = data.intervention_name;
+            document.getElementById("seed_type").value = data.seed_name;
+            document.getElementById("description").value = data.description;
+            document.getElementById("quantity").value = data.quantity;
+            document.getElementById("quantity_left").value = data.quantity_left;
+
+            // Set unit dropdown value
+            let unitSelect = document.getElementById("unit");
+            unitSelect.value = data.unit_id || "";
+
+            // Ensure the correct option is selected
+            let options = unitSelect.options;
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value == data.unit_id) {
+                    options[i].selected = true;
+                    break;
+                }
+            }
+        })
+        .catch(error => console.error("Error fetching intervention:", error));
+    });
+
+    // Form submission with confirmation
+    document.getElementById("updateIntForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You want to update this intervention?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, update it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let formData = new FormData(this);
+
+                fetch("2InterventionManagement/update_intervention.php", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
-                    },
-                    body: `intervention_id=${interventionId}`
+                    body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.error) {
-                        console.error(data.error);
-                        return;
-                    }
-
-                    // Populate the modal fields with the fetched data
-                    document.getElementById("intervention_id").value = data.intervention_id;
-                    document.getElementById("intervention_type").value = data.intervention_name; // Set the intervention name for display
-                    document.getElementById("seed_type").value = data.seed_name; // Set the seedling name for display
-                    document.getElementById("description").value = data.description;
-                    document.getElementById("quantity").value = data.quantity;
-                    document.getElementById("quantity_left").value = data.quantity_left;
-                })
-                .catch(error => console.error("Error fetching intervention:", error));
-        });
-
-        // Handling the form submission
-        document.getElementById("updateInterventionForm").addEventListener("submit", function(e) {
-            e.preventDefault(); // Prevent the default form submission
-
-            // Show a confirmation Swal before proceeding with the update
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You want to update this intervention?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, update it!',
-                cancelButtonText: 'No, cancel!',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // If confirmed, submit the form data using fetch or AJAX
-                    let formData = new FormData(this); // Get form data
-
-                    fetch("2InterventionManagement/update_intervention.php", {
-                            method: "POST",
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Success: show success message
-                                Swal.fire(
-                                    'Updated!',
-                                    'The intervention has been updated successfully.',
-                                    'success'
-                                ).then(() => {
-                                    // Optionally, close the modal or refresh the page
-                                    $('#updateInterventionModal').modal('hide');
-                                    location.reload(); // Or any other action you want
-                                });
-                            } else {
-                                // Error: show error message
-                                Swal.fire(
-                                    'Error!',
-                                    'There was a problem updating the intervention.',
-                                    'error'
-                                );
-                            }
-                        })
-                        .catch(error => {
-                            Swal.fire(
-                                'Error!',
-                                'There was an error with the request.',
-                                'error'
-                            );
-                            console.error("Error updating intervention:", error);
+                    if (data.success) {
+                        Swal.fire('Updated!', 'The intervention has been updated successfully.', 'success')
+                        .then(() => {
+                            $('#updateInterventionModal').modal('hide');
+                            location.reload();
                         });
-                }
-            });
+                    } else {
+                        Swal.fire('Error!', data.message || 'There was a problem updating the intervention.', 'error');
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error!', 'There was an error with the request.', 'error');
+                    console.error("Error updating intervention:", error);
+                });
+            }
         });
     });
+});
+
 </script>
 
 
