@@ -2785,3 +2785,58 @@ $(document).ready(function() {
 });
 
  </script>
+<!-- for filter button in beneficiary management -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Default: Load all beneficiaries on page load
+    fetchBeneficiaries("all");
+
+    document.getElementById("btnAll").addEventListener("click", function () {
+        fetchBeneficiaries("all");
+    });
+
+    document.getElementById("btnIndividual").addEventListener("click", function () {
+        fetchBeneficiaries("Individual");
+    });
+
+    document.getElementById("btnGroup").addEventListener("click", function () {
+        fetchBeneficiaries("Group");
+    });
+
+    function fetchBeneficiaries(category) {
+        fetch(`8BeneficiaryManagement/fetch_beneficiaries.php?category=${category}`)
+            .then(response => response.json())
+            .then(data => {
+                let tableBody = document.querySelector("#beneficiaryTable tbody");
+                tableBody.innerHTML = ""; // Clear the table
+
+                if (data.length === 0) {
+                    tableBody.innerHTML = "<tr><td colspan='7'>No beneficiaries found.</td></tr>";
+                    return;
+                }
+
+                data.forEach(row => {
+                    let newRow = `<tr>
+                        <td>${row.fullName}</td>
+                        <td>${row.rsbsa_no}</td>
+                        <td>${row.province_name}</td>
+                        <td>${row.municipality_name}</td>
+                        <td>${row.barangay_name}</td>
+                        <td>${row.birthdate}</td>
+                        <td>
+                            <button class='btn btn-primary btn-sm'>Edit</button>
+                            <button class='btn btn-danger btn-sm'>Delete</button>
+                            <button class='btn btn-info btn-sm' onclick='viewBeneficiary(${row.beneficiary_id})'>View</button>
+                            <button type='button' class='btn btn-success btn-sm' id='btnAddDistribution' data-bs-toggle='modal' data-bs-target='#addDistributionModal' data-beneficiary-id='${row.beneficiary_id}'>
+                                <i class='bx bx-plus'></i>
+                                <span>Add Intervention</span>
+                            </button>
+                        </td>
+                    </tr>`;
+                    tableBody.innerHTML += newRow;
+                });
+            })
+            .catch(error => console.error("Error fetching beneficiaries:", error));
+    }
+});
+</script>
