@@ -1159,21 +1159,20 @@
             document.getElementById("quantity").value = data.quantity;
             document.getElementById("quantity_left").value = data.quantity_left;
 
-            // Set unit dropdown value
-            let unitSelect = document.getElementById("unit");
-            unitSelect.value = data.unit_id || "";
+            // Set the hidden unit_id value
+            document.getElementById("unit_id").value = data.unit_id;
 
-            // Ensure the correct option is selected
-            let options = unitSelect.options;
-            for (let i = 0; i < options.length; i++) {
-                if (options[i].value == data.unit_id) {
-                    options[i].selected = true;
+            // Select the correct unit_name in the dropdown
+            let unitDropdown = document.getElementById("unit_name");
+            for (let option of unitDropdown.options) {
+                if (option.value == data.unit_id) {
+                    option.selected = true;
                     break;
                 }
             }
         })
         .catch(error => console.error("Error fetching intervention:", error));
-    });
+    }); 
 
     // Form submission with confirmation
     document.getElementById("updateIntForm").addEventListener("submit", function(e) {
