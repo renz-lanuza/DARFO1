@@ -100,8 +100,8 @@ include('includes/navbar.php');
         <div id="tab1" class="tab-content active">
             <div class="card-body">
             <div class="d-flex justify-content-start mb-3">
-               <button class="btn btn-outline-primary px-4 py-2 me-2 filter-btn active" id="btnAll">All</button>
-                <button class="btn btn-outline-primary px-4 py-2 me-2 filter-btn"" id="btnIndividual">Individual</button> 
+                <button class="btn btn-outline-primary px-4 py-2 me-2 filter-btn active" id="btnAll">All</button>
+                <button class="btn btn-outline-primary px-4 py-2 me-2 filter-btn" id="btnIndividual">Individual</button> 
                 <button class="btn btn-outline-success px-4 py-2 filter-btn" id="btnGroup">Group</button>
             </div>
                 <div style="max-height: 430px; overflow: auto; width: 100%; border: 1px solid #ddd; border-radius: 10px;">
@@ -136,37 +136,49 @@ include('includes/navbar.php');
                             $query = "SELECT beneficiary_id, fname, mname, lname, rsbsa_no, province_name, municipality_name, barangay_name, birthdate FROM tbl_beneficiary";
                             $result = $conn->query($query);
 
-                            if ($result->num_rows > 0) {
-                                while ($row = $result->fetch_assoc()) {
+                            if ($result->num_rows > 0) :
+                                while ($row = $result->fetch_assoc()) :
                                     $fullName = $row['fname'] . ' ' . (!empty($row['mname']) ? $row['mname'] . ' ' : '') . $row['lname'];
                                     $formattedBirthdate = date('F j, Y', strtotime($row['birthdate']));
                                     $rsbsa_no = !empty($row['rsbsa_no']) ? formatRsbsaNo($row['rsbsa_no']) : 'N/A';
-
-                                    echo "<tr>
-                                            <td>{$fullName}</td>
-                                            <td>{$rsbsa_no}</td>
-                                            <td>{$row['province_name']}</td>
-                                            <td>{$row['municipality_name']}</td>
-                                            <td>{$row['barangay_name']}</td>
-                                            <td>{$formattedBirthdate}</td>
-                                            <td>
-                                                <button class='btn btn-primary btn-sm'>Edit</button>
-                                                <button class='btn btn-danger btn-sm'>Delete</button>
-                                                <button class='btn btn-info btn-sm' onclick='viewBeneficiary({$row['beneficiary_id']})'>View</button>
-                                                <button type='button' class='btn btn-success btn-sm' id='btnAddDistribution' data-bs-toggle='modal' data-bs-target='#addDistributionModal' data-beneficiary-id='{$row['beneficiary_id']}'>
-                                                    <i class='bx bx-plus'></i>
-                                                    <span>Add Intervention</span>
-                                                </button>
-                                            </td>
-                                        </tr>";
-                                }
-                            } else {
-                                echo "<tr><td colspan='7'>No beneficiaries found.</td></tr>";
-                            }
+                            ?>
+                                    <tr>
+                                        <td><?= $fullName ?></td>
+                                        <td><?= $rsbsa_no ?></td>
+                                        <td><?= $row['province_name'] ?></td>
+                                        <td><?= $row['municipality_name'] ?></td>
+                                        <td><?= $row['barangay_name'] ?></td>
+                                        <td><?= $formattedBirthdate ?></td>
+                                        <td>
+                                             <button class="btn btn-primary" onclick="openUpdateBeneficiaryModal(<?= $row['beneficiary_id'] ?>)">
+                                                Update
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteBeneficiary(<?= $row['beneficiary_id'] ?>)">
+                                                Delete
+                                            </button>
+                                            <!-- View Beneficiary Button -->
+                                            <button class="btn btn-info btn-sm view-beneficiary" data-id="<?= $row['beneficiary_id'] ?>">View</button>
+                                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addDistributionModal" 
+                                                data-beneficiary-id="<?= $row['beneficiary_id'] ?>">
+                                                <i class="bx bx-plus"></i>
+                                                <span>Add Intervention</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                            <?php
+                                endwhile;
+                            else :
+                            ?>
+                                <tr>
+                                    <td colspan="7">No beneficiaries found.</td>
+                                </tr>
+                            <?php
+                            endif;
 
                             $conn->close();
                             ?>
                         </tbody>
+
                     </table>
                 </div>
             </div>
