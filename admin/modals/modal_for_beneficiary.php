@@ -378,3 +378,322 @@ document.addEventListener("DOMContentLoaded", function () {
     contactInput.addEventListener("input", () => validateInput(contactInput, "contact_no"));
 });
 </script>
+
+<!-- Update Beneficiary Modal -->
+<div class="modal fade" id="updateBeneficiaryModal" tabindex="-1" aria-labelledby="updateBeneficiaryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateBeneficiaryModalLabel">Update Beneficiary</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateBeneficiaryForm" method="POST" action="update_beneficiary.php">
+                    <!-- Hidden input for beneficiary ID -->
+                    <input type="hidden" id="beneficiary_id" name="beneficiary_id">
+
+                    <!-- Rest of the form fields (same as the Add Beneficiary form) -->
+                    <div class="row">
+                        <!-- Beneficiary Type -->
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Beneficiary Type</label><span class="text-danger">*</span><br>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="update_individual" name="beneficiary_category" value="Individual" required>
+                                <label class="form-check-label" for="update_individual">Individual</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="update_group" name="beneficiary_category" value="Group" required>
+                                <label class="form-check-label" for="update_group">Group</label>
+                            </div>
+                        </div>
+
+                    <!-- Individual Type -->
+                    <div class="col-12 mb-3" id="updateIndividualTypeRadio" style="display: none;">
+                        <label class="form-label">Individual Type</label><span class="text-danger">*</span><br>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" id="update_farmer" name="individual_type" value="Farmer">
+                            <label class="form-check-label" for="update_farmer">Farmer</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" id="update_fisher" name="individual_type" value="Fisher">
+                            <label class="form-check-label" for="update_fisher">Fisher</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" id="update_aew" name="individual_type" value="AEW">
+                            <label class="form-check-label" for="update_aew">AEW</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" id="update_others" name="individual_type" value="Others">
+                            <label class="form-check-label" for="update_others">Others</label>
+                        </div>
+                        <!-- Input field for specifying "Others" -->
+                        <div class="mt-2" id="updateOthersInput" style="display: none;">
+                            <label for="update_others_specify" class="form-label">Please Specify</label><span class="text-danger">*</span>
+                            <input type="text" class="form-control" id="update_others_specify" name="others_specify">
+                        </div>
+                    </div>
+
+                    <!-- Group Type -->
+                    <div class="col-12 mb-3" id="updateGroupTypeRadio" style="display: none;">
+                        <label class="form-label">Group Type</label><span class="text-danger">*</span><br>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" id="update_fca" name="group_type" value="FCA">
+                            <label class="form-check-label" for="update_fca">FCA</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" id="update_cluster" name="group_type" value="Cluster">
+                            <label class="form-check-label" for="update_cluster">Cluster</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" id="update_lgu" name="group_type" value="LGU">
+                            <label class="form-check-label" for="update_lgu">LGU</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" id="update_school" name="group_type" value="School">
+                            <label class="form-check-label" for="update_school">School</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" id="update_group_others" name="group_type" value="Others">
+                            <label class="form-check-label" for="update_group_others">Others</label>
+                        </div>
+                        <!-- Input field for specifying "Others" -->
+                        <div class="mt-2" id="updateGroupOthersInput" style="display: none;">
+                            <label for="update_group_others_specify" class="form-label">Please Specify</label><span class="text-danger">*</span>
+                            <input type="text" class="form-control" id="update_group_others_specify" name="group_others_specify">
+                        </div>
+                    </div>
+                        <!-- Cooperative Input (Hidden by Default) -->
+                        <div class="col-12 mb-3" id="updateCooperativeInput" style="display: none;">
+                            <label for="update_cooperative" class="form-label">Cooperative</label><span class="text-danger">*</span>
+                            <select class="form-control" id="update_cooperative" name="cooperative">
+                                <option value="" disabled selected>Select a Cooperative</option>
+                                <!-- Populate dynamically using PHP or JavaScript -->
+                            </select>
+                        </div>
+
+                        <!-- Beneficiary Details -->
+                        <div class="col-12 mb-3">
+                            <label for="update_beneficiary_first_name" class="form-label">First Name</label><span class="text-danger">*</span>
+                            <input type="text" class="form-control" id="update_beneficiary_first_name" name="beneficiary_first_name" required>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="update_beneficiary_middle_name" class="form-label">Middle Name</label>
+                            <input type="text" class="form-control" id="update_beneficiary_middle_name" name="beneficiary_middle_name">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="update_beneficiary_last_name" class="form-label">Last Name</label><span class="text-danger">*</span>
+                            <input type="text" class="form-control" id="update_beneficiary_last_name" name="beneficiary_last_name" required>
+                        </div>
+
+                        <!-- Address Fields -->
+                        <div class="col-12 mb-3">
+                            <label for="update_province_name">Province</label><span class="text-danger">*</span>
+                            <select id="update_province_name" class="form-control" name="update_province_name" required>
+                                <option selected disabled>Select a province</option>
+                                <!-- Populate dynamically using JavaScript or PHP -->
+                            </select>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="update_municipality_name">Municipality</label><span class="text-danger">*</span>
+                            <select id="update_municipality_name" class="form-control" name="update_municipality_name" required>
+                                <option selected disabled>Select a municipality</option>
+                            </select>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="update_barangay_name">Barangay</label><span class="text-danger">*</span>
+                            <select id="update_barangay_name" class="form-control" name="update_barangay_name" required>
+                                <option selected disabled>Select a barangay</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label for="update_streetPurok">Street/Purok</label>
+                            <input type="text" id="update_streetPurok" class="form-control" name="streetPurok">
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label for="rsbsa-no">RSBSA No.</label>
+                            <input type="text" class="form-control" name="up_rsbsa_no" placeholder="(e.g. 01-33-10-001-000000)"
+                            
+                                id="update_rsbsa-no" oninput="formatRSBSA(this)" required maxlength="19">
+                                <small class="form-text"></small> <!-- Add this for feedback -->
+                            <small class="form-text text-muted" style="font-size: 1.1em;">
+                                If you don't know your RSBSA No.,
+                                <a href="https://finder-rsbsa.da.gov.ph/?fbclid=IwY2xjawI9yR5leHRuA2FlbQIxMAABHUH8-YVy-cRpNVJgrzYznFQpQhWH_XMvVASmOru156UDC97RjJKjxmYLAg_aem_Yg-2xPtYXEe4FvX8p4VcJg"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style="font-size: 1.1em; text-decoration: underline; color: blue;">
+                                    click here
+                                </a>.
+                            </small>
+                        </div>
+
+                        <script>
+                            function formatRSBSA(input) {
+                                // Remove all non-digit characters
+                                let value = input.value.replace(/\D+/g, '');
+
+                                // Format the value as 01-33-10-001-000000
+                                let dashedValue = '';
+                                if (value.length > 0) {
+                                    dashedValue += value.substring(0, 2);
+                                }
+                                if (value.length > 2) {
+                                    dashedValue += '-' + value.substring(2, 4);
+                                }
+                                if (value.length > 4) {
+                                    dashedValue += '-' + value.substring(4, 6);
+                                }
+                                if (value.length > 6) {
+                                    dashedValue += '-' + value.substring(6, 9);
+                                }
+                                if (value.length > 9) {
+                                    dashedValue += '-' + value.substring(9, 15);
+                                }
+
+                                // Set the formatted value back to the input
+                                input.value = dashedValue;
+
+                            }
+                        </script>
+                        <!-- Sex -->
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Sex</label><span class="text-danger">*</span><br>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="update_sex_male" name="up_sex" value="Male" required>
+                                <label class="form-check-label" for="update_sex_male">Male</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="update_sex_female" name="up_sex" value="Female" required>
+                                <label class="form-check-label" for="update_sex_female">Female</label>
+                            </div>
+                        </div>
+
+
+                        <!-- Birthdate -->
+                        <div class="col-12 mb-3">
+                            <label for="update_birthdate" class="form-label">Birthdate</label><span class="text-danger">*</span>
+                            <input type="date" class="form-control" id="update_birthdate" name="birthdate" required>
+                        </div>
+
+                        <!-- Contact Number -->
+                        <div class="col-12 mb-3">
+                            <label for="update_contact_number" class="form-label">Contact Number</label>
+                            <input type="text" class="form-control" id="update_contact_number" name="contact_number" 
+                                required minlength="11" maxlength="11" pattern="\d{11}" title="Please enter a valid 11-digit contact number">
+                            <small class="form-text"></small>
+                        </div>
+
+                        <!-- Check if applicable -->
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Select if Applicable</label><br>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="update_arb" name="applicable[]" value="ARB">
+                                <label class="form-check-label" for="update_arb">ARB</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="update_ips" name="applicable[]" value="IPs">
+                                <label class="form-check-label" for="update_ips">IPs</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="update_pwd" name="applicable[]" value="PWD">
+                                <label class="form-check-label" for="update_pwd">PWD</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="update_4ps" name="applicable[]" value="4Ps">
+                                <label class="form-check-label" for="update_4ps">4Ps</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" id="update-beneficiary-btn" class="btn btn-success">Update Beneficiary</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Get elements
+    const individualRadio = document.getElementById("update_individual");
+    const groupRadio = document.getElementById("update_group");
+    const individualTypeDiv = document.getElementById("updateIndividualTypeRadio");
+    const groupTypeDiv = document.getElementById("updateGroupTypeRadio");
+    const cooperativeDiv = document.getElementById("updateCooperativeInput");
+
+    // Individual Type "Others" elements
+    const individualOthersRadio = document.getElementById("update_others");
+    const individualTypeRadios = document.querySelectorAll("input[name='individual_type']");
+    const individualOthersInput = document.getElementById("updateOthersInput");
+
+    // Group Type "Others" elements
+    const groupOthersRadio = document.getElementById("update_group_others");
+    const groupTypeRadios = document.querySelectorAll("input[name='group_type']");
+    const groupOthersInput = document.getElementById("updateGroupOthersInput");
+
+    // Function to show/hide fields based on Individual or Group selection
+    function toggleBeneficiaryType() {
+        if (individualRadio.checked) {
+            individualTypeDiv.style.display = "block";  // Show Individual Type options
+            groupTypeDiv.style.display = "none";
+            cooperativeDiv.style.display = "none";
+            groupOthersInput.style.display = "none";  // Hide Group "Others" input if switching
+            individualOthersInput.style.display = "none"; // Hide Individual "Others" input if switching
+        } else if (groupRadio.checked) {
+            individualTypeDiv.style.display = "none";
+            groupTypeDiv.style.display = "block";  // Show Group Type options
+            cooperativeDiv.style.display = "block";  // Show Cooperative dropdown
+            individualOthersInput.style.display = "none"; // Hide Individual "Others" input if switching
+        } else {
+            individualTypeDiv.style.display = "none";
+            groupTypeDiv.style.display = "none";
+            cooperativeDiv.style.display = "none";
+            individualOthersInput.style.display = "none"; // Ensure Individual "Others" input is hidden
+            groupOthersInput.style.display = "none"; // Ensure Group "Others" input is hidden
+        }
+    }
+
+    // Function to show/hide "Please Specify" input when "Others" is selected in Individual Type
+    function toggleIndividualOthersInput() {
+        if (individualOthersRadio.checked) {
+            individualOthersInput.style.display = "block";  // Show "Please Specify" input for Individual
+        } else {
+            individualOthersInput.style.display = "none";  // Hide it otherwise
+        }
+    }
+
+    // Function to show/hide "Please Specify" input when "Others" is selected in Group Type
+    function toggleGroupOthersInput() {
+        if (groupOthersRadio.checked) {
+            groupOthersInput.style.display = "block";  // Show "Please Specify" input for Group
+        } else {
+            groupOthersInput.style.display = "none";  // Hide it otherwise
+        }
+    }
+
+    // Add event listeners
+    individualRadio.addEventListener("change", toggleBeneficiaryType);
+    groupRadio.addEventListener("change", toggleBeneficiaryType);
+    
+    // Add event listeners for individual type radio buttons
+    individualTypeRadios.forEach(radio => {
+        radio.addEventListener("change", toggleIndividualOthersInput);
+    });
+
+    // Add event listeners for group type radio buttons
+    groupTypeRadios.forEach(radio => {
+        radio.addEventListener("change", toggleGroupOthersInput);
+    });
+
+    // Initialize visibility based on preselected values
+    toggleBeneficiaryType();
+    toggleIndividualOthersInput();
+    toggleGroupOthersInput();
+});
+</script>
+
