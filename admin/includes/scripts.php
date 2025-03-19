@@ -2789,7 +2789,6 @@ $(document).ready(function() {
 <!-- for filter button in beneficiary management -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    // Default: Load all beneficiaries on page load
     fetchBeneficiaries("all");
 
     document.getElementById("btnAll").addEventListener("click", function () {
@@ -2809,15 +2808,16 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(response => response.json())
             .then(data => {
                 let tableBody = document.querySelector("#beneficiaryTable tbody");
-                tableBody.innerHTML = ""; // Clear the table
+                tableBody.innerHTML = ""; 
 
-                if (data.length === 0) {
+                if (!data || data.length === 0) {
                     tableBody.innerHTML = "<tr><td colspan='7'>No beneficiaries found.</td></tr>";
                     return;
                 }
 
                 data.forEach(row => {
-                    let newRow = `<tr>
+                    let newRow = document.createElement("tr");
+                    newRow.innerHTML = `
                         <td>${row.fullName}</td>
                         <td>${row.rsbsa_no}</td>
                         <td>${row.province_name}</td>
@@ -2825,19 +2825,282 @@ document.addEventListener("DOMContentLoaded", function () {
                         <td>${row.barangay_name}</td>
                         <td>${row.birthdate}</td>
                         <td>
-                            <button class='btn btn-primary btn-sm'>Edit</button>
-                            <button class='btn btn-danger btn-sm'>Delete</button>
-                            <button class='btn btn-info btn-sm' onclick='viewBeneficiary(${row.beneficiary_id})'>View</button>
-                            <button type='button' class='btn btn-success btn-sm' id='btnAddDistribution' data-bs-toggle='modal' data-bs-target='#addDistributionModal' data-beneficiary-id='${row.beneficiary_id}'>
-                                <i class='bx bx-plus'></i>
+                            <button class="btn btn-primary update-beneficiary" data-bs-toggle="modal" data-bs-target="#updateBeneficiaryModal" data-id="${row.beneficiary_id}">Update</button>
+                            <button class="btn btn-danger btn-sm delete-beneficiary" data-id="${row.beneficiary_id}">Delete</button>
+                            <button class="btn btn-info btn-sm view-beneficiary" data-id="${row.beneficiary_id}">View</button>
+                            <button type="button" class="btn btn-success btn-sm add-distribution" data-bs-toggle="modal" data-bs-target="#addDistributionModal" data-id="${row.beneficiary_id}">
+                                <i class="bx bx-plus"></i>
                                 <span>Add Intervention</span>
                             </button>
                         </td>
-                    </tr>`;
-                    tableBody.innerHTML += newRow;
+                    `;
+                    tableBody.appendChild(newRow);
                 });
             })
             .catch(error => console.error("Error fetching beneficiaries:", error));
+    }
+
+    // Event delegation for dynamically loaded elements
+    document.querySelector("#beneficiaryTable tbody").addEventListener("click", function (event) {
+        let target = event.target;
+        let beneficiaryId = target.dataset.id;
+
+        if (target.classList.contains("update-beneficiary")) {
+            openUpdateBeneficiaryModal(beneficiaryId);
+        }
+    });
+
+    function openUpdateBeneficiaryModal(beneficiaryId) {
+    // Fetch the beneficiary data
+    fetch(`8beneficiaryManagement/fetch_update_beneficiary.php?id=${beneficiaryId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data) {
+                // Populate text inputs
+                document.getElementById('update_beneficiary_first_name').value = data.fname || '';
+                document.getElementById('update_beneficiary_middle_name').value = data.mname || '';
+                document.getElementById('update_beneficiary_last_name').value = data.lname || '';
+                document.getElementById('update_streetPurok').value = data.StreetPurok || '';
+
+                // Set the raw RSBSA number (no dashes)
+                const rsbsaNo = data.rsbsa_no || ''; 
+                const rsbsaInput = document.getElementById('update_rsbsa-no');
+                rsbsaInput.value = rsbsaNo; // Set the value without dashes
+                
+                // Call formatRSBSA to display it with dashes in the modal
+                formatRSBSA(rsbsaInput);  // Format the RSBSA number with dashes for display only
+
+                document.getElementById('update_birthdate').value = data.birthdate || '';
+                document.getElementById('update_contact_number').value = data.contact_no || '';
+
+                // Populate location dropdowns
+                document.getElementById('update_province_name').innerHTML = `<option selected>${data.province_name || 'Select a province'}</option>`;
+                document.getElementById('update_municipality_name').innerHTML = `<option selected>${data.municipality_name || 'Select a municipality'}</option>`;
+                document.getElementById('update_barangay_name').innerHTML = `<option selected>${data.barangay_name || 'Select a barangay'}</option>`;
+
+                // Set Sex radio button
+                if (data.Sex) {
+                    let sexRadio = document.querySelector(`input[name="up_sex"][value="${data.Sex.trim()}"]`);
+                    if (sexRadio) {
+                        sexRadio.checked = true;
+                    }
+                }
+
+                // Auto-check Beneficiary Category
+                if (data.beneficiary_category) {
+                    let categoryRadio = document.getElementById(`update_${data.beneficiary_category.toLowerCase()}`);
+                    if (categoryRadio) categoryRadio.checked = true;
+                }
+
+                // Auto-check Beneficiary Type
+                if (data.beneficiary_type) {
+                    let beneficiaryTypeRadio = document.getElementById(`update_${data.beneficiary_type.toLowerCase()}`);
+                    if (beneficiaryTypeRadio) beneficiaryTypeRadio.checked = true;
+                }
+
+                // Toggle Individual or Group visibility
+                toggleBeneficiaryType();
+
+                // Handle Individual Type
+                if (data.beneficiary_type === 'Individual' && data.individual_type) {
+                    let individualTypeRadio = document.getElementById(`update_${data.individual_type.toLowerCase()}`);
+                    if (individualTypeRadio) individualTypeRadio.checked = true;
+                }
+
+                // Handle Group Type
+                if (data.beneficiary_type === 'Group' && data.group_type) {
+                    let groupTypeRadio = document.getElementById(`update_${data.group_type.toLowerCase()}`);
+                    if (groupTypeRadio) groupTypeRadio.checked = true;
+                }
+
+                // Ensure "Others" fields are handled properly
+                handleOthersVisibility('individual', data.individual_type);
+                handleOthersVisibility('group', data.group_type);
+
+                // Auto-check "Others" if value is not in predefined lists
+                handleAutoCheckOthers(data);
+
+                // Check applicable checkboxes
+                let applicable = data.if_applicable ? data.if_applicable.split(',') : [];
+                document.querySelectorAll('[name="applicable[]"]').forEach(checkbox => {
+                    checkbox.checked = applicable.includes(checkbox.value);
+                });
+
+                // Open the modal
+                const modalElement = document.getElementById('updateBeneficiaryModal');
+                if (modalElement) {
+                    let modal = new bootstrap.Modal(modalElement);
+                    modal.show();
+                }
+            } else {
+                alert("Error: Beneficiary data not found.");
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching beneficiary data:', error);
+            alert("An error occurred while fetching the beneficiary data.");
+        });
+
+
+        function formatRSBSA(input) {
+    // Remove all non-digit characters
+    let value = input.value.replace(/\D+/g, '');
+
+    // Format the value as 01-33-10-001-000000
+    let dashedValue = '';
+    if (value.length > 0) {
+        dashedValue += value.substring(0, 2);
+    }
+    if (value.length > 2) {
+        dashedValue += '-' + value.substring(2, 4);
+    }
+    if (value.length > 4) {
+        dashedValue += '-' + value.substring(4, 6);
+    }
+    if (value.length > 6) {
+        dashedValue += '-' + value.substring(6, 9);
+    }
+    if (value.length > 9) {
+        dashedValue += '-' + value.substring(9, 15);
+    }
+
+    // Set the formatted value back to the input
+    input.value = dashedValue;
+}
+
+// Function to show/hide "Others" input field
+function handleOthersVisibility(category, value) {
+    let inputDiv, inputField;
+    
+    if (category === 'individual') {
+        inputDiv = document.getElementById('updateOthersInput');
+        inputField = document.getElementById('update_others_specify');
+    } else if (category === 'group') {
+        inputDiv = document.getElementById('updateGroupOthersInput');
+        inputField = document.getElementById('update_group_others_specify');
+    }
+
+    if (inputDiv && inputField) {
+        inputDiv.style.display = value === 'Others' ? 'block' : 'none';
+        if (value === 'Others') inputField.value = '';
+    }
+}
+
+// Function to toggle between Individual and Group visibility
+function toggleBeneficiaryType() {
+    let individualRadio = document.getElementById("update_individual");
+    let groupRadio = document.getElementById("update_group");
+    let individualTypeDiv = document.getElementById("updateIndividualTypeRadio");
+    let groupTypeDiv = document.getElementById("updateGroupTypeRadio");
+
+    individualTypeDiv.style.display = individualRadio.checked ? "block" : "none";
+    groupTypeDiv.style.display = groupRadio.checked ? "block" : "none";
+}
+function handleAutoCheckOthers(data) {
+    console.log("Received data:", data); // Debugging
+
+    const individualTypes = ["Farmer", "Fisher", "AEW"];
+    const groupTypes = ["FCA", "Cluster", "LGU", "School"];
+
+    // Handle Individual Type
+    if (data.beneficiary_category === "Individual") {
+        let othersRadio = document.getElementById("update_others");
+        let othersInputDiv = document.getElementById("updateOthersInput");
+        let othersInput = document.getElementById("update_others_specify");
+
+        let individualRadios = document.getElementsByName("individual_type");
+        let foundMatch = false;
+
+        console.log("Checking individual_type:", data.beneficiary_type);
+
+        individualRadios.forEach(radio => {
+            if (radio.value === data.beneficiary_type) {
+                radio.checked = true;
+                foundMatch = true;
+            } else {
+                radio.checked = false;
+            }
+        });
+
+        if (!foundMatch) {
+            console.log("No match found. Selecting 'Others'.");
+            othersRadio.checked = true;
+            othersInputDiv.style.display = "block";
+            othersInput.value = data.beneficiary_type || "";
+        } else {
+            console.log("Match found. Hiding 'Others' input.");
+            othersRadio.checked = false;
+            othersInputDiv.style.display = "none";
+            othersInput.value = "";
+        }
+
+        // Hide Cooperative input when Individual is selected
+        document.getElementById("updateCooperativeInput").style.display = "none";
+    }
+
+    // Handle Group Type
+    if (data.beneficiary_category === "Group") {
+        let groupOthersRadio = document.getElementById("update_group_others");
+        let groupOthersInputDiv = document.getElementById("updateGroupOthersInput");
+        let groupOthersInput = document.getElementById("update_group_others_specify");
+
+        let groupRadios = document.getElementsByName("group_type");
+        let foundMatch = false;
+
+        console.log("Checking group_type:", data.beneficiary_type);
+
+        groupRadios.forEach(radio => {
+            if (radio.value === data.beneficiary_type) {
+                radio.checked = true;
+                foundMatch = true;
+            } else {
+                radio.checked = false;
+            }
+        });
+
+        if (!foundMatch) {
+            console.log("No match found for group type. Selecting 'Others'.");
+            groupOthersRadio.checked = true;
+            groupOthersInputDiv.style.display = "block";
+            groupOthersInput.value = data.beneficiary_type || "";
+        } else {
+            console.log("Match found for group type. Hiding 'Others' input.");
+            groupOthersRadio.checked = false;
+            groupOthersInputDiv.style.display = "none";
+            groupOthersInput.value = "";
+        }
+
+        // Show Cooperative input when Group is selected
+        document.getElementById("updateCooperativeInput").style.display = "block";
+
+        // Fetch and display the cooperative name
+        fetchCooperatives(data.coop_id);
+    }
+}
+
+// Function to fetch and populate the Cooperative dropdown
+function fetchCooperatives(selectedCoopId) {
+    fetch("8beneficiaryManagement/get_cooperatives.php") // Replace with your actual PHP endpoint
+        .then(response => response.json())
+        .then(cooperatives => {
+            let select = document.getElementById("update_cooperative");
+            select.innerHTML = '<option value="" disabled>Select a Cooperative</option>'; // Reset options
+
+            cooperatives.forEach(coop => {
+                let option = document.createElement("option");
+                option.value = coop.id;
+                option.textContent = coop.name;
+
+                // Select the correct cooperative if it matches the data
+                if (coop.id == selectedCoopId) {
+                    option.selected = true;
+                }
+
+                select.appendChild(option);
+            });
+        })
+        .catch(error => console.error("Error fetching cooperatives:", error));
+}
     }
 });
 </script>
