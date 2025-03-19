@@ -176,7 +176,9 @@
                         <div class="col-12 mb-3">
                             <label for="rsbsa-no">RSBSA No.</label>
                             <input type="text" class="form-control" name="rsbsa_no" placeholder="(e.g. 01-33-10-001-000000)"
+                            
                                 id="rsbsa-no" oninput="formatRSBSA(this)" required maxlength="19">
+                                <small class="form-text"></small> <!-- Add this for feedback -->
                             <small class="form-text text-muted" style="font-size: 1.1em;">
                                 If you don't know your RSBSA No.,
                                 <a href="https://finder-rsbsa.da.gov.ph/?fbclid=IwY2xjawI9yR5leHRuA2FlbQIxMAABHUH8-YVy-cRpNVJgrzYznFQpQhWH_XMvVASmOru156UDC97RjJKjxmYLAg_aem_Yg-2xPtYXEe4FvX8p4VcJg"
@@ -186,6 +188,7 @@
                                     click here
                                 </a>.
                             </small>
+                          
                         </div>
 
                         <script>
@@ -233,7 +236,9 @@
                         </div>
                         <div class="col-12 mb-3">
                             <label for="contact_number" class="form-label">Contact Number</label>
-                            <input type="text" class="form-control" id="contact_number" name="contact_number" required minlength="11" maxlength="11" pattern="\d{11}" title="Please enter a valid 11-digit contact number">
+                            <input type="text" class="form-control" id="contact_number" name="contact_number" 
+                                required minlength="11" maxlength="11" pattern="\d{11}" title="Please enter a valid 11-digit contact number">
+                            <small class="form-text"></small> <!-- Add this for feedback -->
                         </div>
                         <!-- Check if applicable -->
                         <div class="col-12 mb-3">
@@ -259,7 +264,7 @@
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-success">Add Beneficiary</button>
+                        <button type="submit" id="add-beneficiary-btn" class="btn btn-success">Add Beneficiary</button>
                     </div>
 
                 </form>
@@ -301,4 +306,75 @@
             }
         });
     });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const rsbsaInput = document.getElementById("rsbsa-no");
+    const contactInput = document.getElementById("contact_number");
+    const submitButton = document.getElementById("add-beneficiary-btn"); // Button ID
+
+    let rsbsaValid = true; 
+    let contactValid = true; 
+
+    function validateInput(inputElement, fieldType) {
+        let value = inputElement.value.trim();
+        
+        // Remove dashes from RSBSA No. before validation
+        if (fieldType === "rsbsa_no") {
+            value = value.replace(/-/g, "");
+        }
+
+        if (value === "") return; // Stop if the input is empty
+
+        fetch("8beneficiaryManagement/validate_inputs.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `${fieldType}=${encodeURIComponent(value)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            const feedback = inputElement.nextElementSibling;
+            if (!feedback || !feedback.classList.contains("form-text")) return;
+
+            if (data.error) {
+                console.error("Validation Error:", data.error);
+                feedback.textContent = "An error occurred. Please try again.";
+                feedback.style.color = "red";
+                disableSubmitButton(true);
+                return;
+            }
+
+            if (data.exists) {
+                inputElement.classList.add("is-invalid");
+                inputElement.classList.remove("is-valid");
+                feedback.textContent = data.message;
+                feedback.style.color = "red";
+
+                if (fieldType === "rsbsa_no") rsbsaValid = false;
+                if (fieldType === "contact_no") contactValid = false;
+            } else {
+                inputElement.classList.remove("is-invalid");
+                inputElement.classList.add("is-valid");
+                feedback.textContent = "";
+
+                if (fieldType === "rsbsa_no") rsbsaValid = true;
+                if (fieldType === "contact_no") contactValid = true;
+            }
+
+            // Check if both fields are valid before enabling the button
+            disableSubmitButton(!(rsbsaValid && contactValid));
+        })
+        .catch(error => {
+            console.error("Fetch Error:", error);
+        });
+    }
+
+    function disableSubmitButton(state) {
+        submitButton.disabled = state; // Disable button if validation fails
+    }
+
+    rsbsaInput.addEventListener("input", () => validateInput(rsbsaInput, "rsbsa_no"));
+    contactInput.addEventListener("input", () => validateInput(contactInput, "contact_no"));
+});
 </script>
