@@ -204,3 +204,11 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById("interventionQty").addEventListener("keydown", function (event) {
+    if (event.key === "e" || event.key === "E" || event.key === "+" || event.key === "-") {
+        event.preventDefault();
+    }
+});
+</script>
