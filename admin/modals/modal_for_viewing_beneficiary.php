@@ -77,7 +77,9 @@
                         <tr><td><i class="fas fa-birthday-cake"></i> <strong>Birthdate:</strong></td><td>${formattedBirthdate}</td></tr>
                         <tr><td><i class="fas fa-users"></i> <strong>Beneficiary Type:</strong></td><td>${data.beneficiary_type}</td></tr>
                         <tr><td><i class="fas fa-check-circle"></i> <strong>Applicable:</strong></td><td>${data.if_applicable || 'N/A'}</td></tr>
-                        <tr><td><i class="fas fa-handshake"></i> <strong>Cooperative Name:</strong></td><td>${data.cooperative_name || 'N/A'}</td></tr>
+                           ${data.cooperative_name && data.cooperative_name !== 'N/A' ? `
+                            <tr><td><i class="fas fa-handshake"></i> <strong>Cooperative Name:</strong></td><td>${data.cooperative_name}</td></tr>
+                        ` : ''}
                     `;
                     $('#beneficiaryDetails tbody').html(details);
                 } else {
@@ -98,6 +100,7 @@
             viewBeneficiary(beneficiaryId);
         });
     });
+
 </script>
 
 
@@ -109,3 +112,6 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
