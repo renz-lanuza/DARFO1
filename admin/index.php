@@ -5,6 +5,13 @@ include('includes/navbar.php');
 <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
 <!-- Include Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx-populate/1.21.0/xlsx-populate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx-populate/1.21.0/xlsx-populate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
 <!-- Include Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -393,54 +400,59 @@ include('includes/navbar.php');
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
-    function downloadExcelWithImage() {
-        if (!window.myChart) {
-            alert("No chart data available.");
-            return;
-        }
+    async function downloadExcelWithImage() {
+    if (!window.myChart) {
+        alert("No chart data available.");
+        return;
+    }
 
-            let labels = window.myChart.data.labels;
-            let datasets = window.myChart.data.datasets;
+    let labels = window.myChart.data.labels;
+    let datasets = window.myChart.data.datasets;
 
-            let dataArray = [["Category", "Value"]]; // Header row
-            datasets.forEach(dataset => {
-                labels.forEach((label, index) => {
-                    dataArray.push([label, dataset.data[index]]);
-                });
-            });
+    let dataArray = [["Category", "Value"]]; // Header row
+    datasets.forEach(dataset => {
+        labels.forEach((label, index) => {
+            dataArray.push([label, dataset.data[index]]);
+        });
+    });
 
-            // Convert data to a worksheet
-            let ws = XLSX.utils.aoa_to_sheet(dataArray);
+    // Create a new Excel workbook
+    let workbook = new ExcelJS.Workbook();
+    let worksheet = workbook.addWorksheet("Chart Data");
 
-            // Capture chart as Base64 image
-            let canvas = document.getElementById("barChart");
-            let imgData = canvas.toDataURL("image/png");
+    // Insert data into the worksheet
+    worksheet.addRows(dataArray);
 
-            // Insert image placeholder text
-            XLSX.utils.sheet_add_aoa(ws, [["Chart Image Below"]], { origin: { r: dataArray.length + 2, c: 0 } });
+    // Capture chart as Base64 image
+    let canvas = document.getElementById("barChart");
+    let imgData = canvas.toDataURL("image/png").split(",")[1]; // Remove metadata
 
-            // Convert Base64 image to a downloadable file
-            fetch(imgData)
-                .then(res => res.blob())
-                .then(blob => blob.arrayBuffer())
-                .then(buffer => {
-                    let wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, ws, "Chart Data");
+    // Add the image to the workbook
+    let imageId = workbook.addImage({
+        base64: imgData,
+        extension: "png",
+    });
 
-                    // Prompt user to manually insert image
-                    alert("The Excel file contains data. Please manually insert the downloaded chart image into the sheet.");
+    // Position the image below the data
+    worksheet.addImage(imageId, {
+        tl: { col: 0, row: dataArray.length + 2 }, // Adjust position
+        ext: { width: 500, height: 300 }, // Resize image
+    });
 
-                    // Download Excel file
-                    XLSX.writeFile(wb, "chart_data.xlsx");
+    // Correctly generate and download the Excel file
+    try {
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { 
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
+        });
 
-                    // Automatically trigger image download
-                    let link = document.createElement("a");
-                    link.href = imgData;
-                    link.download = "chart_image.png";
-                    link.click();
-                })
-                .catch(err => console.error("Error processing image:", err));
-        }
+        saveAs(blob, "chart_data.xlsx");
+    } catch (error) {
+        console.error("Error generating Excel file:", error);
+        alert("An error occurred while generating the Excel file.");
+    }
+}
+
 </script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
