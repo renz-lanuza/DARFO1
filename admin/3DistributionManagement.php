@@ -84,17 +84,17 @@ include('includes/navbar.php');
                             <i class='bx bx-printer' style="font-size: 1.2rem;"></i>
                             <span>Print Report</span>
                         </button>
-                        <form class="d-none d-sm-inline-block form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
-                            <div class="input-group">
-                                <input type="text" id="search_id" class="form-control bg-light border-0 small"
-                                    placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2" onkeyup="searchDistributionTable()">
-                                <div class="input-group-append">
-                                    <button class="btn text-white" style="background-color: #DCFFB7;" type="button">
-                                        <i class="fas fa-search fa-sm" style="color: black;"></i>
-                                    </button>
-                                </div>
+                       <form class="d-none d-sm-inline-block form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
+                        <div class="input-group">
+                            <input type="text" id="search_id" class="form-control bg-light border-0 small"
+                                placeholder="Search for distributed..." aria-label="Search" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <button id="searchButton" class="btn text-white" style="background-color: #DCFFB7;" type="button">
+                                    <i class="fas fa-search fa-sm" style="color: black;"></i>
+                                </button>
                             </div>
-                        </form>
+                        </div>
+                    </form>
                     </div>
                 </div>
 
