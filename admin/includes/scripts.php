@@ -2381,6 +2381,9 @@ document.addEventListener("DOMContentLoaded", function () {
     let searchInput = document.getElementById("search_id");
     let searchButton = document.getElementById("searchBtn");
 
+    // Autofocus the search input on page load
+    searchInput.focus();
+
     function fetchSearchResults() {
         let searchQuery = searchInput.value.trim();
         let xhr = new XMLHttpRequest();
@@ -2406,7 +2409,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
-
 </script>
 
 <script>
