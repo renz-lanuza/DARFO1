@@ -2982,7 +2982,7 @@ function fetchCooperatives(selectedCoopId) {
 }
     }
 });
-</script>
+</script> 
 
 <!-- fetch for dashboard benefeciaries -->
 <script>
