@@ -249,20 +249,12 @@ include('includes/navbar.php');
                                             <div class="text-lg font-weight-bold text-info text-uppercase">
                                                 Beneficiaries
                                             </div>
-                                            <!-- Filter Dropdown -->
-                                            <div>
-                                                <select id="filterType" class="form-control">
-                                                    <option value="all">All</option>
-                                                    <option value="Farmer">Farmer</option>
-                                                    <option value="Fisher">Fisher</option>
-                                                    <option value="AEW">AEW</option>
-                                                    <option value="FCA">FCA</option>
-                                                    <option value="Cluster">Cluster</option>
-                                                    <option value="LGU">LGU</option>
-                                                    <option value="School">School</option>
-                                                    <option value="Others">Others</option>
-                                                </select>
-                                            </div>
+                                        </div>
+                                        <!-- Filter Buttons Above Table -->
+                                        <div class="d-flex justify-content-start mb-3">
+                                            <button class="btn btn-outline-primary px-4 py-2 me-2 filter-btn active" data-filter="all">All</button>
+                                            <button class="btn btn-outline-primary px-4 py-2 me-2 filter-btn" data-filter="Individual">Individual</button>
+                                            <button class="btn btn-outline-success px-4 py-2 filter-btn" data-filter="Group">Group</button>
                                         </div>
 
                                         <!-- Table -->
