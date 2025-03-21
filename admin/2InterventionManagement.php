@@ -159,22 +159,23 @@ include('includes/navbar.php');
                                     $total_pages = ceil($total_records / $entries_per_page);
 
                                     // SQL query to fetch paginated data with INNER JOIN on tbl_unit
-                                    $sql = "SELECT 
-        tbl_intervention_inventory.intervention_id,
-        tbl_intervention_inventory.int_type_id, 
-        tbl_intervention_inventory.description, 
-        tbl_intervention_inventory.quantity, 
-        tbl_intervention_inventory.quantity_left,
-        tbl_intervention_inventory.seed_id,
-        tbl_unit.unit_name AS unit_name,
-        tbl_intervention_type.intervention_name AS intervention_name,
-        tbl_seed_type.seed_name AS seedling_name
-    FROM tbl_intervention_inventory
-    INNER JOIN tbl_intervention_type ON tbl_intervention_inventory.int_type_id = tbl_intervention_type.int_type_id
-    LEFT JOIN tbl_seed_type ON tbl_intervention_inventory.seed_id = tbl_seed_type.seed_id
-    INNER JOIN tbl_unit ON tbl_intervention_inventory.unit_id = tbl_unit.unit_id
-    WHERE tbl_intervention_inventory.station_id = ?
-    LIMIT ? OFFSET ?";
+                                     $sql = "SELECT 
+                                        tbl_intervention_inventory.intervention_id,
+                                        tbl_intervention_inventory.int_type_id, 
+                                        tbl_intervention_inventory.description, 
+                                        tbl_intervention_inventory.quantity, 
+                                        tbl_intervention_inventory.quantity_left,
+                                        tbl_intervention_inventory.seed_id,
+                                        tbl_unit.unit_name AS unit_name,
+                                        tbl_intervention_type.intervention_name AS intervention_name,
+                                        tbl_seed_type.seed_name AS seedling_name
+                                    FROM tbl_intervention_inventory
+                                    INNER JOIN tbl_intervention_type ON tbl_intervention_inventory.int_type_id = tbl_intervention_type.int_type_id
+                                    LEFT JOIN tbl_seed_type ON tbl_intervention_inventory.seed_id = tbl_seed_type.seed_id
+                                    INNER JOIN tbl_unit ON tbl_intervention_inventory.unit_id = tbl_unit.unit_id
+                                    WHERE tbl_intervention_inventory.station_id = ?
+                                        AND tbl_intervention_inventory.archived_at IS NULL  -- Exclude archived records
+                                    LIMIT ? OFFSET ?";
 
                                     $stmt = $conn->prepare($sql);
                                     $stmt->bind_param("iii", $station_name, $entries_per_page, $offset);
