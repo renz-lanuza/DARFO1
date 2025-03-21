@@ -82,18 +82,19 @@ include('includes/navbar.php');
                     <i class='bx bx-plus' style="font-size: 1.2rem;"></i>
                     <span>Add Beneficiary</span>
                 </button>
+                <form id="searchForm" class="form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
+    <div class="input-group">
+        <input type="text" id="search_id" class="form-control bg-light border-0 small"
+            placeholder="Search for beneficiaries..." aria-label="Search" 
+            aria-describedby="searchButton" autofocus>
+        <div class="input-group-append">
+            <button class="btn text-white" style="background-color: #0D7C66;" type="button" id="searchButton">
+                <i class="fas fa-search fa-sm"></i> Search
+            </button>
+        </div>
+    </div>
+</form>
 
-                <form class="d-none d-sm-inline-block form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
-                    <div class="input-group">
-                        <input type="text" id="search_id" class="form-control bg-light border-0 small"
-                            placeholder="Search for beneficiaries..." aria-label="Search" aria-describedby="basic-addon2" onkeyup="searchBeneficiaryTable()">
-                        <div class="input-group-append">
-                            <button class="btn text-white" style="background-color: #DCFFB7;" type="button">
-                                <i class="fas fa-search fa-sm" style="color: black;"></i>
-                            </button>
-                        </div>
-                    </div>
-                </form>
             </div>
         </div>
 
@@ -286,3 +287,4 @@ include('includes/navbar.php');
     <?php include 'modals/modal_for_beneficiary.php'; ?>
     <?php include 'modals/modal_for_viewing_beneficiary.php'; ?>
     <?php include 'modals/modal_for_distribution.php'; ?>
+
