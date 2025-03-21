@@ -151,7 +151,12 @@ include('includes/navbar.php');
                                     $countQuery->close();
 
                                     // Fetch paginated records
-                                    $query = "SELECT unit_id, unit_name FROM tbl_unit WHERE station_id = ? ORDER BY unit_id DESC LIMIT ?, ?";
+                                    $query = "SELECT unit_id, unit_name 
+                                    FROM tbl_unit 
+                                    WHERE station_id = ? 
+                                    AND archive_at IS NULL
+                                    ORDER BY unit_id DESC 
+                                    LIMIT ?, ?";
                                     $stmt = $conn->prepare($query);
 
                                     if (!$stmt) {
@@ -174,9 +179,9 @@ include('includes/navbar.php');
                                                     data-unit-id="<?php echo htmlspecialchars($row['unit_id']); ?>"
                                                     data-unit-name="<?php echo htmlspecialchars($row['unit_name']); ?>">Update</a>
 
-                                                    <a href="#" class="btn btn-warning archive-unit-btn"
+                                                    <a href="#" class="btn btn-danger archive-unit-btn"
                                                         data-unit-id="<?php echo htmlspecialchars($row['unit_id']); ?>">
-                                                        Archive
+                                                        Delete
                                                     </a>
                                                 </td>
                                             </tr>
