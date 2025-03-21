@@ -84,10 +84,10 @@ include('includes/navbar.php');
 
                         <form class="d-none d-sm-inline-block form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
                             <div class="input-group">
-                                <input type="text" id="search_id" class="form-control bg-light border-0 small"
-                                    p placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2" onkeyup="searchCooperativeTable()">
+                                <input type="text" id="search_coop" class="form-control bg-light border-0 small"
+                                    placeholder="Search for cooperative..." aria-label="Search" aria-describedby="basic-addon2">
                                 <div class="input-group-append">
-                                    <button class="btn text-white" style="background-color: #DCFFB7;" type="button">
+                                    <button class="btn text-white" style="background-color: #DCFFB7;" type="button" id="search_button">
                                         <i class="fas fa-search fa-sm" style="color: black;"></i>
                                     </button>
                                 </div>
@@ -157,9 +157,10 @@ include('includes/navbar.php');
                                         $offset = ($page - 1) * $entries_per_page;
 
                                         // Fetch cooperative details with pagination
-                                        $sql = "SELECT coop_id, cooperative_name, province_name, municipality_name, barangay_name 
+                                         $sql = "SELECT coop_id, cooperative_name, province_name, municipality_name, barangay_name 
                                                 FROM tbl_cooperative 
                                                 WHERE station_id = ? 
+                                                AND archived_at IS NULL  
                                                 LIMIT ?, ?";
 
                                         $stmt = $conn->prepare($sql);
