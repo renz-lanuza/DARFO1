@@ -17,7 +17,7 @@ include('includes/navbar.php');
             </button>
 
             <span class="navbar-brand font-weight-bold" style="font-size: 18px; padding-left: 55px; color: Black; font-family: 'Roboto', sans-serif;">
-                INTERVENTION MANAGEMENT
+                INVENTORY MANAGEMENT
             </span>
 
             <div style="padding-left: 20px; color: black; display: flex; flex-direction: column; line-height: 1;">
