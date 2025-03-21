@@ -2237,20 +2237,24 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function fetchBeneficiaries() {
-        let searchValue = cleanSearchInput(searchInput.value);
+    let searchValue = cleanSearchInput(searchInput.value);
 
-        if (searchValue === "") return; // Stop if empty
-
-        console.log("Searching for:", searchValue); // Debugging
-
-        fetch(`8beneficiaryManagement/searchBeneficiary.php?search=${encodeURIComponent(searchValue)}`)
-            .then(response => response.text())
-            .then(data => {
-                beneficiaryTable.innerHTML = data;
-                searchInput.focus(); // Keep focus after search
-            })
-            .catch(error => console.error("Error:", error));
+    if (searchValue === "") {
+        location.reload(); // Reload to show the full list
+        return;
     }
+
+    console.log("Searching for:", searchValue);
+
+    fetch("8beneficiaryManagement/searchBeneficiary.php?search=" + encodeURIComponent(searchValue))
+        .then(response => response.text())
+        .then(data => {
+            beneficiaryTable.innerHTML = data.trim() ? data : "<tr><td colspan='10' class='text-center'>No results found.</td></tr>";
+            searchInput.focus();
+        })
+        .catch(error => console.error("Error:", error));
+}
+
 
     // Prevent form from reloading
     searchForm.addEventListener("submit", function (event) {
@@ -2273,6 +2277,47 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
+<!-- search for distribution -->
+ <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("search_id");
+    const searchButton = document.getElementById("searchButton");
+    const dataTable = document.getElementById("dataTable3");
+
+    // Autofocus on the search input
+    searchInput.focus();
+
+    // Function to perform search
+    function performSearch() {
+        const searchQuery = searchInput.value.trim();
+
+        if (searchQuery.length > 0) {
+            fetch("3distributionManagement/searchDistribution.php?q=" + encodeURIComponent(searchQuery))
+                .then(response => response.text())
+                .then(data => {
+                    dataTable.innerHTML = data.trim() ? data : "<tr><td colspan='10' class='text-center'>No results found.</td></tr>";
+                })
+                .catch(error => console.error("Error fetching search results:", error));
+        } else {
+            // Reload the page to restore default data
+            location.reload();
+        }
+    }
+
+    // Search on button click
+    searchButton.addEventListener("click", function () {
+        performSearch();
+    });
+
+    // Search on pressing Enter
+    searchInput.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            performSearch();
+        }
+    });
+});
+ </script>
 
 
 <script>
