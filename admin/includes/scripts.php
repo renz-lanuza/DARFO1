@@ -562,38 +562,6 @@
     });
 </script>
 
-<!-- JS for Searching Users -->
-<script>
-      $(document).ready(function () {
-    // When user presses Enter inside the input
-    $("#search_id").keypress(function (event) {
-        if (event.which === 13) { // 13 is the keycode for Enter
-            event.preventDefault(); // Prevent form submission (if inside a form)
-            performSearch();
-        }
-    });
-
-    // When user clicks the search button
-    $(".input-group-append button").click(function () {
-        performSearch();
-    });
-
-    function performSearch() {
-        var searchQuery = $("#search_id").val(); // Get input value
-
-        // Send AJAX request
-        $.ajax({
-            url: '', // Current page URL
-            type: 'GET',
-            data: { search: searchQuery },
-            success: function (response) {
-                $('#dataTable').html($(response).find('#dataTable').html());
-            }
-        });
-    }
-});
-</script>
-
 <script>
     $(document).ready(function() {
         // Function to handle intervention change
