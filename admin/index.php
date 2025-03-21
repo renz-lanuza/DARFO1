@@ -5,13 +5,6 @@ include('includes/navbar.php');
 <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
 <!-- Include Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx-populate/1.21.0/xlsx-populate.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx-populate/1.21.0/xlsx-populate.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-
 <!-- Include Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -160,8 +153,8 @@ include('includes/navbar.php');
                             // Dynamic card data
                             $cardData = [
                                 ["title" => "Total Interventions", "value" => $results["interventions"], "icon" => "fa-box-open", "color" => "primary", "link" => "3DistributionManagement.php"],
-                                ["title" => "Individual Beneficiaries", "value" => number_format($results["individual_count"]), "icon" => "fa-user", "color" => "info"],
-                                ["title" => "Group Beneficiaries", "value" => number_format($results["group_count"]), "icon" => "fa-users", "color" => "warning"]
+                                ["title" => "Individual Beneficiaries", "value" => number_format($results["individual_count"]), "icon" => "fa-user", "color" => "info", "link" => "individual_beneficiaries.php"],
+                                ["title" => "Group Beneficiaries", "value" => number_format($results["group_count"]), "icon" => "fa-users", "color" => "warning", "link" => "group_beneficiaries.php"]
                             ];
                             ?>
 
@@ -245,10 +238,10 @@ include('includes/navbar.php');
                                 <div class="row no-gutters align-items-center">
                                     <div class="col mr-2">
                                         <!-- Header with Title and Filter Dropdown -->
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">                                            
                                             <div class="text-lg font-weight-bold text-info text-uppercase">
                                                 Beneficiaries
-                                            </div>
+                                            </div>    
                                         </div>
                                         <!-- Filter Buttons Above Table -->
                                         <div class="d-flex justify-content-start mb-3">
@@ -271,7 +264,7 @@ include('includes/navbar.php');
                                                                     b.province_name,
                                                                     b.municipality_name,
                                                                     b.barangay_name,
-                                                                    b.beneficiary_type,
+                                                                    b.beneficiary_category,
                                                                     COALESCE(c.cooperative_name, 'N/A') AS cooperative_name  -- ✅ Ensure cooperative_name is never NULL
                                                                 FROM 
                                                                     tbl_beneficiary b
@@ -322,15 +315,13 @@ include('includes/navbar.php');
                                                 <tbody>
                                                     <?php if (!empty($beneficiaries_data)): ?>
                                                         <?php foreach ($beneficiaries_data as $index => $beneficiary): ?>
-                                                            <tr data-type="<?= $beneficiary['beneficiary_type'] ?>">
+                                                            <tr data-type="<?= htmlspecialchars($beneficiary['beneficiary_category']) ?>">
                                                                 <td><?= $index + 1 ?></td>
-                                                                <td>
-                                                                    <?= htmlspecialchars($beneficiary['fname'] . ' ' . $beneficiary['mname'] . ' ' . $beneficiary['lname']) ?>
-                                                                </td>
+                                                                <td><?= htmlspecialchars($beneficiary['fname'] . ' ' . $beneficiary['mname'] . ' ' . $beneficiary['lname']) ?></td>
                                                                 <td><?= htmlspecialchars($beneficiary['barangay_name']) ?></td>
                                                                 <td><?= htmlspecialchars($beneficiary['municipality_name']) ?></td>
                                                                 <td><?= htmlspecialchars($beneficiary['province_name']) ?></td>
-                                                                <td><?= ucfirst($beneficiary['beneficiary_type']) ?></td>
+                                                                <td><?= ucfirst(htmlspecialchars($beneficiary['beneficiary_category'])) ?></td>
                                                                 <td><?= htmlspecialchars($beneficiary['cooperative_name']) ?></td>
                                                                 <td>
                                                                     <button class="btn btn-primary btn-sm view-interventions-btn" data-beneficiary-id="<?= $beneficiary['beneficiary_id'] ?>">
@@ -345,6 +336,7 @@ include('includes/navbar.php');
                                                         </tr>
                                                     <?php endif; ?>
                                                 </tbody>
+
                                             </table>
                                         </div>
                                     </div>
@@ -392,58 +384,54 @@ include('includes/navbar.php');
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
-    async function downloadExcelWithImage() {
-    if (!window.myChart) {
-        alert("No chart data available.");
-        return;
-    }
+    function downloadExcelWithImage() {
+        if (!window.myChart) {
+            alert("No chart data available.");
+            return;
+        }
 
-    let labels = window.myChart.data.labels;
-    let datasets = window.myChart.data.datasets;
+            let labels = window.myChart.data.labels;
+            let datasets = window.myChart.data.datasets;
 
-    let dataArray = [["Category", "Value"]]; // Header row
-    datasets.forEach(dataset => {
-        labels.forEach((label, index) => {
-            dataArray.push([label, dataset.data[index]]);
-        });
-    });
+            let dataArray = [["Category", "Value"]]; // Header row
+            datasets.forEach(dataset => {
+                labels.forEach((label, index) => {
+                    dataArray.push([label, dataset.data[index]]);
+                });
+            });
 
-    // Create a new Excel workbook
-    let workbook = new ExcelJS.Workbook();
-    let worksheet = workbook.addWorksheet("Chart Data");
+            // Convert data to a worksheet
+            let ws = XLSX.utils.aoa_to_sheet(dataArray);
 
-    // Insert data into the worksheet
-    worksheet.addRows(dataArray);
+            // Capture chart as Base64 image
+            let canvas = document.getElementById("barChart");
+            let imgData = canvas.toDataURL("image/png");
 
-    // Capture chart as Base64 image
-    let canvas = document.getElementById("barChart");
-    let imgData = canvas.toDataURL("image/png").split(",")[1]; // Remove metadata
+            // Insert image placeholder text
+            XLSX.utils.sheet_add_aoa(ws, [["Chart Image Below"]], { origin: { r: dataArray.length + 2, c: 0 } });
 
-    // Add the image to the workbook
-    let imageId = workbook.addImage({
-        base64: imgData,
-        extension: "png",
-    });
+            // Convert Base64 image to a downloadable file
+            fetch(imgData)
+                .then(res => res.blob())
+                .then(blob => blob.arrayBuffer())
+                .then(buffer => {
+                    let wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "Chart Data");
 
-    // Position the image below the data
-    worksheet.addImage(imageId, {
-        tl: { col: 0, row: dataArray.length + 2 }, // Adjust position
-        ext: { width: 500, height: 300 }, // Resize image
-    });
+                    // Prompt user to manually insert image
+                    alert("The Excel file contains data. Please manually insert the downloaded chart image into the sheet.");
 
-    // Correctly generate and download the Excel file
-    try {
-        const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], { 
-            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
-        });
+                    // Download Excel file
+                    XLSX.writeFile(wb, "chart_data.xlsx");
 
-        saveAs(blob, "chart_data.xlsx");
-    } catch (error) {
-        console.error("Error generating Excel file:", error);
-        alert("An error occurred while generating the Excel file.");
-    }
-}
+                    // Automatically trigger image download
+                    let link = document.createElement("a");
+                    link.href = imgData;
+                    link.download = "chart_image.png";
+                    link.click();
+                })
+                .catch(err => console.error("Error processing image:", err));
+        }
 </script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -547,15 +535,12 @@ include('includes/navbar.php');
                 .catch(error => console.error("Error fetching data:", error));
         }
 
+
         // Automatically set today's date for end date on page load
         setDefaultEndDate();
 
-        // Fetch data when the start date OR end date is selected
+        // Fetch data when the start date is selected
         startDateInput.addEventListener("change", () => {
-            fetchData(startDateInput.value, endDateInput.value);
-        });
-
-        endDateInput.addEventListener("change", () => {
             fetchData(startDateInput.value, endDateInput.value);
         });
 
@@ -663,10 +648,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             let interventionCount = normalizedInterventionData[municipalityName] || 0;
 
-            // layer.bindPopup(`
-            //     <b>${feature.properties.adm3_en}</b><br>
-            //     <b>Interventions:</b> <b>${interventionCount}</b>
-            // `);
+            layer.bindPopup(`
+                <b>${feature.properties.adm3_en}</b><br>
+                <b>Interventions:</b> <b>${interventionCount}</b>
+            `);
 
             layer.on({
                 mouseover: function (e) {
@@ -757,3 +742,4 @@ document.addEventListener("DOMContentLoaded", async function () {
     include('modals/modal_for_viewing_intervention.php');
     include('modals/modal_for_map.php');
 ?>
+
