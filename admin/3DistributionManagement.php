@@ -229,9 +229,9 @@ include('includes/navbar.php');
                                                             Update
                                                         </button>
 
-                                                        <button class="btn btn-warning archivedistribution-btn"
+                                                        <button class="btn btn-danger archivedistribution-btn"
                                                             data-distribution-id="<?php echo htmlspecialchars($data['distribution_id']); ?>">
-                                                            Archive
+                                                            Delete
                                                         </button>
                                                     </td>
                                                 </tr>
