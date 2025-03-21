@@ -129,7 +129,7 @@
 
             if (selectedIntervention && existingClassifications.includes(classificationName)) {
                 $('#seed_type_name').addClass('is-invalid');
-                $('#classificationError').text("This classification already exists for the selected intervention.");
+                $('#classificationError').text("This classification already exists for the selected intervention or archived.");
                 submitButton.prop('disabled', true);
             } else {
                 $('#seed_type_name').removeClass('is-invalid');
