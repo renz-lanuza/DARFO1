@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.3
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 18, 2025 at 03:42 AM
--- Server version: 10.4.14-MariaDB
--- PHP Version: 7.4.11
+-- Generation Time: Mar 21, 2025 at 03:26 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -31,7 +31,7 @@ CREATE TABLE `barangays` (
   `barangay_code` int(11) NOT NULL,
   `barangay_name` varchar(255) NOT NULL,
   `municipality_code` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `barangays`
@@ -64,9 +64,11 @@ INSERT INTO `barangays` (`barangay_code`, `barangay_name`, `municipality_code`) 
 (12817016, 'Ngabangab', 12817000),
 (12818013, 'Lagandit', 12818000),
 (12818015, 'Loing (Pob.)', 12818000),
+(12818017, 'Mangitayag', 12818000),
 (12819013, 'Liliputen', 12819000),
 (12820003, 'San Agustin', 12820000),
 (12820015, 'San Marcos', 12820000),
+(12820016, 'San Miguel (Pob.)', 12820000),
 (12901001, 'Alilem Daya (Pob.)', 12901000),
 (12901002, 'Amilongan', 12901000),
 (12902002, 'Banbanaal', 12902000),
@@ -137,7 +139,7 @@ CREATE TABLE `municipalities` (
   `municipality_code` int(11) NOT NULL,
   `municipality_name` varchar(255) NOT NULL,
   `province_code` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `municipalities`
@@ -196,7 +198,7 @@ INSERT INTO `municipalities` (`municipality_code`, `municipality_name`, `provinc
 CREATE TABLE `provinces` (
   `province_code` int(11) NOT NULL,
   `province_name` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `provinces`
@@ -232,7 +234,7 @@ CREATE TABLE `tbl_beneficiary` (
   `if_applicable` varchar(100) NOT NULL,
   `contact_no` char(11) NOT NULL,
   `beneficiary_category` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_beneficiary`
@@ -243,7 +245,10 @@ INSERT INTO `tbl_beneficiary` (`beneficiary_id`, `fname`, `mname`, `lname`, `pro
 (16, 'gangster', 'ako', 'zae', 'Ilocos Norte', 'Piddig', 'Lagandit', '', 1, 10, 'School', '2025-03-18', 'Male', '', '', '09686434364', 'Group'),
 (17, 'gangster', 'ako', 'zae', 'Ilocos Norte', 'Piddig', 'Lagandit', '', 1, 0, 'Farmer', '2025-03-18', 'Male', '', '', '09686434664', 'Individual'),
 (18, 'Vien Daryl', 'Sagantiyoc', 'Saliganan', 'La Union', 'Bacnotan', 'Casiaman', '', 1, 11, 'Cluster', '2025-02-28', 'Male', '', '', '09686434664', 'Group'),
-(19, 'Vien Daryl', 'Sagantiyoc', 'Saliganan', 'La Union', 'Bacnotan', 'Casiaman', '', 1, 0, 'Farmer', '2025-03-18', 'Male', '', '', '09686434645', 'Individual');
+(19, 'Vien Daryl', 'Sagantiyoc', 'Saliganan', 'La Union', 'Bacnotan', 'Casiaman', '', 1, 0, 'Farmer', '2025-03-18', 'Male', '', '', '09686434645', 'Individual'),
+(20, 'q', 'q', 'q', 'Ilocos Norte', 'Piddig', 'Mangitayag', '4', 1, 0, 'AEW', '2025-03-19', 'Male', '111111111111112', 'ARB', '09686434689', 'Individual'),
+(21, 'a', 'a', 'a', 'Ilocos Norte', 'San Nicolas', 'San Miguel (Pob.)', '44', 1, 0, 'StuPID', '2025-03-19', 'Male', '444434333434343', 'ARB,IPs,PWD,4Ps', '09686434686', 'Individual'),
+(22, 'aS', 'aS', 'SS', 'Ilocos Norte', 'Adams', 'Adams (Pob.)', '44SA', 1, 9, 'RAED', '2025-03-19', 'Male', '121212321221212', 'ARB,IPs,PWD,4Ps,ARB,IPs,PWD,4Ps', '09611111111', 'Group');
 
 -- --------------------------------------------------------
 
@@ -259,7 +264,7 @@ CREATE TABLE `tbl_cooperative` (
   `municipality_name` varchar(255) NOT NULL,
   `barangay_name` varchar(255) NOT NULL,
   `archived_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_cooperative`
@@ -286,7 +291,7 @@ CREATE TABLE `tbl_distribution` (
   `station_id` int(8) NOT NULL,
   `distribution_date` date NOT NULL,
   `archived_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_distribution`
@@ -300,7 +305,8 @@ INSERT INTO `tbl_distribution` (`distribution_id`, `intervention_id`, `beneficia
 (5, 1, 6, 1, 5, 1, '2025-03-09', NULL),
 (6, 1, 6, 1, 5, 1, '2025-03-13', NULL),
 (7, 1, 7, 1, 5, 1, '2025-03-14', NULL),
-(8, 1, 14, 14, 5, 1, '2025-03-18', NULL);
+(8, 1, 14, 11, 5, 1, '2025-03-18', NULL),
+(9, 4, 14, 2, 4, 1, '2025-03-18', NULL);
 
 -- --------------------------------------------------------
 
@@ -318,7 +324,7 @@ CREATE TABLE `tbl_intervention_inventory` (
   `unit_id` int(8) NOT NULL,
   `station_id` int(8) NOT NULL,
   `archived_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_intervention_inventory`
@@ -328,7 +334,8 @@ INSERT INTO `tbl_intervention_inventory` (`intervention_id`, `int_type_id`, `des
 (1, 1, 'hh', 100, 0, 1, 1, 1, NULL),
 (2, 2, 'hh', 100, 64, 2, 1, 2, NULL),
 (3, 3, 'hh', 100, 77, 3, 1, 2, NULL),
-(6, 1, '1gg', 1000, 976, 5, 1, 1, NULL);
+(6, 1, '1gg', 1000, 979, 5, 1, 1, NULL),
+(7, 4, '111', 111, 109, 4, 2, 1, '2025-03-21 00:40:13');
 
 -- --------------------------------------------------------
 
@@ -341,7 +348,7 @@ CREATE TABLE `tbl_intervention_type` (
   `intervention_name` varchar(100) NOT NULL,
   `station_id` int(8) NOT NULL,
   `archived_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_intervention_type`
@@ -365,7 +372,7 @@ CREATE TABLE `tbl_seed_type` (
   `int_type_id` int(8) NOT NULL,
   `station_id` int(8) NOT NULL,
   `archived_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_seed_type`
@@ -375,7 +382,7 @@ INSERT INTO `tbl_seed_type` (`seed_id`, `seed_name`, `int_type_id`, `station_id`
 (1, 'Avocado', 1, 1, NULL),
 (2, 'bangus', 2, 2, NULL),
 (3, 'Avocado', 3, 2, NULL),
-(4, 'Boer', 4, 1, '2025-03-04 01:27:26'),
+(4, 'Boer', 4, 1, '2025-03-21 02:17:42'),
 (5, 'Mango', 1, 1, NULL);
 
 -- --------------------------------------------------------
@@ -387,7 +394,7 @@ INSERT INTO `tbl_seed_type` (`seed_id`, `seed_name`, `int_type_id`, `station_id`
 CREATE TABLE `tbl_station` (
   `station_id` int(8) NOT NULL,
   `station_name` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_station`
@@ -410,15 +417,17 @@ INSERT INTO `tbl_station` (`station_id`, `station_name`) VALUES
 CREATE TABLE `tbl_unit` (
   `unit_id` int(8) NOT NULL,
   `unit_name` varchar(100) NOT NULL,
-  `station_id` int(8) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `station_id` int(8) NOT NULL,
+  `archived_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_unit`
 --
 
-INSERT INTO `tbl_unit` (`unit_id`, `unit_name`, `station_id`) VALUES
-(1, 'Sacks', 1);
+INSERT INTO `tbl_unit` (`unit_id`, `unit_name`, `station_id`, `archived_at`) VALUES
+(1, 'Sacks', 1, NULL),
+(2, 'Heads', 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -436,7 +445,7 @@ CREATE TABLE `tbl_user` (
   `lname` varchar(100) NOT NULL,
   `status` varchar(50) NOT NULL,
   `station_id` int(8) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_user`
@@ -447,7 +456,14 @@ INSERT INTO `tbl_user` (`uid`, `username`, `password`, `ulevel`, `fname`, `mname
 (42, 'admin123', '$2y$10$Idn4v6O6ev0O7Ra39L3F1.nGQevZxwnurz1O3O.tVH.TGVHoCXCYC', 'Admin', 'Rhenz Eldrian', 'Mendoza', 'Lanuza', '0', 2),
 (52, 'admin', '$2y$10$xBkYolhShiIBf6R6b47zduNoy5FFMGgcHGLbI09ajyeJby9GylnFC', 'Viewer', 'Tirador', 'ng Kaning', 'Lamig', '3', 1),
 (53, 'isrec', '$2y$10$lr6psXYGXOJGjFeOWdvB6e02i3tvaLeDeCWUeETmRyzp1b30k1zR.', 'ISREC', 'raf', 'raf', 'Pangit', '0', 3),
-(54, 'admin11', '$2y$10$cHRfI46lpCN8IWzxXbNl3una6s3sK5Ov1y9FGeHryTVFyow1ro7UC', 'Admin', 'Nicole', 'Susaya', 'Talua', '0', 3);
+(54, 'admin11', '$2y$10$cHRfI46lpCN8IWzxXbNl3una6s3sK5Ov1y9FGeHryTVFyow1ro7UC', 'Admin', 'Nicole', 'Susaya', 'Talua', '0', 3),
+(55, 'awer', '$2y$10$RwJSBhpmP.EHWrURGPJQE.orcX.QSy6GjV4kcYvu2e6sxIqbTz/FS', 'Admin', 'a', 'a', 'a', '0', 5),
+(56, 'dfgd', '$2y$10$dZ0RXozRKq3wZgsD7b2gcuXbnIRrpsLgi9XbjqSOqCYPgx00AzXVK', 'Admin', 'Raf', 'azxcas', 'dfghfdfg', '0', 2),
+(57, 'dfghfds', '$2y$10$3P5UUoto0Kx8X0/XDCpL5.6nnHDnlLV2gbRzy0Ehrc0DYElZGrErq', 'Admin', 'asdfds', 'sdfgds', 'dsfghfds', '0', 5),
+(58, 'fgdsfs', '$2y$10$fTnEge4zUqKJM7hqCxW3UOx8DnJkluQ10KuC9.GqppAhlX6bwkqVK', 'ISREC', 'Rhenzsdfgfds', 'dfgfds', 'fsfghfd', '0', 6),
+(59, 'fghjkl;\';lkjhg', '$2y$10$B83id/1b9HjHCKXDW8SX8OPzeTLtKn1WBdUBRuz36qV1jgQlfCnj6', 'ISREC', 'Rafdf', 'dsfsg', 'fghg', '0', 4),
+(60, 'ererer', '$2y$10$zM4wYrc8nb1pXFFbCl8Jo.BYm/AE3NnUeNG6wnbL6NW.v8wus6wvq', 'Admin', 'erer', 'ererere', 'ererer', '0', 6),
+(61, 'ssssssssssssssssssssssss', '$2y$10$nj4plIPeKBNCh9Tq9cmAgudM1q/urRrxNLCzWgvU0sx0m.noJ..zu', 'Admin', 'ss', 'ss', 'ss', '0', 5);
 
 --
 -- Indexes for dumped tables
@@ -535,7 +551,7 @@ ALTER TABLE `tbl_user`
 -- AUTO_INCREMENT for table `tbl_beneficiary`
 --
 ALTER TABLE `tbl_beneficiary`
-  MODIFY `beneficiary_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `beneficiary_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `tbl_cooperative`
@@ -547,13 +563,13 @@ ALTER TABLE `tbl_cooperative`
 -- AUTO_INCREMENT for table `tbl_distribution`
 --
 ALTER TABLE `tbl_distribution`
-  MODIFY `distribution_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `distribution_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `tbl_intervention_inventory`
 --
 ALTER TABLE `tbl_intervention_inventory`
-  MODIFY `intervention_id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `intervention_id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `tbl_intervention_type`
@@ -577,13 +593,13 @@ ALTER TABLE `tbl_station`
 -- AUTO_INCREMENT for table `tbl_unit`
 --
 ALTER TABLE `tbl_unit`
-  MODIFY `unit_id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `unit_id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `tbl_user`
 --
 ALTER TABLE `tbl_user`
-  MODIFY `uid` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
+  MODIFY `uid` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
 
 --
 -- Constraints for dumped tables
