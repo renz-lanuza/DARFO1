@@ -236,7 +236,7 @@
                         </div>
                         <div class="col-12 mb-3">
                             <label for="contact_number" class="form-label">Contact Number</label>
-                            <input type="text" class="form-control" id="contact_number" name="contact_number" 
+                            <input type="number" class="form-control" id="contact_number" name="contact_number" 
                                 required minlength="11" maxlength="11" pattern="\d{11}" title="Please enter a valid 11-digit contact number">
                             <small class="form-text"></small> <!-- Add this for feedback -->
                         </div>
