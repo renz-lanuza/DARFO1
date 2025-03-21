@@ -153,6 +153,7 @@ include('includes/navbar.php');
                                         $sql = "SELECT int_type_id, intervention_name
                                                 FROM tbl_intervention_type
                                                 WHERE station_id = ? 
+                                                AND archived_at IS NULL
                                                 ORDER BY int_type_id DESC
                                                 LIMIT ?, ?";
                                         $stmt = $conn->prepare($sql);
