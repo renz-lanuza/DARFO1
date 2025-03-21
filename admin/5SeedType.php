@@ -147,13 +147,23 @@ include('includes/navbar.php');
                             $total_pages = ($total_entries > 0) ? ceil($total_entries / $entries_per_page) : 1;
 
                             // Fetch paginated data
-                            $sql = "SELECT st.seed_name, st.seed_id, it.intervention_name
-                                    FROM tbl_seed_type st
-                                    INNER JOIN tbl_intervention_type it ON st.int_type_id = it.int_type_id
-                                    WHERE st.station_id = ? AND (st.seed_name LIKE ? OR it.intervention_name LIKE ?)
-                                    ORDER BY st.seed_id DESC
+                            $sql ="SELECT 
+                                        st.seed_name, 
+                                        st.seed_id, 
+                                        it.intervention_name
+                                    FROM 
+                                        tbl_seed_type st
+                                    INNER JOIN 
+                                        tbl_intervention_type it 
+                                        ON st.int_type_id = it.int_type_id
+                                    WHERE 
+                                        st.station_id = ? 
+                                        AND (st.seed_name LIKE ? OR it.intervention_name LIKE ?)
+                                        AND st.archived_at IS NULL
+                                    ORDER BY 
+                                        st.seed_id DESC
                                     LIMIT ? OFFSET ?";
-
+                            
                             $stmt = $conn->prepare($sql);
                             $stmt->bind_param("issii", $stationId, $search, $search, $entries_per_page, $offset);
                             $stmt->execute();
@@ -175,9 +185,9 @@ include('includes/navbar.php');
                                         </button>
 
                                             <!-- Archive Button -->
-                                            <button class="btn btn-warning btn-sm archive-btn" 
+                                            <button class="btn btn-danger btn-sm archive-btn" 
                                                 data-id="<?= htmlspecialchars($row['seed_id']) ?>">
-                                                Archive
+                                                Delete
                                             </button>
                                         </td>
                                     </tr>
