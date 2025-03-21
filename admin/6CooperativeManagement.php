@@ -187,9 +187,9 @@ include('includes/navbar.php');
                                                         Update
                                                     </button>
                                         
-                                                    <button class='btn btn-warning btn-sm archivecoop-btn' 
+                                                    <button class='btn btn-danger btn-sm archivecoop-btn' 
                                                         data-id='" . htmlspecialchars($row['coop_id'], ENT_QUOTES, 'UTF-8') . "'>
-                                                        Archive
+                                                        Delete
                                                     </button>
                                                 </td>
                                             </tr>";
