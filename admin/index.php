@@ -444,7 +444,6 @@ include('includes/navbar.php');
         alert("An error occurred while generating the Excel file.");
     }
 }
-
 </script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
