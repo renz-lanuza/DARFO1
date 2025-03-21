@@ -82,6 +82,7 @@
                     <div class="mb-3">
                         <label for="seed_type_name" class="form-label">Classification Name</label>
                         <input type="text" class="form-control" id="seed_type_name" name="seed_type_name" required>
+                        <div class="invalid-feedback" id="classificationError"></div> <!-- Error Message -->
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -129,7 +130,7 @@
 
             if (selectedIntervention && existingClassifications.includes(classificationName)) {
                 $('#seed_type_name').addClass('is-invalid');
-                $('#classificationError').text("This classification already exists for the selected intervention or archived.");
+                $('#classificationError').text("This classification already exists for the selected intervention or Archived.");
                 submitButton.prop('disabled', true);
             } else {
                 $('#seed_type_name').removeClass('is-invalid');
@@ -187,14 +188,57 @@
                     <div class="mb-3">
                         <label for="seed_name" class="form-label">Classification</label>
                         <input type="text" id="seed_name" name="seed_name" class="form-control" required>
+                        <div class="invalid-feedback" id="seedNameError"></div> <!-- Error message -->
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="updateSeedForm" class="btn btn-success">Update</button>
-            </div>
+                <button type="submit" form="updateSeedForm" class="btn btn-success" id="updateSeedBtn">Update</button>            </div>
         </div>
     </div>
 </div>
 
+<script>
+$(document).ready(function () {
+    let submitBtn = $("#updateSeedBtn"); // Select the button
+
+    $("#seed_name").on("input", function () {
+        let seedName = $(this).val().trim();
+        let seedId = $("#seed_id").val(); // Get the current seed ID for update
+        let errorDiv = $("#seedNameError");
+
+        if (seedName === "") {
+            errorDiv.text(""); // Clear error if input is empty
+            $("#seed_name").removeClass("is-invalid");
+            submitBtn.prop("disabled", true);
+            return;
+        }
+
+        $.ajax({
+            url: "5seedTypeManagement/validateUpdateClassification.php", // PHP script to check existing names
+            type: "POST",
+            data: { seed_name: seedName, seed_id: seedId },
+            dataType: "json",
+            success: function (response) {
+                if (response.exists) {
+                    errorDiv.text("Seed classification already exists or Archived!").show();
+                    $("#seed_name").addClass("is-invalid");
+                    submitBtn.prop("disabled", true); // Disable button if name exists
+                } else {
+                    errorDiv.text("").hide();
+                    $("#seed_name").removeClass("is-invalid");
+                    submitBtn.prop("disabled", false); // Enable button if name is unique
+                }
+            },
+            error: function () {
+                console.error("Error checking seed name.");
+                submitBtn.prop("disabled", true); // Disable button on error
+            }
+        });
+    });
+
+    // Disable button initially
+    submitBtn.prop("disabled", true);
+});
+</script>
