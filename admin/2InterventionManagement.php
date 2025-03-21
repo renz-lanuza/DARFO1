@@ -346,3 +346,35 @@ include('includes/navbar.php');
     include('includes/footer.php');
     ?>
     <?php include 'modals/modal_for_intervention.php'; ?>
+
+<!-- search inventory -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("search_id");
+    const searchButton = document.querySelector(".input-group-append button");
+
+    function fetchSearchResults() {
+        const searchValue = searchInput.value.trim();
+        fetch(`2InterventionManagement/searchIntervention.php?search=${encodeURIComponent(searchValue)}`)
+            .then(response => response.text())
+            .then(data => {
+                document.querySelector("tbody").innerHTML = data;
+            })
+            .catch(error => console.error("Error:", error));
+    }
+
+    // Trigger search when Enter is pressed inside the input field
+    searchInput.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevent form submission if inside a form
+            fetchSearchResults();
+        }
+    });
+
+    // Trigger search when the search button is clicked
+    searchButton.addEventListener("click", function () {
+        fetchSearchResults();
+    });
+});
+</script>
+
