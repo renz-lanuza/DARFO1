@@ -76,14 +76,8 @@
 
                     <div class="mb-3">
                         <label for="updateInterventionName" class="form-label">Intervention Name</label>
-                            <input type="text" class="form-control" id="updateInterventionName" name="intervention_name" placeholder="Enter Intervention Name" required>
-                        <span id="updateNameFeedback" class="text-danger small" style="display: none;">Intervention name already exists.</span>
-                    </div>
-
-
-                    <!-- Validation feedback on input -->
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span id="updateNameFeedback" class="text-danger" style="display: none;">Please provide a valid intervention name.</span>
+                        <input type="text" class="form-control" id="updateInterventionName" name="intervention_name" placeholder="Enter Intervention Name" required>
+                        <span id="updateNameFeedback" class="text-danger small" style="display: none;">Intervention name already exists or Archived.</span>
                     </div>
 
                     <div class="modal-footer">
@@ -96,37 +90,54 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function () {
-        $("#interventionName").on("input", function () {
-            var interventionName = $(this).val().trim();
-            var stationId = $("#station_id").val(); // Get station ID (ensure it's available in your form)
+$(document).ready(function () {
+    let submitBtn = $("#updateInterventionForm button[type='submit']"); // Select the Update button
+    let interventionNameInput = $("#updateInterventionName");
+    let errorDiv = $("#updateNameFeedback");
 
-            if (interventionName.length > 2) { 
-                $.ajax({
-                    url: "4InterventionTypeManagement/check_update_interventiontype.php",
-                    type: "POST",
-                    data: { interventionName: interventionName, station_id: stationId },
-                    success: function (response) {
-                        if (response.trim() === "exists") {
-                            $("#interventionName").addClass("is-invalid");
-                            $("#nameFeedback").text("Intervention name already exists in this station.").show();
-                            $(".btn-success").prop("disabled", true);
-                        } else {
-                            $("#interventionName").removeClass("is-invalid");
-                            $("#nameFeedback").hide();
-                            $(".btn-success").prop("disabled", false);
-                        }
-                    }
-                });
-            } else {
-                $("#interventionName").removeClass("is-invalid");
-                $("#nameFeedback").hide();
-                $(".btn-success").prop("disabled", false);
+    // Disable the button initially
+    submitBtn.prop("disabled", true);
+
+    interventionNameInput.on("input", function () {
+        let interventionName = $(this).val().trim();
+        let intTypeId = $("#updateIntTypeId").val(); // Get intervention type ID
+
+        if (interventionName === "") {
+            errorDiv.text("Please enter a valid intervention name.").show();
+            interventionNameInput.addClass("is-invalid");
+            submitBtn.prop("disabled", true);
+            return;
+        }
+
+        $.ajax({
+            url: "4InterventionTypeManagement/validateUpdateIntType.php", // PHP script to check for duplicates
+            type: "POST",
+            data: { intervention_name: interventionName, int_type_id: intTypeId },
+            dataType: "json",
+            success: function (response) {
+                if (response.exists) {
+                    errorDiv.text("Intervention name already exists or archived!").show();
+                    interventionNameInput.addClass("is-invalid");
+                    submitBtn.prop("disabled", true);
+                } else {
+                    errorDiv.text("").hide();
+                    interventionNameInput.removeClass("is-invalid").addClass("is-valid");
+                    submitBtn.prop("disabled", false);
+                }
+            },
+            error: function () {
+                console.error("Error checking intervention name.");
+                errorDiv.text("Error checking intervention name.").show();
+                interventionNameInput.addClass("is-invalid");
+                submitBtn.prop("disabled", true);
             }
         });
     });
+});
 </script>
+
 
 <style>
     .modal-lg {
