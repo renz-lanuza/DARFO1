@@ -93,6 +93,53 @@
     </div>
 </div>
 
+<script>
+    $(document).ready(function () {
+        let existingClassifications = {}; // Object to store existing classifications
+
+        // Fetch classifications when an intervention is selected
+        $('#intervention_name').change(function () {
+            let inttypeId = $(this).val();
+
+            if (inttypeId) {
+                $.ajax({
+                    url: '5seedTypeManagement/validateClassification.php', // PHP script to get existing classifications
+                    type: 'GET',
+                    data: { int_type_id: inttypeId },
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.status === "success") {
+                            existingClassifications = response.data; // Store fetched classifications
+                        } else {
+                            existingClassifications = {};
+                        }
+                    },
+                    error: function () {
+                        console.error("Error fetching classifications.");
+                    }
+                });
+            }
+        });
+
+        // Validate classification input
+        $('#seed_type_name').on('input', function () {
+            let classificationName = $(this).val().trim().toLowerCase();
+            let selectedIntervention = $('#intervention_name').val();
+            let submitButton = $('#addSeedTypeForm button[type="submit"]');
+
+            if (selectedIntervention && existingClassifications.includes(classificationName)) {
+                $('#seed_type_name').addClass('is-invalid');
+                $('#classificationError').text("This classification already exists for the selected intervention.");
+                submitButton.prop('disabled', true);
+            } else {
+                $('#seed_type_name').removeClass('is-invalid');
+                $('#classificationError').text("");
+                submitButton.prop('disabled', false);
+            }
+        });
+    });
+</script>
+
 <style>
     .modal-lg {
         max-width: 40%; /* Adjusted size for better visibility */
