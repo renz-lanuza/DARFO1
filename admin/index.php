@@ -7,6 +7,16 @@ include('includes/navbar.php');
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <!-- Include Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+<!-- Include Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx-populate/1.21.0/xlsx-populate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx-populate/1.21.0/xlsx-populate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
 
 <!-- Content Wrapper -->
 <div id="content-wrapper" class="d-flex flex-column">
@@ -384,54 +394,58 @@ include('includes/navbar.php');
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
-    function downloadExcelWithImage() {
-        if (!window.myChart) {
-            alert("No chart data available.");
-            return;
-        }
+    async function downloadExcelWithImage() {
+    if (!window.myChart) {
+        alert("No chart data available.");
+        return;
+    }
 
-            let labels = window.myChart.data.labels;
-            let datasets = window.myChart.data.datasets;
+    let labels = window.myChart.data.labels;
+    let datasets = window.myChart.data.datasets;
 
-            let dataArray = [["Category", "Value"]]; // Header row
-            datasets.forEach(dataset => {
-                labels.forEach((label, index) => {
-                    dataArray.push([label, dataset.data[index]]);
-                });
-            });
+    let dataArray = [["Category", "Value"]]; // Header row
+    datasets.forEach(dataset => {
+        labels.forEach((label, index) => {
+            dataArray.push([label, dataset.data[index]]);
+        });
+    });
 
-            // Convert data to a worksheet
-            let ws = XLSX.utils.aoa_to_sheet(dataArray);
+    // Create a new Excel workbook
+    let workbook = new ExcelJS.Workbook();
+    let worksheet = workbook.addWorksheet("Chart Data");
 
-            // Capture chart as Base64 image
-            let canvas = document.getElementById("barChart");
-            let imgData = canvas.toDataURL("image/png");
+    // Insert data into the worksheet
+    worksheet.addRows(dataArray);
 
-            // Insert image placeholder text
-            XLSX.utils.sheet_add_aoa(ws, [["Chart Image Below"]], { origin: { r: dataArray.length + 2, c: 0 } });
+    // Capture chart as Base64 image
+    let canvas = document.getElementById("barChart");
+    let imgData = canvas.toDataURL("image/png").split(",")[1]; // Remove metadata
 
-            // Convert Base64 image to a downloadable file
-            fetch(imgData)
-                .then(res => res.blob())
-                .then(blob => blob.arrayBuffer())
-                .then(buffer => {
-                    let wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, ws, "Chart Data");
+    // Add the image to the workbook
+    let imageId = workbook.addImage({
+        base64: imgData,
+        extension: "png",
+    });
 
-                    // Prompt user to manually insert image
-                    alert("The Excel file contains data. Please manually insert the downloaded chart image into the sheet.");
+    // Position the image below the data
+    worksheet.addImage(imageId, {
+        tl: { col: 0, row: dataArray.length + 2 }, // Adjust position
+        ext: { width: 500, height: 300 }, // Resize image
+    });
 
-                    // Download Excel file
-                    XLSX.writeFile(wb, "chart_data.xlsx");
+    // Correctly generate and download the Excel file
+    try {
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { 
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
+        });
 
-                    // Automatically trigger image download
-                    let link = document.createElement("a");
-                    link.href = imgData;
-                    link.download = "chart_image.png";
-                    link.click();
-                })
-                .catch(err => console.error("Error processing image:", err));
-        }
+        saveAs(blob, "chart_data.xlsx");
+    } catch (error) {
+        console.error("Error generating Excel file:", error);
+        alert("An error occurred while generating the Excel file.");
+    }
+}   
 </script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -561,153 +575,153 @@ include('includes/navbar.php');
     }
 </script>
 <script>
-document.addEventListener("DOMContentLoaded", async function () {
-    var map = L.map('map').setView([16.616, 120.316], 8);
+    document.addEventListener("DOMContentLoaded", async function () {
+        var map = L.map('map').setView([16.616, 120.316], 8);
 
-    // Add OpenStreetMap tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
 
-    try {
-        // Fetch intervention data
-        let response = await fetch('map/get_intervention_data.php');
-        let interventionData = await response.json();
+        try {
+            // Fetch intervention data
+            let response = await fetch('map/get_intervention_data.php');
+            let interventionData = await response.json();
 
-        console.log("Intervention Data:", interventionData); // Debugging Output
+            console.log("Intervention Data:", interventionData); // Debugging Output
 
-        if (interventionData.error) {
-            console.error("Error from PHP:", interventionData.error);
-            return;
-        }
+            if (interventionData.error) {
+                console.error("Error from PHP:", interventionData.error);
+                return;
+            }
 
-        // Normalize intervention data keys (lowercase & trim spaces)
-        let normalizedInterventionData = {};
-        let maxValue = 0;
-        let minValue = Infinity;
+            // Normalize intervention data keys (lowercase & trim spaces)
+            let normalizedInterventionData = {};
+            let maxValue = 0;
+            let minValue = Infinity;
 
-        Object.keys(interventionData).forEach(key => {
-            let normalizedKey = key.trim().toLowerCase();
-            let value = interventionData[key];
+            Object.keys(interventionData).forEach(key => {
+                let normalizedKey = key.trim().toLowerCase();
+                let value = interventionData[key];
 
-            normalizedInterventionData[normalizedKey] = value;
+                normalizedInterventionData[normalizedKey] = value;
 
-            if (value > maxValue) maxValue = value;
-            if (value < minValue) minValue = value;
-        });
-
-        if (minValue === maxValue) {
-            minValue = 0;
-        }
-
-        // Fetch GeoJSON data
-        response = await fetch('map/map.geojson');
-        let geoData = await response.json();
-
-        // Green color scale
-        function interpolateGreen(value) {
-            if (value === 0) return "#d5d8dc"; 
-
-            let intensity = (value - minValue) / (maxValue - minValue);
-            if (isNaN(intensity)) intensity = 0;
-
-            let darkGreen = [0, 100, 0];  
-            let lightGreen = [173, 255, 47]; 
-
-            let r = Math.round(lightGreen[0] + (darkGreen[0] - lightGreen[0]) * intensity);
-            let g = Math.round(lightGreen[1] + (darkGreen[1] - lightGreen[1]) * intensity);
-            let b = Math.round(lightGreen[2] + (darkGreen[2] - lightGreen[2]) * intensity);
-
-            return `rgb(${r}, ${g}, ${b})`;
-        }
-
-        function showModal(municipalityName) {
-            let modalTitle = document.getElementById("modalTitle");
-            let modalBody = document.getElementById("modalBody");
-
-            modalTitle.innerHTML = `Interventions in ${municipalityName}`;
-
-            // Fetch intervention data from PHP script
-            fetch(`map/get_data.php?municipality=${encodeURIComponent(municipalityName)}`)
-                .then(response => response.text()) // Get response as HTML
-                .then(html => {
-                    modalBody.innerHTML = html; // Insert into modal
-                    let modal = new bootstrap.Modal(document.getElementById("interventionModal"));
-                    modal.show();
-                })
-                .catch(error => {
-                    console.error("Error loading intervention data:", error);
-                    modalBody.innerHTML = `<p class="text-danger">Error loading data.</p>`;
-                });
-        }
-
-        function onEachFeature(feature, layer) {
-            let municipalityName = feature.properties.adm3_en 
-                ? feature.properties.adm3_en.trim().toLowerCase()
-                : "";
-
-            let interventionCount = normalizedInterventionData[municipalityName] || 0;
-
-            layer.bindPopup(`
-                <b>${feature.properties.adm3_en}</b><br>
-                <b>Interventions:</b> <b>${interventionCount}</b>
-            `);
-
-            layer.on({
-                mouseover: function (e) {
-                    let layer = e.target;
-                    layer.setStyle({
-                        fillOpacity: 1,
-                        color: "#FFFF00"
-                    });
-
-                    layer.bindTooltip(`
-                        <b>${feature.properties.adm3_en}</b><br>
-                        Interventions: ${interventionCount}
-                    `, {
-                        permanent: false,
-                        direction: "top"
-                    }).openTooltip();
-                },
-                mouseout: function (e) {
-                    let layer = e.target;
-                    layer.setStyle({
-                        fillOpacity: 0.8,
-                        color: "#000"
-                    });
-
-                    layer.closeTooltip();
-                },
-                click: function () {
-                    showModal(feature.properties.adm3_en, interventionCount);
-                }
+                if (value > maxValue) maxValue = value;
+                if (value < minValue) minValue = value;
             });
-        }
 
-        L.geoJSON(geoData, {
-            style: function (feature) {
+            if (minValue === maxValue) {
+                minValue = 0;
+            }
+
+            // Fetch GeoJSON data
+            response = await fetch('map/map.geojson');
+            let geoData = await response.json();
+
+            // Green color scale
+            function interpolateGreen(value) {
+                if (value === 0) return "#d5d8dc"; 
+
+                let intensity = (value - minValue) / (maxValue - minValue);
+                if (isNaN(intensity)) intensity = 0;
+
+                let darkGreen = [0, 100, 0];  
+                let lightGreen = [173, 255, 47]; 
+
+                let r = Math.round(lightGreen[0] + (darkGreen[0] - lightGreen[0]) * intensity);
+                let g = Math.round(lightGreen[1] + (darkGreen[1] - lightGreen[1]) * intensity);
+                let b = Math.round(lightGreen[2] + (darkGreen[2] - lightGreen[2]) * intensity);
+
+                return `rgb(${r}, ${g}, ${b})`;
+            }
+
+            function showModal(municipalityName) {
+                let modalTitle = document.getElementById("modalTitle");
+                let modalBody = document.getElementById("modalBody");
+
+                modalTitle.innerHTML = `Interventions in ${municipalityName}`;
+
+                // Fetch intervention data from PHP script
+                fetch(`map/get_data.php?municipality=${encodeURIComponent(municipalityName)}`)
+                    .then(response => response.text()) // Get response as HTML
+                    .then(html => {
+                        modalBody.innerHTML = html; // Insert into modal
+                        let modal = new bootstrap.Modal(document.getElementById("interventionModal"));
+                        modal.show();
+                    })
+                    .catch(error => {
+                        console.error("Error loading intervention data:", error);
+                        modalBody.innerHTML = `<p class="text-danger">Error loading data.</p>`;
+                    });
+            }
+
+            function onEachFeature(feature, layer) {
                 let municipalityName = feature.properties.adm3_en 
                     ? feature.properties.adm3_en.trim().toLowerCase()
                     : "";
 
                 let interventionCount = normalizedInterventionData[municipalityName] || 0;
 
-                let fillColor = interpolateGreen(interventionCount);
+                // layer.bindPopup(`
+                //     <b>${feature.properties.adm3_en}</b><br>
+                //     <b>Interventions:</b> <b>${interventionCount}</b>
+                // `);
 
-                return {
-                    fillColor: fillColor,
-                    color: "#000",
-                    weight: 0.5,
-                    fillOpacity: 0.8
-                };
-            },
-            onEachFeature: onEachFeature // Use the function properly
-        }).addTo(map);
+                layer.on({
+                    mouseover: function (e) {
+                        let layer = e.target;
+                        layer.setStyle({
+                            fillOpacity: 1,
+                            color: "#FFFF00"
+                        });
 
-    } catch (error) {
-        console.error('Error loading data:', error);
-    }
-});
+                        layer.bindTooltip(`
+                            <b>${feature.properties.adm3_en}</b><br>
+                            Interventions: ${interventionCount}
+                        `, {
+                            permanent: false,
+                            direction: "top"
+                        }).openTooltip();
+                    },
+                    mouseout: function (e) {
+                        let layer = e.target;
+                        layer.setStyle({
+                            fillOpacity: 0.8,
+                            color: "#000"
+                        });
+
+                        layer.closeTooltip();
+                    },
+                    click: function () {
+                        showModal(feature.properties.adm3_en, interventionCount);
+                    }
+                });
+            }
+
+            L.geoJSON(geoData, {
+                style: function (feature) {
+                    let municipalityName = feature.properties.adm3_en 
+                        ? feature.properties.adm3_en.trim().toLowerCase()
+                        : "";
+
+                    let interventionCount = normalizedInterventionData[municipalityName] || 0;
+
+                    let fillColor = interpolateGreen(interventionCount);
+
+                    return {
+                        fillColor: fillColor,
+                        color: "#000",
+                        weight: 0.5,
+                        fillOpacity: 0.8
+                    };
+                },
+                onEachFeature: onEachFeature // Use the function properly
+            }).addTo(map);
+
+        } catch (error) {
+            console.error('Error loading data:', error);
+        }
+    });
 </script>
 
 <style>
@@ -742,4 +756,3 @@ document.addEventListener("DOMContentLoaded", async function () {
     include('modals/modal_for_viewing_intervention.php');
     include('modals/modal_for_map.php');
 ?>
-
