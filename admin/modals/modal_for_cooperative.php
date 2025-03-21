@@ -1,76 +1,111 @@
 <!-- Modal for Adding Cooperative -->
-    <div class="modal fade" id="addCooperativeModal" tabindex="-1" aria-labelledby="addCooperativeModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header" style="background-color: #0D7C66; color: white;">
-                    <h5 class="modal-title" id="addCooperativeModalLabel">Add Cooperative</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addCooperativeForm">
-                        <div class="mb-3">
-                            <label for="cooperative_name" class="form-label">Cooperative Name</label>
-                                <input type="text" class="form-control" id="cooperative_name" name="cooperative_name" required>
-                            <div class="invalid-feedback" id="cooperative_error"></div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="province" class="form-label">Province</label>
-                            <select class="form-control" id="province" name="province" required>
-                                <option value="" disabled selected>Select Province</option>
-                                <!-- Populate dynamically -->
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="municipality" class="form-label">Municipality</label>
-                            <select class="form-control" id="municipality" name="municipality" required>
-                                <option value="" disabled selected>Select Municipality</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="barangay" class="form-label">Barangay</label>
-                            <select class="form-control" id="barangay" name="barangay" required>
-                                <option value="" disabled selected>Select Barangay</option>
-                            </select>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-success";>Add</button>
-                        </div>
-                    </form>
-                </div>
+<div class="modal fade" id="addCooperativeModal" tabindex="-1" aria-labelledby="addCooperativeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #0D7C66; color: white;">
+                <h5 class="modal-title" id="addCooperativeModalLabel">Add Cooperative</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addCooperativeForm">
+                <form id="addCooperativeForm">
+    <div class="mb-3">
+        <label for="cooperative_name" class="form-label">Cooperative Name</label>
+        <input type="text" class="form-control" id="cooperative_name" name="cooperative_name" required>
+        <div class="invalid-feedback" id="cooperative_error"></div>
+    </div>
+
+    <div class="mb-3">
+        <label for="province" class="form-label">Province</label>
+        <select class="form-control" id="province" name="province" required>
+            <option value="" disabled selected>Select Province</option>
+            <!-- Populate dynamically -->
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="municipality" class="form-label">Municipality</label>
+        <select class="form-control" id="municipality" name="municipality" required>
+            <option value="" disabled selected>Select Municipality</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="barangay" class="form-label">Barangay</label>
+        <select class="form-control" id="barangay" name="barangay" required>
+            <option value="" disabled selected>Select Barangay</option>
+        </select>
+    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success" id="submitBtn" disabled>Add</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
+
     
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function () {
-            $("#cooperative_name").on("input", function () {
-                var cooperativeName = $(this).val().trim();
+       document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("addCooperativeForm");
+    const cooperativeNameInput = document.getElementById("cooperative_name");
+    const provinceInput = document.getElementById("province");
+    const municipalityInput = document.getElementById("municipality");
+    const barangayInput = document.getElementById("barangay");
+    const errorDiv = document.getElementById("cooperative_error");
+    
+    function checkCooperativeExists() {
+        const cooperative_name = cooperativeNameInput.value.trim();
+        const province = provinceInput.value;
+        const municipality = municipalityInput.value;
+        const barangay = barangayInput.value;
+        
+        if (!cooperative_name || !province || !municipality || !barangay) {
+            errorDiv.textContent = "";
+            return;
+        }
 
-                if (cooperativeName.length > 2) { // Avoid unnecessary requests for very short input
-                    $.ajax({
-                        url: "6cooperativeManagement/check_cooperative.php", // PHP script to check the database
-                        type: "POST",
-                        data: { cooperative_name: cooperativeName },
-                        success: function (response) {
-                            if (response === "exists") {
-                                $("#cooperative_name").addClass("is-invalid");
-                                $("#cooperative_error").text("Cooperative name is already taken.");
-                                $(".btn-success").prop("disabled", true);
-                            } else {
-                                $("#cooperative_name").removeClass("is-invalid");
-                                $("#cooperative_error").text("");
-                                $(".btn-success").prop("disabled", false);
-                            }
-                        }
-                    });
-                } else {
-                    $("#cooperative_name").removeClass("is-invalid");
-                    $("#cooperative_error").text("");
-                    $(".btn-success").prop("disabled", false);
-                }
-            });
-        });
+        fetch("6cooperativeManagement/check_cooperative.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+                cooperative_name: cooperative_name,
+                province: province,
+                municipality: municipality,
+                barangay: barangay
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.exists) {
+                errorDiv.textContent = "This cooperative with the same location already exists.";
+                errorDiv.style.display = "block";
+                cooperativeNameInput.classList.add("is-invalid");
+            } else {
+                errorDiv.textContent = "";
+                errorDiv.style.display = "none";
+                cooperativeNameInput.classList.remove("is-invalid");
+            }
+        })
+        .catch(error => console.error("Error checking cooperative:", error));
+    }
+
+    // Attach event listeners to trigger validation
+    cooperativeNameInput.addEventListener("input", checkCooperativeExists);
+    provinceInput.addEventListener("change", checkCooperativeExists);
+    municipalityInput.addEventListener("change", checkCooperativeExists);
+    barangayInput.addEventListener("change", checkCooperativeExists);
+
+    // Prevent form submission if validation fails
+    form.addEventListener("submit", function (event) {
+        if (cooperativeNameInput.classList.contains("is-invalid")) {
+            event.preventDefault();
+        }
+    });
+});
+
     </script>
 
 <style>
