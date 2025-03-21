@@ -225,7 +225,7 @@ include('includes/navbar.php');
                                                     Update
                                                 </a>    
 
-                                                <button class="btn btn-warning" onclick="confirmArchive('<?php echo $uid; ?>')">Archive</button>
+                                                <button class="btn btn-danger" onclick="confirmArchive('<?php echo $uid; ?>')">Delete</button>
                                             </td>
                                         </tr>
                                 <?php
