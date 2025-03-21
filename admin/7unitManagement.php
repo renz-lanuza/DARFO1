@@ -82,10 +82,10 @@ include('includes/navbar.php');
                             <span>Add Unit</span>
                         </button>
 
-                        <form class="d-none d-sm-inline-block form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
+                       <form class="d-none d-sm-inline-block form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
                             <div class="input-group">
                                 <input type="text" id="search_id" class="form-control bg-light border-0 small"
-                                    placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2" onkeyup="searchUnitTable()">
+                                    placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
                                 <div class="input-group-append">
                                     <button class="btn text-white" style="background-color: #DCFFB7;" type="button">
                                         <i class="fas fa-search fa-sm" style="color: black;"></i>
@@ -298,3 +298,31 @@ include('includes/navbar.php');
     include('includes/footer.php');
     ?>
     <?php include 'modals/modal_for_unit.php'; ?>
+
+  <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("search_id");
+
+    searchInput.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            fetchUnitData(searchInput.value);
+        }
+    });
+
+    function fetchUnitData(searchValue) {
+        fetch(`7unitManagement/searchUnit.php?search=${encodeURIComponent(searchValue)}`)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("dataTable6").innerHTML = data;
+                searchInput.focus(); // Refocus after search
+            })
+            .catch(error => console.error("Error fetching unit data:", error));
+    }
+
+    window.searchUnitTable = function () {
+        fetchUnitData(searchInput.value);
+    };
+});
+
+    </script>
