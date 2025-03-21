@@ -171,9 +171,9 @@ include('includes/navbar.php');
                                                         data-toggle="modal" data-target="#updateInterventionTypeModal"
                                                         data-user-id="<?php echo $row['int_type_id']; ?>">Update</a>
 
-                                                        <a href="#" class="btn btn-warning archive-int-type-btn"
+                                                        <a href="#" class="btn btn-danger archive-int-type-btn"
                                                             data-int-type-id="<?php echo htmlspecialchars($row['int_type_id']); ?>">
-                                                            Archive
+                                                            Delete
                                                         </a>
                                                 </td>
                                             </tr>
