@@ -211,4 +211,12 @@
         event.preventDefault();
     }
 });
+
+document.querySelectorAll("#quantity, #quantity_left").forEach((input) => {
+    input.addEventListener("keydown", function (event) {
+        if (event.key === "e" || event.key === "E" || event.key === "+" || event.key === "-") {
+            event.preventDefault();
+        }
+    });
+});
 </script>
