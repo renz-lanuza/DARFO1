@@ -184,7 +184,7 @@ include('includes/navbar.php');
                                             <th>Barangay</th>
                                             <th>Cooperative</th>
                                             <th>Intervention Name</th>
-                                            <th>Seed Type</th>
+                                            <th>Classification</th>
                                             <th>Quantity</th>
                                             <th>Action</th>
                                         </tr>
