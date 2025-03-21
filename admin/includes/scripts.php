@@ -2185,36 +2185,95 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
-<!-- search inventory -->
+<!-- search cooperative -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const searchInput = document.getElementById("search_id");
-    const searchButton = document.querySelector(".input-group-append button");
+    const searchInput = document.getElementById("search_coop");
+    const searchButton = document.getElementById("search_button");
+    const dataTable = document.getElementById("dataTable6");
 
-    function fetchSearchResults() {
+    // Auto-focus the search input on page load
+    searchInput.focus();
+
+    function fetchCooperatives() {
         const searchValue = searchInput.value.trim();
-        fetch(`2InterventionManagement/searchIntervention.php?search=${encodeURIComponent(searchValue)}`)
+        fetch(`6cooperativeManagement/searchCooperative.php?search=${encodeURIComponent(searchValue)}`)
             .then(response => response.text())
             .then(data => {
-                document.querySelector("tbody").innerHTML = data;
+                dataTable.innerHTML = data;
             })
             .catch(error => console.error("Error:", error));
     }
 
-    // Trigger search when Enter is pressed inside the input field
+    // Trigger search on "Enter" key press
     searchInput.addEventListener("keypress", function (event) {
         if (event.key === "Enter") {
-            event.preventDefault(); // Prevent form submission if inside a form
-            fetchSearchResults();
+            event.preventDefault(); // Prevent form submission
+            fetchCooperatives();
         }
     });
 
-    // Trigger search when the search button is clicked
+    // Trigger search on button click
     searchButton.addEventListener("click", function () {
-        fetchSearchResults();
+        fetchCooperatives();
+        searchInput.focus(); // Keep focus on input after search
     });
 });
 </script>
+
+<!-- search for beneficiary -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("search_id");
+    const searchButton = document.getElementById("searchButton");
+    const beneficiaryTable = document.querySelector("#beneficiaryTable tbody");
+    const searchForm = document.getElementById("searchForm");
+
+    // Auto-focus the search input on page load
+    searchInput.focus();
+
+    function cleanSearchInput(input) {
+        return input.replace(/\s+/g, " ").trim(); // Convert multiple spaces to single space
+    }
+
+    function fetchBeneficiaries() {
+        let searchValue = cleanSearchInput(searchInput.value);
+
+        if (searchValue === "") return; // Stop if empty
+
+        console.log("Searching for:", searchValue); // Debugging
+
+        fetch(`8beneficiaryManagement/searchBeneficiary.php?search=${encodeURIComponent(searchValue)}`)
+            .then(response => response.text())
+            .then(data => {
+                beneficiaryTable.innerHTML = data;
+                searchInput.focus(); // Keep focus after search
+            })
+            .catch(error => console.error("Error:", error));
+    }
+
+    // Prevent form from reloading
+    searchForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        fetchBeneficiaries();
+    });
+
+    // Trigger search on "Enter" key press
+    searchInput.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            fetchBeneficiaries();
+        }
+    });
+
+    // Trigger search on button click
+    searchButton.addEventListener("click", function () {
+        fetchBeneficiaries();
+    });
+});
+</script>
+
+
 
 <script>
     $(document).ready(function() {
