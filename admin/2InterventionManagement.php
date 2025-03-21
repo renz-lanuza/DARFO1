@@ -200,9 +200,9 @@ include('includes/navbar.php');
                                                         Update
                                                     </a>
 
-                                                    <button class="btn btn-warning archiveintervention-btn"
+                                                    <button class="btn btn-danger archiveintervention-btn"
                                                         data-intervention-id="<?php echo htmlspecialchars($row['intervention_id']); ?>">
-                                                        Archive
+                                                        Delete
                                                     </button>
                                                 </td>
                                             </tr>
