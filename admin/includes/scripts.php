@@ -1850,232 +1850,6 @@ function archiveUser(userId) {
 
 </script>
 
-<!-- search intervention management -->
-<script>
-    function searchInterventionTable() {
-        let input = document.getElementById("search_id").value.toLowerCase();
-        let table = document.getElementById("dataTable2");
-        let rows = table.getElementsByTagName("tr");
-        let noRecordsRow = document.getElementById("noRecordsRow");
-        let found = false;
-
-        // Loop through rows, excluding the header
-        for (let i = 0; i < rows.length; i++) {
-            let cells = rows[i].getElementsByTagName("td");
-            let match = false;
-
-            if (cells.length > 0) { // Ignore headers
-                for (let j = 0; j < cells.length; j++) {
-                    if (cells[j].innerText.toLowerCase().includes(input)) {
-                        match = true;
-                        break;
-                    }
-                }
-
-                rows[i].style.display = match ? "" : "none"; // Show or hide rows
-                if (match) found = true;
-            }
-        }
-
-        // Handle "No records found" row
-        if (!found) {
-            if (!noRecordsRow) {
-                noRecordsRow = document.createElement("tr");
-                noRecordsRow.id = "noRecordsRow";
-                noRecordsRow.innerHTML = `<td colspan="7" class="text-center">No Interventions Found</td>`;
-                table.appendChild(noRecordsRow);
-            }
-            noRecordsRow.style.display = "";
-        } else if (noRecordsRow) {
-            noRecordsRow.style.display = "none";
-        }
-    }
-</script>
-
-<!-- search distribution management -->
-<script>
-    function searchDistributionTable() {
-    let input = document.getElementById("search_id").value.toLowerCase();
-    let table = document.getElementById("dataTable3");
-    let rows = table.getElementsByTagName("tr");
-    let noRecordsRow = document.getElementById("noRecordsRow");
-    let found = false;
-
-        // Loop through rows, excluding the header
-    for (let i = 0; i < rows.length; i++) {
-        let cells = rows[i].getElementsByTagName("td");
-        let match = false;
-
-        if (cells.length > 0) { // Ignore rows without <td> (like headers)
-            for (let j = 0; j < cells.length; j++) {
-                if (cells[j].innerText.toLowerCase().includes(input)) {
-                    match = true;
-                    break;
-                }
-            }
-
-            if (match) {
-                rows[i].style.display = ""; // Show matching rowsm
-                found = true;
-            } else {
-                rows[i].style.display = "none"; // Hide non-matching rows
-            }
-        }
-    }
-
-    // Handle "No records found"
-    if (!found) {
-        if (!noRecordsRow) {
-            noRecordsRow = document.createElement("tr");
-            noRecordsRow.id = "noRecordsRow";
-            noRecordsRow.innerHTML = `<td colspan="11" class="text-center">No Distributions found</td>`;
-            table.appendChild(noRecordsRow);
-        }
-        noRecordsRow.style.display = "";
-    } else if (noRecordsRow) {
-        noRecordsRow.style.display = "none";
-    }
-}
-</script>
-
-<!-- search intervention type management -->
-<script>
-    function searchIntTypeTable() {
-    let input = document.getElementById("search_id").value.toLowerCase();
-    let table = document.getElementById("dataTable4");
-    let rows = table.getElementsByTagName("tr");
-    let noRecordsRow = document.getElementById("noRecordsRow");
-    let found = false;
-
-        // Loop through rows, excluding the header
-    for (let i = 0; i < rows.length; i++) {
-        let cells = rows[i].getElementsByTagName("td");
-        let match = false;
-
-        if (cells.length > 0) { // Ignore rows without <td> (like headers)
-            for (let j = 0; j < cells.length; j++) {
-                if (cells[j].innerText.toLowerCase().includes(input)) {
-                    match = true;
-                    break;
-                }
-            }
-
-            if (match) {
-                rows[i].style.display = ""; // Show matching rowsm
-                found = true;
-            } else {
-                rows[i].style.display = "none"; // Hide non-matching rows
-            }
-        }
-    }
-
-    // Handle "No records found"
-    if (!found) {
-        if (!noRecordsRow) {
-            noRecordsRow = document.createElement("tr");
-            noRecordsRow.id = "noRecordsRow";
-            noRecordsRow.innerHTML = `<td colspan="11" class="text-center">No Intervention Types Found</td>`;
-            table.appendChild(noRecordsRow);
-        }
-        noRecordsRow.style.display = "";
-    } else if (noRecordsRow) {
-        noRecordsRow.style.display = "none";
-    }
-}
-</script>
-
-<!-- search classification management -->
-<script>
-    function searchClassificationTable() {
-    let input = document.getElementById("search_id").value.toLowerCase();
-    let table = document.getElementById("dataTable5");
-    let rows = table.getElementsByTagName("tr");
-    let noRecordsRow = document.getElementById("noRecordsRow");
-    let found = false;
-
-        // Loop through rows, excluding the header
-    for (let i = 0; i < rows.length; i++) {
-        let cells = rows[i].getElementsByTagName("td");
-        let match = false;
-
-        if (cells.length > 0) { // Ignore rows without <td> (like headers)
-            for (let j = 0; j < cells.length; j++) {
-                if (cells[j].innerText.toLowerCase().includes(input)) {
-                    match = true;
-                    break;
-                }
-            }
-
-            if (match) {
-                rows[i].style.display = ""; // Show matching rowsm
-                found = true;
-            } else {
-                rows[i].style.display = "none"; // Hide non-matching rows
-            }
-        }
-    }
-
-    // Handle "No records found"
-    if (!found) {
-        if (!noRecordsRow) {
-            noRecordsRow = document.createElement("tr");
-            noRecordsRow.id = "noRecordsRow";
-            noRecordsRow.innerHTML = `<td colspan="11" class="text-center">No Classifications Found</td>`;
-            table.appendChild(noRecordsRow);
-        }
-        noRecordsRow.style.display = "";
-    } else if (noRecordsRow) {
-        noRecordsRow.style.display = "none";
-    }
-}
-</script>
-
-<!-- search cooperative management -->
-<script>
-    function searchCooperativeTable() {
-    let input = document.getElementById("search_id").value.toLowerCase();
-    let table = document.getElementById("dataTable6");
-    let rows = table.getElementsByTagName("tr");
-    let noRecordsRow = document.getElementById("noRecordsRow");
-    let found = false;
-
-        // Loop through rows, excluding the header
-    for (let i = 0; i < rows.length; i++) {
-        let cells = rows[i].getElementsByTagName("td");
-        let match = false;
-
-        if (cells.length > 0) { // Ignore rows without <td> (like headers)
-            for (let j = 0; j < cells.length; j++) {
-                if (cells[j].innerText.toLowerCase().includes(input)) {
-                    match = true;
-                    break;
-                }
-            }
-
-            if (match) {
-                rows[i].style.display = ""; // Show matching rowsm
-                found = true;
-            } else {
-                rows[i].style.display = "none"; // Hide non-matching rows
-            }
-        }
-    }
-
-    // Handle "No records found"
-    if (!found) {
-        if (!noRecordsRow) {
-            noRecordsRow = document.createElement("tr");
-            noRecordsRow.id = "noRecordsRow";
-            noRecordsRow.innerHTML = `<td colspan="11" class="text-center">No Cooperatives Found</td>`;
-            table.appendChild(noRecordsRow);
-        }
-        noRecordsRow.style.display = "";
-    } else if (noRecordsRow) {
-        noRecordsRow.style.display = "none";
-    }
-}
-</script>
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     let provinceSelect = document.getElementById("update_province");
@@ -2407,6 +2181,37 @@ document.addEventListener("DOMContentLoaded", function () {
             event.preventDefault(); // Prevent form submission
             fetchSearchResults();
         }
+    });
+});
+</script>
+
+<!-- search inventory -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("search_id");
+    const searchButton = document.querySelector(".input-group-append button");
+
+    function fetchSearchResults() {
+        const searchValue = searchInput.value.trim();
+        fetch(`2InterventionManagement/searchIntervention.php?search=${encodeURIComponent(searchValue)}`)
+            .then(response => response.text())
+            .then(data => {
+                document.querySelector("tbody").innerHTML = data;
+            })
+            .catch(error => console.error("Error:", error));
+    }
+
+    // Trigger search when Enter is pressed inside the input field
+    searchInput.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevent form submission if inside a form
+            fetchSearchResults();
+        }
+    });
+
+    // Trigger search when the search button is clicked
+    searchButton.addEventListener("click", function () {
+        fetchSearchResults();
     });
 });
 </script>
