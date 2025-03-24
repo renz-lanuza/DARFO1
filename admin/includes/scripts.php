@@ -2703,15 +2703,15 @@ document.addEventListener("DOMContentLoaded", function () {
                         <td>${row.municipality_name}</td>
                         <td>${row.barangay_name}</td>
                         <td>${row.birthdate}</td>
-                        <td>
-                            <button class="btn btn-primary update-beneficiary" data-bs-toggle="modal" data-bs-target="#updateBeneficiaryModal" data-id="${row.beneficiary_id}">Update</button>
-                            <button class="btn btn-danger btn-sm delete-beneficiary" data-id="${row.beneficiary_id}">Delete</button>
-                            <button class="btn btn-info btn-sm view-beneficiary" data-id="${row.beneficiary_id}">View</button>
-                            <button type="button" class="btn btn-success btn-sm add-distribution" data-bs-toggle="modal" data-bs-target="#addDistributionModal" data-id="${row.beneficiary_id}">
-                                <i class="bx bx-plus"></i>
-                                <span>Add Intervention</span>
-                            </button>
-                        </td>
+                         <td>
+                        <button class="btn btn-primary update-beneficiary" data-bs-toggle="modal" data-bs-target="#updateBeneficiaryModal" data-id="${row.beneficiary_id}">Update</button>
+                        <button class="btn btn-danger btn-sm delete-beneficiary" data-id="${row.beneficiary_id}">Delete</button>
+                        <button class="btn btn-info btn-sm view-beneficiary" data-id="${row.beneficiary_id}">View</button>
+                        <button type="button" class="btn btn-success btn-sm add-distribution" id="btnAddDistribution" data-bs-toggle="modal" data-bs-target="#addDistributionModal" data-beneficiary-id="${row.beneficiary_id}">
+                            <i class="bx bx-plus"></i>
+                            <span>Add Intervention</span>
+                        </button>
+                    </td>
                     `;
                     tableBody.appendChild(newRow);
                 });
