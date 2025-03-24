@@ -159,11 +159,11 @@ include('includes/navbar.php');
                                             </button>
                                             <!-- View Beneficiary Button -->
                                             <button class="btn btn-info btn-sm view-beneficiary" data-id="<?= $row['beneficiary_id'] ?>">View</button>
-                                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addDistributionModal" 
-                                                data-beneficiary-id="<?= $row['beneficiary_id'] ?>">
-                                                <i class="bx bx-plus"></i>
-                                                <span>Add Intervention</span>
-                                            </button>
+                                                <button type="button" id="btnAddDistribution" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addDistributionModal"
+                                                        data-beneficiary-id="<?= $row['beneficiary_id'] ?>">
+                                                        <i class="bx bx-plus"></i>
+                                                        <span>Add Intervention</span>
+                                                    </button>
                                         </td>
                                     </tr>
                             <?php
