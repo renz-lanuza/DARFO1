@@ -3036,3 +3036,82 @@ function fetchCooperatives(selectedCoopId) {
         });
     });
 </script>
+
+<script>
+    $(document).ready(function() {
+        console.log("Script loaded"); // Debugging: Verify script is loaded
+
+        // Flag to track if the fetch call has been made
+        var isFetching = false;
+
+        // Attach the event listener
+        $('#updateDistributionModal').on('show.bs.modal', function(event) {
+            console.log("Modal show event triggered"); // Debugging: Verify event is triggered
+
+            // If the fetch call has already been made, return early
+            if (isFetching) {
+                console.log("Fetch call already made. Skipping...");
+                return;
+            }
+
+            // Set the flag to true to prevent multiple fetch calls
+            isFetching = true;
+
+            var button = $(event.relatedTarget); // Button that triggered the modal
+
+            // Extract distribution_id from data-* attributes
+            var distributionId = button.data('distribution-id');
+            var distributionDate = button.data('distribution-date');
+            var interventionName = button.data('intervention-name');
+            var seedlingName = button.data('seedling-name');
+            var quantity = button.data('quantity');
+            var quantityLeft = button.data('quantity-left');
+
+            // Update the input field for distribution_id
+            var distributionIdInput = document.getElementById('distribution_id');
+            if (distributionIdInput) {
+                distributionIdInput.value = distributionId;
+            }
+
+            // Update the input field for distribution date
+            var distributionDateInput = document.getElementById('update_distribution_date');
+            if (distributionDateInput) {
+                distributionDateInput.value = distributionDate;
+            }
+
+            // Populate the intervention dropdown
+            var interventionSelect = $('.intervention_name_distrib');
+            interventionSelect.empty(); // Clear existing options
+            interventionSelect.append('<option value="" disabled selected>Select Intervention</option>');
+
+            // Fetch interventions
+            fetch('3distributionManagement/get_interventions.php') // Replace with your actual endpoint
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Fetched interventions:", data); // Debugging: Verify fetched data
+                    data.forEach(intervention => {
+                        var selected = (intervention.intervention_name === interventionName) ? 'selected' : '';
+                        interventionSelect.append(`<option value="${intervention.int_type_id}" ${selected}>${intervention.intervention_name}</option>`);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching interventions:", error);
+                });
+
+            // Populate the seedling dropdown
+            var seedlingSelect = $('.seedling_type_distrib');
+            seedlingSelect.empty(); // Clear existing options
+            seedlingSelect.append('<option value="" disabled selected>Select Classification</option>');
+            seedlingSelect.append(`<option value="${seedlingName}" selected>${seedlingName}</option>`);
+
+            // Update the quantity input field
+            var quantityInput = $('input[name="update_quantity[]"]');
+            if (quantityInput) {
+                quantityInput.val(quantity);
+            }
+
+            // Update the quantity left display
+            $('.quantity-left').text(quantityLeft);
+        });
+    });
+</script>
