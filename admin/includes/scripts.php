@@ -2980,3 +2980,59 @@ function fetchCooperatives(selectedCoopId) {
 });
 
 </script>
+
+<script>
+    $(document).ready(function() {
+        console.log("Script loaded"); // Debugging: Verify script is loaded
+
+        // Function to fetch quantity left
+        function fetchQuantityLeft(intTypeId, seedId) {
+            if (!intTypeId || !seedId) {
+                console.error("Invalid int_type_id or seed_id");
+                $('.quantity-left').text("0"); // Reset quantity display
+                return;
+            }
+
+            console.log("Fetching quantity for int_type_id:", intTypeId, "and seed_id:", seedId);
+
+            fetch('3distributionManagement/get_quantity_left_distri.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        int_type_id: intTypeId,
+                        seed_id: seedId
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("Fetched quantity left:", data.quantity_left);
+                        $('.quantity-left').text(data.quantity_left || 0); // Update quantity display
+                    } else {
+                        console.error("Error:", data.message);
+                        $('.quantity-left').text("0"); // Reset quantity display on error
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching quantity left:", error);
+                    $('.quantity-left').text("0"); // Reset quantity display on error
+                });
+        }
+
+        // Listen for changes in the intervention dropdown
+        $('.intervention_name_distrib').on('change', function() {
+            var intTypeId = $(this).val();
+            var seedId = $('.seedling_type_distrib').val();
+            fetchQuantityLeft(intTypeId, seedId);
+        });
+
+        // Listen for changes in the seed dropdown
+        $('.seedling_type_distrib').on('change', function() {
+            var intTypeId = $('.intervention_name_distrib').val();
+            var seedId = $(this).val();
+            fetchQuantityLeft(intTypeId, seedId);
+        });
+    });
+</script>
