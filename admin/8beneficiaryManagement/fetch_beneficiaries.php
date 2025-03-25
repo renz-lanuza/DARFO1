@@ -3,7 +3,7 @@ include('../../conn.php');
 
 $category = isset($_GET['category']) ? $_GET['category'] : 'all';
 
-$query = "SELECT beneficiary_id, fname, mname, lname, rsbsa_no, province_name, municipality_name, barangay_name, birthdate, beneficiary_category FROM tbl_beneficiary";
+$query = "SELECT beneficiary_id, fname, mname, lname, rsbsa_no, province_name, municipality_name, barangay_name, birthdate, beneficiary_category FROM tbl_beneficiary ORDER BY beneficiary_id DESC";
 
 if ($category !== 'all') {
     $query .= " WHERE beneficiary_category = ?";
