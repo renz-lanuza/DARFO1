@@ -1399,118 +1399,85 @@
     });
 </script>
 
-<!-- fetch and dynamic int name and classification from distribution -->
+
+
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    const updateModal = document.getElementById("updateDistributionModal");
+    $(document).ready(function() {
+        console.log("Script loaded"); // Debugging: Verify script is loaded
 
-    updateModal.addEventListener("show.bs.modal", function (event) {
-        const button = event.relatedTarget; // Button that triggered the modal
+        // Flag to track if the fetch call has been made
+        var isFetching = false;
 
-        // Get elements inside the modal
-        let interventionDropdown = updateModal.querySelector("select[name='intervention_name_distrib[]']");
-        let classificationDropdown = updateModal.querySelector("select[name='seedling_type_distrib']");
-        let quantityField = updateModal.querySelector(".quantity-left");
+        // Attach the event listener
+        $('#updateDistributionModal').on('show.bs.modal', function(event) {
+            console.log("Modal show event triggered"); // Debugging: Verify event is triggered
 
-        document.querySelector("input[name='update_quantity[]']").value = button.getAttribute("data-quantity");
+            // If the fetch call has already been made, return early
+            if (isFetching) {
+                console.log("Fetch call already made. Skipping...");
+                return;
+            }
 
-        // Fetch and update quantity left
-        let quantityLeft = button.getAttribute("data-quantity-left") || "0"; 
-        quantityField.textContent = quantityLeft;
+            // Set the flag to true to prevent multiple fetch calls
+            isFetching = true;
 
-        // Set intervention dropdown
-        let selectedInterventionId = button.getAttribute("data-intervention-id");
-        let selectedInterventionName = button.getAttribute("data-intervention-name");
+            var button = $(event.relatedTarget); // Button that triggered the modal
 
-        interventionDropdown.innerHTML = `<option selected value="${selectedInterventionId}">${selectedInterventionName}</option>`;
+            // Extract distribution_id from data-* attributes
+            var distributionId = button.data('distribution-id');
+            var distributionDate = button.data('distribution-date');
+            var interventionName = button.data('intervention-name');
+            var seedlingName = button.data('seedling-name');
+            var quantity = button.data('quantity');
+            var quantityLeft = button.data('quantity-left');
 
-        // Set classification dropdown
-        classificationDropdown.innerHTML = `<option selected value="${button.getAttribute("data-seed-id")}">${button.getAttribute("data-seed-name")}</option>`;
+            // Update the input field for distribution_id
+            var distributionIdInput = document.getElementById('distribution_id');
+            if (distributionIdInput) {
+                distributionIdInput.value = distributionId;
+            }
 
-        // Fetch interventions to update the dropdown
-        fetch("3distributionManagement/get_interventions.php")
-            .then(response => response.json())
-            .then(data => {
-                interventionDropdown.innerHTML = `<option value="" disabled>Select Intervention:</option>`;
+            // Update the input field for distribution date
+            var distributionDateInput = document.getElementById('update_distribution_date');
+            if (distributionDateInput) {
+                distributionDateInput.value = distributionDate;
+            }
 
-                data.forEach(intervention => {
-                    let selected = (intervention.int_type_id === selectedInterventionId) ? "selected" : "";
-                    interventionDropdown.innerHTML += `<option value="${intervention.int_type_id}" ${selected}>${intervention.intervention_name}</option>`;
+            // Populate the intervention dropdown
+            var interventionSelect = $('.intervention_name_distrib');
+            interventionSelect.empty(); // Clear existing options
+            interventionSelect.append('<option value="" disabled selected>Select Intervention</option>');
+
+            // Fetch interventions
+            fetch('3distributionManagement/get_interventions.php') // Replace with your actual endpoint
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Fetched interventions:", data); // Debugging: Verify fetched data
+                    data.forEach(intervention => {
+                        var selected = (intervention.intervention_name === interventionName) ? 'selected' : '';
+                        interventionSelect.append(`<option value="${intervention.int_type_id}" ${selected}>${intervention.intervention_name}</option>`);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching interventions:", error);
                 });
-            })
-            .catch(error => console.error("Error fetching interventions:", error));
+
+            // Populate the seedling dropdown
+            var seedlingSelect = $('.seedling_type_distrib');
+            seedlingSelect.empty(); // Clear existing options
+            seedlingSelect.append('<option value="" disabled selected>Select Classification</option>');
+            seedlingSelect.append(`<option value="${seedlingName}" selected>${seedlingName}</option>`);
+
+            // Update the quantity input field
+            var quantityInput = $('input[name="update_quantity[]"]');
+            if (quantityInput) {
+                quantityInput.val(quantity);
+            }
+
+            // Update the quantity left display
+            $('.quantity-left').text(quantityLeft);
+        });
     });
-});
-
-$(document).ready(function() {
-    // Handle intervention selection change
-    $(document).on('change', '.intervention_name_distrib', function() {
-        var int_type_id = $(this).val(); // Get selected intervention ID
-        var $row = $(this).closest('tr'); // Get the current row
-
-        if (int_type_id) {
-            $.ajax({
-                url: '3distributionManagement/fetch_intervention_data.php',
-                type: 'GET',
-                data: { int_type_id: int_type_id },
-                success: function(response) {
-                    try {
-                        var data = JSON.parse(response);
-                        var $classificationDropdown = $row.find('.seedling_type_distrib');
-                        var $quantityField = $row.find('.quantity-left');
-
-                        // Step 1: Clear and populate classification dropdown
-                        $classificationDropdown.empty();
-                        $classificationDropdown.append('<option value="" disabled selected>Select Classification</option>');
-
-                        if (data.length > 0) {
-                            data.forEach(function(item) {
-                                $classificationDropdown.append(
-                                    `<option value="${item.seed_id}" data-quantity="${item.quantity}">${item.seed_name}</option>`
-                                );
-                            });
-                        } else {
-                            $classificationDropdown.append('<option value="" disabled>No classifications found</option>');
-                        }
-
-                        // Reset quantity display
-                        $quantityField.text('0');
-                    } catch (error) {
-                        console.error("JSON Parse Error:", error);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error fetching data:', error);
-                }
-            });
-        }
-    });
-
-    // Fetch quantity_left dynamically when classification is selected
-    $(document).on('change', '.seedling_type_distrib', function() {
-        var selectedOption = $(this).find(':selected');
-        var seed_id = selectedOption.val();
-        var $row = $(this).closest('tr');
-        var int_type_id = $row.find('.intervention_name_distrib').val();
-
-        if (seed_id) {
-            $.ajax({
-                url: '3distributionManagement/fetch_quantity_left.php',
-                type: 'GET',
-                data: { int_type_id: int_type_id, seed_id: seed_id },
-                success: function(response) {
-                    var quantityLeft = response ? response : '0';
-                    $row.find('.quantity-left').text(quantityLeft);
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error fetching quantity left:', error);
-                }
-            });
-        }
-    });
-});
-
-
 </script>
 
 <!-- Include jQuery -->
