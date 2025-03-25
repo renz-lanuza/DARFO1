@@ -255,9 +255,9 @@ include('includes/navbar.php');
                                         </div>
                                         <!-- Filter Buttons Above Table -->
                                         <div class="d-flex justify-content-start mb-3">
-                                            <button class="btn btn-outline-primary px-4 py-2 me-2 filter-btn active" data-filter="all">All</button>
+                                            <button class="btn btn-outline-success px-4 py-2 me-2 filter-btn active" data-filter="all">All</button>
                                             <button class="btn btn-outline-primary px-4 py-2 me-2 filter-btn" data-filter="Individual">Individual</button>
-                                            <button class="btn btn-outline-success px-4 py-2 filter-btn" data-filter="Group">Group</button>
+                                            <button class="btn btn-outline-secondary px-4 py-2 filter-btn" data-filter="Group">Group</button>
                                         </div>
 
                                         <!-- Table -->
@@ -551,18 +551,21 @@ include('includes/navbar.php');
                 .catch(error => console.error("Error fetching data:", error));
         }
 
-
         // Automatically set today's date for end date on page load
         setDefaultEndDate();
 
-        // Fetch data when the start date is selected
+        // Fetch data when the start date OR end date is selected
         startDateInput.addEventListener("change", () => {
+            fetchData(startDateInput.value, endDateInput.value);
+        });
+
+        endDateInput.addEventListener("change", () => {
             fetchData(startDateInput.value, endDateInput.value);
         });
 
         // Load chart with default start date empty & today's end date on page load
         fetchData("", endDateInput.value);
-    }); 
+    });
 </script>
 <script>
     function filterChart() {
