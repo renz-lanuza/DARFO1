@@ -28,8 +28,11 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <!-- Add Users -->
 <script>
@@ -559,40 +562,6 @@
     });
 </script>
 
-<!-- JS for Searching Users -->
-<script>
-    $(document).ready(function() {
-        // When user presses Enter inside the input
-        $("#search_id").keypress(function(event) {
-            if (event.which === 13) { // 13 is the keycode for Enter
-                event.preventDefault(); // Prevent form submission (if inside a form)
-                performSearch();
-            }
-        });
-
-        // When user clicks the search button
-        $(".input-group-append button").click(function() {
-            performSearch();
-        });
-
-        function performSearch() {
-            var searchQuery = $("#search_id").val(); // Get input value
-
-            // Send AJAX request
-            $.ajax({
-                url: '', // Current page URL
-                type: 'GET',
-                data: {
-                    search: searchQuery
-                },
-                success: function(response) {
-                    $('#dataTable').html($(response).find('#dataTable').html());
-                }
-            });
-        }
-    });
-</script>
-
 <script>
     $(document).ready(function() {
         // Function to handle intervention change
@@ -1034,16 +1003,21 @@
     $(document).ready(function() {
         // Handle Add Distribution button click
         $(document).on('click', '#btnAddDistribution', function() {
+            // Debug: Check if the button is being clicked
+            console.log("Add Distribution button clicked!");
+
             // Get the beneficiary ID from the data attribute
             const beneficiaryId = $(this).data('beneficiary-id');
+
+            // Debug: Check if the beneficiary ID is being retrieved
+            console.log("Beneficiary ID from data attribute:", beneficiaryId);
 
             // Set the beneficiary ID in a hidden input field in the modal
             $('#beneficiary_id').val(beneficiaryId);
 
-            // Optionally, you can display the beneficiary ID in the modal for debugging
-            console.log("Beneficiary ID:", beneficiaryId);
+            // Debug: Check if the value is being set in the hidden input
+            console.log("Value set in hidden input:", $('#beneficiary_id').val());
         });
-
         // Handle form submission
         $("#addDistributionForm").submit(function(e) {
             e.preventDefault(); // Prevent default form submission
@@ -1126,6 +1100,7 @@
         });
     });
 </script>
+
 
 <!-- fetch the seedlings in the distribution management -->
 <!-- script for fetching the seed type -->
@@ -1430,7 +1405,122 @@
     });
 </script>
 
+<!-- fetch and dynamic int name and classification from distribution -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const updateModal = document.getElementById("updateDistributionModal");
 
+        updateModal.addEventListener("show.bs.modal", function(event) {
+            const button = event.relatedTarget; // Button that triggered the modal
+
+            // Get elements inside the modal
+            let interventionDropdown = updateModal.querySelector("select[name='intervention_name_distrib[]']");
+            let classificationDropdown = updateModal.querySelector("select[name='seedling_type_distrib']");
+            let quantityField = updateModal.querySelector(".quantity-left");
+
+            document.querySelector("input[name='update_quantity[]']").value = button.getAttribute("data-quantity");
+
+            // Fetch and update quantity left
+            let quantityLeft = button.getAttribute("data-quantity-left") || "0";
+            quantityField.textContent = quantityLeft;
+
+            // Set intervention dropdown
+            let selectedInterventionId = button.getAttribute("data-intervention-id");
+            let selectedInterventionName = button.getAttribute("data-intervention-name");
+
+            interventionDropdown.innerHTML = `<option selected value="${selectedInterventionId}">${selectedInterventionName}</option>`;
+
+            // Set classification dropdown
+            classificationDropdown.innerHTML = `<option selected value="${button.getAttribute("data-seed-id")}">${button.getAttribute("data-seed-name")}</option>`;
+
+            // Fetch interventions to update the dropdown
+            fetch("3distributionManagement/get_interventions.php")
+                .then(response => response.json())
+                .then(data => {
+                    interventionDropdown.innerHTML = `<option value="" disabled>Select Intervention:</option>`;
+
+                    data.forEach(intervention => {
+                        let selected = (intervention.int_type_id === selectedInterventionId) ? "selected" : "";
+                        interventionDropdown.innerHTML += `<option value="${intervention.int_type_id}" ${selected}>${intervention.intervention_name}</option>`;
+                    });
+                })
+                .catch(error => console.error("Error fetching interventions:", error));
+        });
+    });
+
+    $(document).ready(function() {
+        // Handle intervention selection change
+        $(document).on('change', '.intervention_name_distrib', function() {
+            var int_type_id = $(this).val(); // Get selected intervention ID
+            var $row = $(this).closest('tr'); // Get the current row
+
+            if (int_type_id) {
+                $.ajax({
+                    url: '3distributionManagement/fetch_intervention_data.php',
+                    type: 'GET',
+                    data: {
+                        int_type_id: int_type_id
+                    },
+                    success: function(response) {
+                        try {
+                            var data = JSON.parse(response);
+                            var $classificationDropdown = $row.find('.seedling_type_distrib');
+                            var $quantityField = $row.find('.quantity-left');
+
+                            // Step 1: Clear and populate classification dropdown
+                            $classificationDropdown.empty();
+                            $classificationDropdown.append('<option value="" disabled selected>Select Classification</option>');
+
+                            if (data.length > 0) {
+                                data.forEach(function(item) {
+                                    $classificationDropdown.append(
+                                        `<option value="${item.seed_id}" data-quantity="${item.quantity}">${item.seed_name}</option>`
+                                    );
+                                });
+                            } else {
+                                $classificationDropdown.append('<option value="" disabled>No classifications found</option>');
+                            }
+
+                            // Reset quantity display
+                            $quantityField.text('0');
+                        } catch (error) {
+                            console.error("JSON Parse Error:", error);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching data:', error);
+                    }
+                });
+            }
+        });
+
+        // Fetch quantity_left dynamically when classification is selected
+        $(document).on('change', '.seedling_type_distrib', function() {
+            var selectedOption = $(this).find(':selected');
+            var seed_id = selectedOption.val();
+            var $row = $(this).closest('tr');
+            var int_type_id = $row.find('.intervention_name_distrib').val();
+
+            if (seed_id) {
+                $.ajax({
+                    url: '3distributionManagement/fetch_quantity_left.php',
+                    type: 'GET',
+                    data: {
+                        int_type_id: int_type_id,
+                        seed_id: seed_id
+                    },
+                    success: function(response) {
+                        var quantityLeft = response ? response : '0';
+                        $row.find('.quantity-left').text(quantityLeft);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching quantity left:', error);
+                    }
+                });
+            }
+        });
+    });
+</script>
 
 <!-- Include jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -1441,7 +1531,7 @@
     $(document).ready(function() {
         // Event listener for the "View Interventions" button
         $('.view-interventions-btn').on('click', function() {
-            var beneficiaryId = $(this).data('beneficiary-id');
+            var beneficiaryId = $(this).data('beneficiary-idview');
             console.log("Beneficiary ID:", beneficiaryId);
 
             // Show the modal
@@ -1767,232 +1857,6 @@
     });
 </script>
 
-<!-- search intervention management -->
-<script>
-    function searchInterventionTable() {
-        let input = document.getElementById("search_id").value.toLowerCase();
-        let table = document.getElementById("dataTable2");
-        let rows = table.getElementsByTagName("tr");
-        let noRecordsRow = document.getElementById("noRecordsRow");
-        let found = false;
-
-        // Loop through rows, excluding the header
-        for (let i = 0; i < rows.length; i++) {
-            let cells = rows[i].getElementsByTagName("td");
-            let match = false;
-
-            if (cells.length > 0) { // Ignore headers
-                for (let j = 0; j < cells.length; j++) {
-                    if (cells[j].innerText.toLowerCase().includes(input)) {
-                        match = true;
-                        break;
-                    }
-                }
-
-                rows[i].style.display = match ? "" : "none"; // Show or hide rows
-                if (match) found = true;
-            }
-        }
-
-        // Handle "No records found" row
-        if (!found) {
-            if (!noRecordsRow) {
-                noRecordsRow = document.createElement("tr");
-                noRecordsRow.id = "noRecordsRow";
-                noRecordsRow.innerHTML = `<td colspan="7" class="text-center">No Interventions Found</td>`;
-                table.appendChild(noRecordsRow);
-            }
-            noRecordsRow.style.display = "";
-        } else if (noRecordsRow) {
-            noRecordsRow.style.display = "none";
-        }
-    }
-</script>
-
-<!-- search distribution management -->
-<script>
-    function searchDistributionTable() {
-        let input = document.getElementById("search_id").value.toLowerCase();
-        let table = document.getElementById("dataTable3");
-        let rows = table.getElementsByTagName("tr");
-        let noRecordsRow = document.getElementById("noRecordsRow");
-        let found = false;
-
-        // Loop through rows, excluding the header
-        for (let i = 0; i < rows.length; i++) {
-            let cells = rows[i].getElementsByTagName("td");
-            let match = false;
-
-            if (cells.length > 0) { // Ignore rows without <td> (like headers)
-                for (let j = 0; j < cells.length; j++) {
-                    if (cells[j].innerText.toLowerCase().includes(input)) {
-                        match = true;
-                        break;
-                    }
-                }
-
-                if (match) {
-                    rows[i].style.display = ""; // Show matching rowsm
-                    found = true;
-                } else {
-                    rows[i].style.display = "none"; // Hide non-matching rows
-                }
-            }
-        }
-
-        // Handle "No records found"
-        if (!found) {
-            if (!noRecordsRow) {
-                noRecordsRow = document.createElement("tr");
-                noRecordsRow.id = "noRecordsRow";
-                noRecordsRow.innerHTML = `<td colspan="11" class="text-center">No Distributions found</td>`;
-                table.appendChild(noRecordsRow);
-            }
-            noRecordsRow.style.display = "";
-        } else if (noRecordsRow) {
-            noRecordsRow.style.display = "none";
-        }
-    }
-</script>
-
-<!-- search intervention type management -->
-<script>
-    function searchIntTypeTable() {
-        let input = document.getElementById("search_id").value.toLowerCase();
-        let table = document.getElementById("dataTable4");
-        let rows = table.getElementsByTagName("tr");
-        let noRecordsRow = document.getElementById("noRecordsRow");
-        let found = false;
-
-        // Loop through rows, excluding the header
-        for (let i = 0; i < rows.length; i++) {
-            let cells = rows[i].getElementsByTagName("td");
-            let match = false;
-
-            if (cells.length > 0) { // Ignore rows without <td> (like headers)
-                for (let j = 0; j < cells.length; j++) {
-                    if (cells[j].innerText.toLowerCase().includes(input)) {
-                        match = true;
-                        break;
-                    }
-                }
-
-                if (match) {
-                    rows[i].style.display = ""; // Show matching rowsm
-                    found = true;
-                } else {
-                    rows[i].style.display = "none"; // Hide non-matching rows
-                }
-            }
-        }
-
-        // Handle "No records found"
-        if (!found) {
-            if (!noRecordsRow) {
-                noRecordsRow = document.createElement("tr");
-                noRecordsRow.id = "noRecordsRow";
-                noRecordsRow.innerHTML = `<td colspan="11" class="text-center">No Intervention Types Found</td>`;
-                table.appendChild(noRecordsRow);
-            }
-            noRecordsRow.style.display = "";
-        } else if (noRecordsRow) {
-            noRecordsRow.style.display = "none";
-        }
-    }
-</script>
-
-<!-- search classification management -->
-<script>
-    function searchClassificationTable() {
-        let input = document.getElementById("search_id").value.toLowerCase();
-        let table = document.getElementById("dataTable5");
-        let rows = table.getElementsByTagName("tr");
-        let noRecordsRow = document.getElementById("noRecordsRow");
-        let found = false;
-
-        // Loop through rows, excluding the header
-        for (let i = 0; i < rows.length; i++) {
-            let cells = rows[i].getElementsByTagName("td");
-            let match = false;
-
-            if (cells.length > 0) { // Ignore rows without <td> (like headers)
-                for (let j = 0; j < cells.length; j++) {
-                    if (cells[j].innerText.toLowerCase().includes(input)) {
-                        match = true;
-                        break;
-                    }
-                }
-
-                if (match) {
-                    rows[i].style.display = ""; // Show matching rowsm
-                    found = true;
-                } else {
-                    rows[i].style.display = "none"; // Hide non-matching rows
-                }
-            }
-        }
-
-        // Handle "No records found"
-        if (!found) {
-            if (!noRecordsRow) {
-                noRecordsRow = document.createElement("tr");
-                noRecordsRow.id = "noRecordsRow";
-                noRecordsRow.innerHTML = `<td colspan="11" class="text-center">No Classifications Found</td>`;
-                table.appendChild(noRecordsRow);
-            }
-            noRecordsRow.style.display = "";
-        } else if (noRecordsRow) {
-            noRecordsRow.style.display = "none";
-        }
-    }
-</script>
-
-<!-- search cooperative management -->
-<script>
-    function searchCooperativeTable() {
-        let input = document.getElementById("search_id").value.toLowerCase();
-        let table = document.getElementById("dataTable6");
-        let rows = table.getElementsByTagName("tr");
-        let noRecordsRow = document.getElementById("noRecordsRow");
-        let found = false;
-
-        // Loop through rows, excluding the header
-        for (let i = 0; i < rows.length; i++) {
-            let cells = rows[i].getElementsByTagName("td");
-            let match = false;
-
-            if (cells.length > 0) { // Ignore rows without <td> (like headers)
-                for (let j = 0; j < cells.length; j++) {
-                    if (cells[j].innerText.toLowerCase().includes(input)) {
-                        match = true;
-                        break;
-                    }
-                }
-
-                if (match) {
-                    rows[i].style.display = ""; // Show matching rowsm
-                    found = true;
-                } else {
-                    rows[i].style.display = "none"; // Hide non-matching rows
-                }
-            }
-        }
-
-        // Handle "No records found"
-        if (!found) {
-            if (!noRecordsRow) {
-                noRecordsRow = document.createElement("tr");
-                noRecordsRow.id = "noRecordsRow";
-                noRecordsRow.innerHTML = `<td colspan="11" class="text-center">No Cooperatives Found</td>`;
-                table.appendChild(noRecordsRow);
-            }
-            noRecordsRow.style.display = "";
-        } else if (noRecordsRow) {
-            noRecordsRow.style.display = "none";
-        }
-    }
-</script>
-
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         let provinceSelect = document.getElementById("update_province");
@@ -2271,6 +2135,21 @@
     });
 </script>
 
+<!-- fetch distribution date -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var updateModal = document.getElementById("updateDistributionModal");
+        updateModal.addEventListener("show.bs.modal", function(event) {
+            var button = event.relatedTarget;
+            var distributionDate = button.getAttribute("data-distribution-date");
+
+            var dateInput = updateModal.querySelector("#update_distribution_date");
+            if (distributionDate) {
+                dateInput.value = distributionDate;
+            }
+        });
+    });
+</script>
 
 
 <!-- search users -->
@@ -2278,6 +2157,9 @@
     document.addEventListener("DOMContentLoaded", function() {
         let searchInput = document.getElementById("search_id");
         let searchButton = document.getElementById("searchBtn");
+
+        // Autofocus the search input on page load
+        searchInput.focus();
 
         function fetchSearchResults() {
             let searchQuery = searchInput.value.trim();
@@ -2305,6 +2187,141 @@
         });
     });
 </script>
+
+<!-- search cooperative -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.getElementById("search_coop");
+        const searchButton = document.getElementById("search_button");
+        const dataTable = document.getElementById("dataTable6");
+
+        // Auto-focus the search input on page load
+        searchInput.focus();
+
+        function fetchCooperatives() {
+            const searchValue = searchInput.value.trim();
+            fetch(`6cooperativeManagement/searchCooperative.php?search=${encodeURIComponent(searchValue)}`)
+                .then(response => response.text())
+                .then(data => {
+                    dataTable.innerHTML = data;
+                })
+                .catch(error => console.error("Error:", error));
+        }
+
+        // Trigger search on "Enter" key press
+        searchInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Prevent form submission
+                fetchCooperatives();
+            }
+        });
+
+        // Trigger search on button click
+        searchButton.addEventListener("click", function() {
+            fetchCooperatives();
+            searchInput.focus(); // Keep focus on input after search
+        });
+    });
+</script>
+
+<!-- search for beneficiary -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.getElementById("search_id");
+        const searchButton = document.getElementById("searchButton");
+        const beneficiaryTable = document.querySelector("#beneficiaryTable tbody");
+        const searchForm = document.getElementById("searchForm");
+
+        // Auto-focus the search input on page load
+        searchInput.focus();
+
+        function cleanSearchInput(input) {
+            return input.replace(/\s+/g, " ").trim(); // Convert multiple spaces to single space
+        }
+
+        function fetchBeneficiaries() {
+            let searchValue = cleanSearchInput(searchInput.value);
+
+            if (searchValue === "") {
+                location.reload(); // Reload to show the full list
+                return;
+            }
+
+            console.log("Searching for:", searchValue);
+
+            fetch("8beneficiaryManagement/searchBeneficiary.php?search=" + encodeURIComponent(searchValue))
+                .then(response => response.text())
+                .then(data => {
+                    beneficiaryTable.innerHTML = data.trim() ? data : "<tr><td colspan='10' class='text-center'>No results found.</td></tr>";
+                    searchInput.focus();
+                })
+                .catch(error => console.error("Error:", error));
+        }
+
+
+        // Prevent form from reloading
+        searchForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            fetchBeneficiaries();
+        });
+
+        // Trigger search on "Enter" key press
+        searchInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                fetchBeneficiaries();
+            }
+        });
+
+        // Trigger search on button click
+        searchButton.addEventListener("click", function() {
+            fetchBeneficiaries();
+        });
+    });
+</script>
+
+<!-- search for distribution -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.getElementById("search_id");
+        const searchButton = document.getElementById("searchButton");
+        const dataTable = document.getElementById("dataTable3");
+
+        // Autofocus on the search input
+        searchInput.focus();
+
+        // Function to perform search
+        function performSearch() {
+            const searchQuery = searchInput.value.trim();
+
+            if (searchQuery.length > 0) {
+                fetch("3distributionManagement/searchDistribution.php?q=" + encodeURIComponent(searchQuery))
+                    .then(response => response.text())
+                    .then(data => {
+                        dataTable.innerHTML = data.trim() ? data : "<tr><td colspan='10' class='text-center'>No results found.</td></tr>";
+                    })
+                    .catch(error => console.error("Error fetching search results:", error));
+            } else {
+                // Reload the page to restore default data
+                location.reload();
+            }
+        }
+
+        // Search on button click
+        searchButton.addEventListener("click", function() {
+            performSearch();
+        });
+
+        // Search on pressing Enter
+        searchInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                performSearch();
+            }
+        });
+    });
+</script>
+
 
 <script>
     $(document).ready(function() {
@@ -2652,194 +2669,357 @@
     });
 </script>
 
-
-
-
+<!-- for filter button in beneficiary management -->
 <script>
-    $(document).ready(function() {
-        // Listen for changes in the intervention dropdown
-        $('.intervention_name_distrib').on('change', function() {
-            var interventionId = $(this).val(); // Get the selected intervention ID
-            var seedlingDropdown = $(this).closest('tr').find('.seedling_type_distrib'); // Find the corresponding seedling dropdown
+    document.addEventListener("DOMContentLoaded", function() {
+        fetchBeneficiaries("all");
 
-            // Clear the existing options
-            seedlingDropdown.empty().append('<option value="" disabled selected>Select Classification</option>');
-
-            if (interventionId) {
-                // Make an AJAX request to fetch seedling types
-                $.ajax({
-                    url: '3distributionManagement/fetch_seedlings_update_distri.php', // PHP script to fetch data
-                    type: 'GET',
-                    data: {
-                        intervention_id: interventionId
-                    },
-                    success: function(response) {
-                        // Populate the seedling dropdown with the returned data
-                        if (response.length > 0) {
-                            $.each(response, function(index, seedling) {
-                                seedlingDropdown.append('<option value="' + seedling.seed_id + '">' + seedling.seed_name + '</option>');
-                            });
-                        } else {
-                            seedlingDropdown.append('<option value="" disabled>No classifications found</option>');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("AJAX Error: " + status + error);
-                    }
-                });
-            }
+        document.getElementById("btnAll").addEventListener("click", function() {
+            fetchBeneficiaries("all");
         });
-    });
-</script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Listen for the modal show event
-        $('#updateDistributionModal').on('show.bs.modal', function(event) {
-            var button = $(event.relatedTarget); // Button that triggered the modal
-            var distributionId = button.data('distribution-id'); // Extract distribution_id from data-* attributes
-
-            // Update the input field
-            document.getElementById('distribution_id').value = distributionId;
+        document.getElementById("btnIndividual").addEventListener("click", function() {
+            fetchBeneficiaries("Individual");
         });
-    });
-</script>
 
+        document.getElementById("btnGroup").addEventListener("click", function() {
+            fetchBeneficiaries("Group");
+        });
 
-<script>
-    $(document).ready(function() {
-        console.log("Script loaded"); // Debugging: Verify script is loaded
-
-        // Flag to track if the fetch call has been made
-        var isFetching = false;
-
-        // Attach the event listener
-        $('#updateDistributionModal').on('show.bs.modal', function(event) {
-            console.log("Modal show event triggered"); // Debugging: Verify event is triggered
-
-            // If the fetch call has already been made, return early
-            if (isFetching) {
-                console.log("Fetch call already made. Skipping...");
-                return;
-            }
-
-            // Set the flag to true to prevent multiple fetch calls
-            isFetching = true;
-
-            var button = $(event.relatedTarget); // Button that triggered the modal
-
-            // Extract distribution_id from data-* attributes
-            var distributionId = button.data('distribution-id');
-            var distributionDate = button.data('distribution-date');
-            var interventionName = button.data('intervention-name');
-            var seedlingName = button.data('seedling-name');
-            var quantity = button.data('quantity');
-            var quantityLeft = button.data('quantity-left');
-
-            // Update the input field for distribution_id
-            var distributionIdInput = document.getElementById('distribution_id');
-            if (distributionIdInput) {
-                distributionIdInput.value = distributionId;
-            }
-
-            // Update the input field for distribution date
-            var distributionDateInput = document.getElementById('update_distribution_date');
-            if (distributionDateInput) {
-                distributionDateInput.value = distributionDate;
-            }
-
-            // Populate the intervention dropdown
-            var interventionSelect = $('.intervention_name_distrib');
-            interventionSelect.empty(); // Clear existing options
-            interventionSelect.append('<option value="" disabled selected>Select Intervention</option>');
-
-            // Fetch interventions
-            fetch('3distributionManagement/get_interventions.php') // Replace with your actual endpoint
+        function fetchBeneficiaries(category) {
+            fetch(`8BeneficiaryManagement/fetch_beneficiaries.php?category=${category}`)
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Fetched interventions:", data); // Debugging: Verify fetched data
-                    data.forEach(intervention => {
-                        var selected = (intervention.intervention_name === interventionName) ? 'selected' : '';
-                        interventionSelect.append(`<option value="${intervention.int_type_id}" ${selected}>${intervention.intervention_name}</option>`);
+                    let tableBody = document.querySelector("#beneficiaryTable tbody");
+                    tableBody.innerHTML = "";
+
+                    if (!data || data.length === 0) {
+                        tableBody.innerHTML = "<tr><td colspan='7'>No beneficiaries found.</td></tr>";
+                        return;
+                    }
+
+                    // Debug: Log the fetched data
+                    console.log("Fetched data:", data);
+
+                    data.forEach(row => {
+                        // Debug: Log the beneficiary ID for each row
+                        console.log("Beneficiary ID:", row.beneficiary_id);
+
+                        let newRow = document.createElement("tr");
+                        newRow.innerHTML = `
+                    <td>${row.fullName}</td>
+                    <td>${row.rsbsa_no}</td>
+                    <td>${row.province_name}</td>
+                    <td>${row.municipality_name}</td>
+                    <td>${row.barangay_name}</td>
+                    <td>${row.birthdate}</td>
+                    <td>
+                        <button class="btn btn-primary update-beneficiary" data-bs-toggle="modal" data-bs-target="#updateBeneficiaryModal" data-id="${row.beneficiary_id}">Update</button>
+                        <button class="btn btn-danger btn-sm delete-beneficiary" data-id="${row.beneficiary_id}">Delete</button>
+                        <button class="btn btn-info btn-sm view-beneficiary" data-id="${row.beneficiary_id}">View</button>
+                        <button type="button" class="btn btn-success btn-sm add-distribution" id="btnAddDistribution" data-bs-toggle="modal" data-bs-target="#addDistributionModal" data-beneficiary-id="${row.beneficiary_id}">
+                            <i class="bx bx-plus"></i>
+                            <span>Add Intervention</span>
+                        </button>
+                    </td>
+                `;
+                        tableBody.appendChild(newRow);
                     });
                 })
-                .catch(error => {
-                    console.error("Error fetching interventions:", error);
-                });
+                .catch(error => console.error("Error fetching beneficiaries:", error));
+        }
 
-            // Populate the seedling dropdown
-            var seedlingSelect = $('.seedling_type_distrib');
-            seedlingSelect.empty(); // Clear existing options
-            seedlingSelect.append('<option value="" disabled selected>Select Classification</option>');
-            seedlingSelect.append(`<option value="${seedlingName}" selected>${seedlingName}</option>`);
+        // Event delegation for dynamically loaded elements
+        document.querySelector("#beneficiaryTable tbody").addEventListener("click", function(event) {
+            let target = event.target;
+            let beneficiaryId = target.dataset.id;
 
-            // Update the quantity input field
-            var quantityInput = $('input[name="update_quantity[]"]');
-            if (quantityInput) {
-                quantityInput.val(quantity);
+            if (target.classList.contains("update-beneficiary")) {
+                openUpdateBeneficiaryModal(beneficiaryId);
             }
-
-            // Update the quantity left display
-            $('.quantity-left').text(quantityLeft);
         });
-    });
-</script>
 
-
-
-
-<script>
-    $(document).ready(function() {
-        console.log("Script loaded"); // Debugging: Verify script is loaded
-
-        // Function to fetch quantity left
-        function fetchQuantityLeft(intTypeId, seedId) {
-            if (!intTypeId || !seedId) {
-                console.error("Invalid int_type_id or seed_id");
-                $('.quantity-left').text("0"); // Reset quantity display
-                return;
-            }
-
-            console.log("Fetching quantity for int_type_id:", intTypeId, "and seed_id:", seedId);
-
-            fetch('3distributionManagement/get_quantity_left_distri.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        int_type_id: intTypeId,
-                        seed_id: seedId
-                    }),
-                })
+        function openUpdateBeneficiaryModal(beneficiaryId) {
+            // Fetch the beneficiary data
+            fetch(`8beneficiaryManagement/fetch_update_beneficiary.php?id=${beneficiaryId}`)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
-                        console.log("Fetched quantity left:", data.quantity_left);
-                        $('.quantity-left').text(data.quantity_left || 0); // Update quantity display
+                    if (data) {
+                        // Populate text inputs
+                        document.getElementById('update_beneficiary_first_name').value = data.fname || '';
+                        document.getElementById('update_beneficiary_middle_name').value = data.mname || '';
+                        document.getElementById('update_beneficiary_last_name').value = data.lname || '';
+                        document.getElementById('update_streetPurok').value = data.StreetPurok || '';
+
+                        // Set the raw RSBSA number (no dashes)
+                        const rsbsaNo = data.rsbsa_no || '';
+                        const rsbsaInput = document.getElementById('update_rsbsa-no');
+                        rsbsaInput.value = rsbsaNo; // Set the value without dashes
+
+                        // Call formatRSBSA to display it with dashes in the modal
+                        formatRSBSA(rsbsaInput); // Format the RSBSA number with dashes for display only
+
+                        document.getElementById('update_birthdate').value = data.birthdate || '';
+                        document.getElementById('update_contact_number').value = data.contact_no || '';
+
+                        // Populate location dropdowns
+                        document.getElementById('update_province_name').innerHTML = `<option selected>${data.province_name || 'Select a province'}</option>`;
+                        document.getElementById('update_municipality_name').innerHTML = `<option selected>${data.municipality_name || 'Select a municipality'}</option>`;
+                        document.getElementById('update_barangay_name').innerHTML = `<option selected>${data.barangay_name || 'Select a barangay'}</option>`;
+
+                        // Set Sex radio button
+                        if (data.Sex) {
+                            let sexRadio = document.querySelector(`input[name="up_sex"][value="${data.Sex.trim()}"]`);
+                            if (sexRadio) {
+                                sexRadio.checked = true;
+                            }
+                        }
+
+                        // Auto-check Beneficiary Category
+                        if (data.beneficiary_category) {
+                            let categoryRadio = document.getElementById(`update_${data.beneficiary_category.toLowerCase()}`);
+                            if (categoryRadio) categoryRadio.checked = true;
+                        }
+
+                        // Auto-check Beneficiary Type
+                        if (data.beneficiary_type) {
+                            let beneficiaryTypeRadio = document.getElementById(`update_${data.beneficiary_type.toLowerCase()}`);
+                            if (beneficiaryTypeRadio) beneficiaryTypeRadio.checked = true;
+                        }
+
+                        // Toggle Individual or Group visibility
+                        toggleBeneficiaryType();
+
+                        // Handle Individual Type
+                        if (data.beneficiary_type === 'Individual' && data.individual_type) {
+                            let individualTypeRadio = document.getElementById(`update_${data.individual_type.toLowerCase()}`);
+                            if (individualTypeRadio) individualTypeRadio.checked = true;
+                        }
+
+                        // Handle Group Type
+                        if (data.beneficiary_type === 'Group' && data.group_type) {
+                            let groupTypeRadio = document.getElementById(`update_${data.group_type.toLowerCase()}`);
+                            if (groupTypeRadio) groupTypeRadio.checked = true;
+                        }
+
+                        // Ensure "Others" fields are handled properly
+                        handleOthersVisibility('individual', data.individual_type);
+                        handleOthersVisibility('group', data.group_type);
+
+                        // Auto-check "Others" if value is not in predefined lists
+                        handleAutoCheckOthers(data);
+
+                        // Check applicable checkboxes
+                        let applicable = data.if_applicable ? data.if_applicable.split(',') : [];
+                        document.querySelectorAll('[name="applicable[]"]').forEach(checkbox => {
+                            checkbox.checked = applicable.includes(checkbox.value);
+                        });
+
+                        // Open the modal
+                        const modalElement = document.getElementById('updateBeneficiaryModal');
+                        if (modalElement) {
+                            let modal = new bootstrap.Modal(modalElement);
+                            modal.show();
+                        }
                     } else {
-                        console.error("Error:", data.message);
-                        $('.quantity-left').text("0"); // Reset quantity display on error
+                        alert("Error: Beneficiary data not found.");
                     }
                 })
                 .catch(error => {
-                    console.error("Error fetching quantity left:", error);
-                    $('.quantity-left').text("0"); // Reset quantity display on error
+                    console.error('Error fetching beneficiary data:', error);
+                    alert("An error occurred while fetching the beneficiary data.");
                 });
+
+
+            function formatRSBSA(input) {
+                // Remove all non-digit characters
+                let value = input.value.replace(/\D+/g, '');
+
+                // Format the value as 01-33-10-001-000000
+                let dashedValue = '';
+                if (value.length > 0) {
+                    dashedValue += value.substring(0, 2);
+                }
+                if (value.length > 2) {
+                    dashedValue += '-' + value.substring(2, 4);
+                }
+                if (value.length > 4) {
+                    dashedValue += '-' + value.substring(4, 6);
+                }
+                if (value.length > 6) {
+                    dashedValue += '-' + value.substring(6, 9);
+                }
+                if (value.length > 9) {
+                    dashedValue += '-' + value.substring(9, 15);
+                }
+
+                // Set the formatted value back to the input
+                input.value = dashedValue;
+            }
+
+            // Function to show/hide "Others" input field
+            function handleOthersVisibility(category, value) {
+                let inputDiv, inputField;
+
+                if (category === 'individual') {
+                    inputDiv = document.getElementById('updateOthersInput');
+                    inputField = document.getElementById('update_others_specify');
+                } else if (category === 'group') {
+                    inputDiv = document.getElementById('updateGroupOthersInput');
+                    inputField = document.getElementById('update_group_others_specify');
+                }
+
+                if (inputDiv && inputField) {
+                    inputDiv.style.display = value === 'Others' ? 'block' : 'none';
+                    if (value === 'Others') inputField.value = '';
+                }
+            }
+
+            // Function to toggle between Individual and Group visibility
+            function toggleBeneficiaryType() {
+                let individualRadio = document.getElementById("update_individual");
+                let groupRadio = document.getElementById("update_group");
+                let individualTypeDiv = document.getElementById("updateIndividualTypeRadio");
+                let groupTypeDiv = document.getElementById("updateGroupTypeRadio");
+
+                individualTypeDiv.style.display = individualRadio.checked ? "block" : "none";
+                groupTypeDiv.style.display = groupRadio.checked ? "block" : "none";
+            }
+
+            function handleAutoCheckOthers(data) {
+                console.log("Received data:", data); // Debugging
+
+                const individualTypes = ["Farmer", "Fisher", "AEW"];
+                const groupTypes = ["FCA", "Cluster", "LGU", "School"];
+
+                // Handle Individual Type
+                if (data.beneficiary_category === "Individual") {
+                    let othersRadio = document.getElementById("update_others");
+                    let othersInputDiv = document.getElementById("updateOthersInput");
+                    let othersInput = document.getElementById("update_others_specify");
+
+                    let individualRadios = document.getElementsByName("individual_type");
+                    let foundMatch = false;
+
+                    console.log("Checking individual_type:", data.beneficiary_type);
+
+                    individualRadios.forEach(radio => {
+                        if (radio.value === data.beneficiary_type) {
+                            radio.checked = true;
+                            foundMatch = true;
+                        } else {
+                            radio.checked = false;
+                        }
+                    });
+
+                    if (!foundMatch) {
+                        console.log("No match found. Selecting 'Others'.");
+                        othersRadio.checked = true;
+                        othersInputDiv.style.display = "block";
+                        othersInput.value = data.beneficiary_type || "";
+                    } else {
+                        console.log("Match found. Hiding 'Others' input.");
+                        othersRadio.checked = false;
+                        othersInputDiv.style.display = "none";
+                        othersInput.value = "";
+                    }
+
+                    // Hide Cooperative input when Individual is selected
+                    document.getElementById("updateCooperativeInput").style.display = "none";
+                }
+
+                // Handle Group Type
+                if (data.beneficiary_category === "Group") {
+                    let groupOthersRadio = document.getElementById("update_group_others");
+                    let groupOthersInputDiv = document.getElementById("updateGroupOthersInput");
+                    let groupOthersInput = document.getElementById("update_group_others_specify");
+
+                    let groupRadios = document.getElementsByName("group_type");
+                    let foundMatch = false;
+
+                    console.log("Checking group_type:", data.beneficiary_type);
+
+                    groupRadios.forEach(radio => {
+                        if (radio.value === data.beneficiary_type) {
+                            radio.checked = true;
+                            foundMatch = true;
+                        } else {
+                            radio.checked = false;
+                        }
+                    });
+
+                    if (!foundMatch) {
+                        console.log("No match found for group type. Selecting 'Others'.");
+                        groupOthersRadio.checked = true;
+                        groupOthersInputDiv.style.display = "block";
+                        groupOthersInput.value = data.beneficiary_type || "";
+                    } else {
+                        console.log("Match found for group type. Hiding 'Others' input.");
+                        groupOthersRadio.checked = false;
+                        groupOthersInputDiv.style.display = "none";
+                        groupOthersInput.value = "";
+                    }
+
+                    // Show Cooperative input when Group is selected
+                    document.getElementById("updateCooperativeInput").style.display = "block";
+
+                    // Fetch and display the cooperative name
+                    fetchCooperatives(data.coop_id);
+                }
+            }
+
+            // Function to fetch and populate the Cooperative dropdown
+            function fetchCooperatives(selectedCoopId) {
+                fetch("8beneficiaryManagement/get_cooperatives.php") // Replace with your actual PHP endpoint
+                    .then(response => response.json())
+                    .then(cooperatives => {
+                        let select = document.getElementById("update_cooperative");
+                        select.innerHTML = '<option value="" disabled>Select a Cooperative</option>'; // Reset options
+
+                        cooperatives.forEach(coop => {
+                            let option = document.createElement("option");
+                            option.value = coop.id;
+                            option.textContent = coop.name;
+
+                            // Select the correct cooperative if it matches the data
+                            if (coop.id == selectedCoopId) {
+                                option.selected = true;
+                            }
+
+                            select.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error("Error fetching cooperatives:", error));
+            }
         }
+    });
+</script>
 
-        // Listen for changes in the intervention dropdown
-        $('.intervention_name_distrib').on('change', function() {
-            var intTypeId = $(this).val();
-            var seedId = $('.seedling_type_distrib').val();
-            fetchQuantityLeft(intTypeId, seedId);
-        });
+<!-- fetch for dashboard benefeciaries -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const filterButtons = document.querySelectorAll(".filter-btn");
+        const tableRows = document.querySelectorAll("tbody tr");
 
-        // Listen for changes in the seed dropdown
-        $('.seedling_type_distrib').on('change', function() {
-            var intTypeId = $('.intervention_name_distrib').val();
-            var seedId = $(this).val();
-            fetchQuantityLeft(intTypeId, seedId);
+        filterButtons.forEach((button) => {
+            button.addEventListener("click", function() {
+                const filter = this.getAttribute("data-filter");
+
+                // Remove 'active' class from all buttons and add to clicked one
+                filterButtons.forEach((btn) => btn.classList.remove("active"));
+                this.classList.add("active");
+
+                // Loop through table rows and filter based on category
+                tableRows.forEach((row) => {
+                    const beneficiaryType = row.getAttribute("data-type");
+
+                    if (filter === "all" || beneficiaryType === filter) {
+                        row.style.display = ""; // Show row
+                    } else {
+                        row.style.display = "none"; // Hide row
+                    }
+                });
+            });
         });
     });
 </script>
