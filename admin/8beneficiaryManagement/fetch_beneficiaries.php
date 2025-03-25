@@ -3,14 +3,26 @@ include('../../conn.php');
 
 $category = isset($_GET['category']) ? $_GET['category'] : 'all';
 
-$query = "SELECT beneficiary_id, fname, mname, lname, rsbsa_no, province_name, municipality_name, barangay_name, birthdate, beneficiary_category FROM tbl_beneficiary ORDER BY beneficiary_id DESC";
+// Base query
+$query = "SELECT beneficiary_id, fname, mname, lname, rsbsa_no, province_name, municipality_name, barangay_name, birthdate, beneficiary_category 
+          FROM tbl_beneficiary";
 
+// If a specific category is selected, add WHERE condition
 if ($category !== 'all') {
     $query .= " WHERE beneficiary_category = ?";
 }
 
+// Append ORDER BY
+$query .= " ORDER BY beneficiary_id DESC";
+
+// Prepare statement
 $stmt = $conn->prepare($query);
 
+if (!$stmt) {
+    die(json_encode(['error' => 'SQL preparation failed: ' . $conn->error]));
+}
+
+// Bind parameter only if filtering by category
 if ($category !== 'all') {
     $stmt->bind_param("s", $category);
 }
@@ -47,7 +59,9 @@ while ($row = $result->fetch_assoc()) {
     ];
 }
 
+// Return JSON response
 echo json_encode($data);
+
 $stmt->close();
 $conn->close();
 ?>
