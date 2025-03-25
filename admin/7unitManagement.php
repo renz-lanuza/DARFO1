@@ -154,7 +154,7 @@ include('includes/navbar.php');
                                     $query = "SELECT unit_id, unit_name 
                                     FROM tbl_unit 
                                     WHERE station_id = ? 
-                                    AND archive_at IS NULL
+                                    AND archived_at IS NULL
                                     ORDER BY unit_id DESC 
                                     LIMIT ?, ?";
                                     $stmt = $conn->prepare($query);
