@@ -175,6 +175,7 @@ include('includes/navbar.php');
                                     INNER JOIN tbl_unit ON tbl_intervention_inventory.unit_id = tbl_unit.unit_id
                                     WHERE tbl_intervention_inventory.station_id = ?
                                         AND tbl_intervention_inventory.archived_at IS NULL  -- Exclude archived records
+                                    ORDER BY intervention_id DESC
                                     LIMIT ? OFFSET ?";
 
                                     $stmt = $conn->prepare($sql);
