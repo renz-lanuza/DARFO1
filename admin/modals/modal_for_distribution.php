@@ -185,6 +185,7 @@
     }
 </style>
 
+
 <!-- Update Distribution Modal -->
 <div class="modal fade" id="updateDistributionModal" tabindex="-1" aria-labelledby="updateDistributionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -197,14 +198,12 @@
                 <form id="updateDistributionForm" method="POST">
                     <input type="hidden" name="distribution_id" id="distribution_id">
                     <div class="row">
-                        <!-- Date of Distribution -->
                         <div class="col-md-4 mb-3">
                             <label for="update_distribution_date" class="form-label">Date of Distribution</label>
                             <input type="date" class="form-control" id="update_distribution_date" name="update_distribution_date" required>
                         </div>
                     </div>
 
-                    <!-- Table for Interventions -->
                     <div class="mb-3">
                         <label class="form-label">Intervention Details</label>
                         <table class="table table-bordered" id="updateinterventionTable">
@@ -218,33 +217,14 @@
                             <tbody>
                                 <tr>
                                     <td>
-                                        <select class="form-control intervention_name_distrib" name="intervention_name_distrib[]" required>
+                                        <select class="form-control intervention_name_distrib" name="intervention_name_distrib" required>
                                             <option value="" disabled selected>Select Intervention</option>
-                                            <?php
-                                                $conn = new mysqli("localhost", "root", "", "db_darfo1");
-                                                $uid = $_SESSION['uid'];
-                                                $stationQuery = $conn->prepare("SELECT station_id FROM tbl_user WHERE uid = ?");
-                                                $stationQuery->bind_param("i", $uid);
-                                                $stationQuery->execute();
-                                                $stationQuery->bind_result($stationId);
-                                                $stationQuery->fetch();
-                                                $stationQuery->close();
-
-                                                $sql = "SELECT int_type_id, intervention_name FROM tbl_intervention_type WHERE station_id = ? ORDER BY int_type_id";
-                                                $stmt = $conn->prepare($sql);
-                                                $stmt->bind_param("i", $stationId);
-                                                $stmt->execute();
-                                                $result = $stmt->get_result();
-                                                while ($row = $result->fetch_assoc()) {
-                                                    echo "<option value='{$row['int_type_id']}'>" . htmlspecialchars($row['intervention_name']) . "</option>";
-                                                }
-                                                $conn->close();
-                                            ?>
                                         </select>
                                     </td>
                                     <td>
                                         <select class="form-control seedling_type_distrib" name="seedling_type_distrib" required>
                                             <option value="" disabled selected>Select Classification</option>
+                                            <!-- Options for seedling types will be populated here -->
                                         </select>
                                     </td>
                                     <td>
@@ -256,7 +236,6 @@
                         </table>
                     </div>
 
-                    <!-- Modal Footer -->
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-success">Update</button>
@@ -267,83 +246,59 @@
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var updateDistributionModal = document.getElementById('updateDistributionModal');
-    updateDistributionModal.addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget; // Button that triggered the modal
-        var distributionId = button.getAttribute('data-distribution-id');
-        var quantity = button.getAttribute('data-quantity');
-        var interventionName = button.getAttribute('data-intervention-name');
-        var seedName = button.getAttribute('data-seed-name');
-        var distributionDate = button.getAttribute('data-distribution-date');
-
-        // Update the modal's content.
-        var modalTitle = updateDistributionModal.querySelector('.modal-title');
-        var distributionIdInput = updateDistributionModal.querySelector('#distribution_id');
-        var updateQuantityInput = updateDistributionModal.querySelector('input[name="update_quantity[]"]');
-        var updateDistributionDateInput = updateDistributionModal.querySelector('#update_distribution_date');
-
-        modalTitle.textContent = 'Update Distribution ' + distributionId;
-        distributionIdInput.value = distributionId;
-        updateQuantityInput.value = quantity;
-        updateDistributionDateInput.value = distributionDate;
-    });
-});
-</script>
 
 <!-- function for update distribution -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
- <script>
-document.getElementById('updateDistributionForm').addEventListener('submit', function (e) {
-    e.preventDefault();
+<script>
+    document.getElementById('updateDistributionForm').addEventListener('submit', function(e) {
+        e.preventDefault();
 
-    // SweetAlert confirmation
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You are about to update this distribution.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, update it!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const formData = new FormData(this);
+        // SweetAlert confirmation
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You are about to update this distribution.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, update it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const formData = new FormData(this);
 
-            fetch('3DistributionManagement/updateDistribution.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: data.message,
-                    }).then(() => {
-                        $('#updateDistributionModal').modal('hide');
-                        // Optionally, refresh the page or update the table
-                        location.reload(); // Reload the page to reflect changes
+                fetch('3DistributionManagement/updateDistribution.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: data.message,
+                            }).then(() => {
+                                $('#updateDistributionModal').modal('hide');
+                                // Optionally, refresh the page or update the table
+                                location.reload(); // Reload the page to reflect changes
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: data.message,
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'An error occurred while updating the distribution.',
+                        });
                     });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: data.message,
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'An error occurred while updating the distribution.',
-                });
-            });
-        }
+            }
+        });
     });
-});
- </script>
+</script>
