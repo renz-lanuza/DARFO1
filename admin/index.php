@@ -285,7 +285,9 @@ include('includes/navbar.php');
                                                                 WHERE 
                                                                     b.station_id = ?  -- ✅ Filter based on logged-in user's station
                                                                 GROUP BY 
-                                                                    b.beneficiary_id";
+                                                                    b.beneficiary_id
+                                                                ORDER BY
+                                                                    b.beneficiary_id DESC";
 
                                                 // ✅ Use prepared statements
                                                 $stmt = mysqli_prepare($conn, $query);
