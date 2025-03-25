@@ -302,3 +302,55 @@
         });
     });
 </script>
+
+<script>
+    $(document).ready(function() {
+        // Listen for changes in the intervention dropdown
+        $('.intervention_name_distrib').on('change', function() {
+            var interventionId = $(this).val(); // Get the selected intervention ID
+            var seedlingDropdown = $(this).closest('tr').find('.seedling_type_distrib'); // Find the corresponding seedling dropdown
+
+            // Clear the existing options
+            seedlingDropdown.empty().append('<option value="" disabled selected>Select Classification</option>');
+
+            if (interventionId) {
+                // Make an AJAX request to fetch seedling types
+                $.ajax({
+                    url: '3distributionManagement/fetch_seedlings_update_distri.php', // PHP script to fetch data
+                    type: 'GET',
+                    data: {
+                        intervention_id: interventionId
+                    },
+                    success: function(response) {
+                        // Populate the seedling dropdown with the returned data
+                        if (response.length > 0) {
+                            $.each(response, function(index, seedling) {
+                                seedlingDropdown.append('<option value="' + seedling.seed_id + '">' + seedling.seed_name + '</option>');
+                            });
+                        } else {
+                            seedlingDropdown.append('<option value="" disabled>No classifications found</option>');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error: " + status + error);
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Listen for the modal show event
+        $('#updateDistributionModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget); // Button that triggered the modal
+            var distributionId = button.data('distribution-id'); // Extract distribution_id from data-* attributes
+
+            // Update the input field
+            document.getElementById('distribution_id').value = distributionId;
+        });
+    });
+</script>
+
+
