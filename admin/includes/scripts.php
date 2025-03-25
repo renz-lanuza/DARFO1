@@ -28,11 +28,8 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 
 <!-- Add Users -->
 <script>
@@ -562,6 +559,40 @@
     });
 </script>
 
+<!-- JS for Searching Users -->
+<script>
+    $(document).ready(function() {
+        // When user presses Enter inside the input
+        $("#search_id").keypress(function(event) {
+            if (event.which === 13) { // 13 is the keycode for Enter
+                event.preventDefault(); // Prevent form submission (if inside a form)
+                performSearch();
+            }
+        });
+
+        // When user clicks the search button
+        $(".input-group-append button").click(function() {
+            performSearch();
+        });
+
+        function performSearch() {
+            var searchQuery = $("#search_id").val(); // Get input value
+
+            // Send AJAX request
+            $.ajax({
+                url: '', // Current page URL
+                type: 'GET',
+                data: {
+                    search: searchQuery
+                },
+                success: function(response) {
+                    $('#dataTable').html($(response).find('#dataTable').html());
+                }
+            });
+        }
+    });
+</script>
+
 <script>
     $(document).ready(function() {
         // Function to handle intervention change
@@ -616,7 +647,6 @@
 
                         // Connect to the database
                         $conn = mysqli_connect("localhost", "root", "", "db_darfo1");
-
                         // Retrieve the station_id based on the logged-in user's uid
                         $stationQuery = $conn->prepare("SELECT station_id FROM tbl_user WHERE uid = ?");
                         $stationQuery->bind_param("i", $uid);
@@ -1101,136 +1131,137 @@
 <!-- script for fetching the seed type -->
 <!-- JS for fetch update intervention -->
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const updateModal = document.getElementById("updateInterventionModal");
+    document.addEventListener("DOMContentLoaded", function() {
+        const updateModal = document.getElementById("updateInterventionModal");
 
-    updateModal.addEventListener("show.bs.modal", function(event) {
-        let button = event.relatedTarget;
-        let interventionId = button.getAttribute("data-intervention-id");
+        updateModal.addEventListener("show.bs.modal", function(event) {
+            let button = event.relatedTarget;
+            let interventionId = button.getAttribute("data-intervention-id");
 
-        fetch("2InterventionManagement/fetch_intervention.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `intervention_id=${interventionId}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                console.error(data.error);
-                return;
-            }
-
-            document.getElementById("intervention_id").value = data.intervention_id;
-            document.getElementById("intervention_type").value = data.intervention_name;
-            document.getElementById("seed_type").value = data.seed_name;
-            document.getElementById("description").value = data.description;
-            document.getElementById("quantity").value = data.quantity;
-            document.getElementById("quantity_left").value = data.quantity_left;
-
-            // Set the hidden unit_id value
-            document.getElementById("unit_id").value = data.unit_id;
-
-            // Select the correct unit_name in the dropdown
-            let unitDropdown = document.getElementById("unit_name");
-            for (let option of unitDropdown.options) {
-                if (option.value == data.unit_id) {
-                    option.selected = true;
-                    break;
-                }
-            }
-        })
-        .catch(error => console.error("Error fetching intervention:", error));
-    }); 
-
-    // Form submission with confirmation
-    document.getElementById("updateIntForm").addEventListener("submit", function(e) {
-        e.preventDefault();
-
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You want to update this intervention?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, update it!',
-            cancelButtonText: 'No, cancel!',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                let formData = new FormData(this);
-
-                fetch("2InterventionManagement/update_intervention.php", {
+            fetch("2InterventionManagement/fetch_intervention.php", {
                     method: "POST",
-                    body: formData
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `intervention_id=${interventionId}`
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
-                        Swal.fire('Updated!', 'The intervention has been updated successfully.', 'success')
-                        .then(() => {
-                            $('#updateInterventionModal').modal('hide');
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire('Error!', data.message || 'There was a problem updating the intervention.', 'error');
+                    if (data.error) {
+                        console.error(data.error);
+                        return;
+                    }
+
+                    document.getElementById("intervention_id").value = data.intervention_id;
+                    document.getElementById("intervention_type").value = data.intervention_name;
+                    document.getElementById("seed_type").value = data.seed_name;
+                    document.getElementById("description").value = data.description;
+                    document.getElementById("quantity").value = data.quantity;
+                    document.getElementById("quantity_left").value = data.quantity_left;
+
+                    // Set the hidden unit_id value
+                    document.getElementById("unit_id").value = data.unit_id;
+
+                    // Select the correct unit_name in the dropdown
+                    let unitDropdown = document.getElementById("unit_name");
+                    for (let option of unitDropdown.options) {
+                        if (option.value == data.unit_id) {
+                            option.selected = true;
+                            break;
+                        }
                     }
                 })
-                .catch(error => {
-                    Swal.fire('Error!', 'There was an error with the request.', 'error');
-                    console.error("Error updating intervention:", error);
-                });
-            }
+                .catch(error => console.error("Error fetching intervention:", error));
+        });
+
+        // Form submission with confirmation
+        document.getElementById("updateIntForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to update this intervention?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, update it!',
+                cancelButtonText: 'No, cancel!',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let formData = new FormData(this);
+
+                    fetch("2InterventionManagement/update_intervention.php", {
+                            method: "POST",
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire('Updated!', 'The intervention has been updated successfully.', 'success')
+                                    .then(() => {
+                                        $('#updateInterventionModal').modal('hide');
+                                        location.reload();
+                                    });
+                            } else {
+                                Swal.fire('Error!', data.message || 'There was a problem updating the intervention.', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire('Error!', 'There was an error with the request.', 'error');
+                            console.error("Error updating intervention:", error);
+                        });
+                }
+            });
         });
     });
-});
-
 </script>
 
 
 <script>
     $(document).ready(function() {
-    $('#logout-button').on('click', function(e) {
-        e.preventDefault(); 
+        $('#logout-button').on('click', function(e) {
+            e.preventDefault();
 
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You will be logged out.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes, log out",
-            cancelButtonText: "No, stay logged in"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    type: 'POST',
-                    url: '../logout.php', // Adjust if needed
-                    success: function(response) {
-                        let res = JSON.parse(response);
-                        if (res.status === "success") {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You will be logged out.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, log out",
+                cancelButtonText: "No, stay logged in"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '../logout.php', // Adjust if needed
+                        success: function(response) {
+                            let res = JSON.parse(response);
+                            if (res.status === "success") {
+                                Swal.fire({
+                                    title: "Logged out successfully!",
+                                    text: "Redirecting...",
+                                    icon: "success",
+                                    showConfirmButton: false,
+                                    timer: 1000
+                                }).then(() => {
+                                    window.location.href = '../index.php';
+                                });
+                            }
+                        },
+                        error: function() {
                             Swal.fire({
-                                title: "Logged out successfully!",
-                                text: "Redirecting...",
-                                icon: "success",
+                                title: "Error",
+                                text: "Logout failed! Try again.",
+                                icon: "error",
                                 showConfirmButton: false,
                                 timer: 1000
-                            }).then(() => {
-                                window.location.href = '../index.php';
                             });
                         }
-                    },
-                    error: function() {
-                        Swal.fire({
-                            title: "Error",
-                            text: "Logout failed! Try again.",
-                            icon: "error",
-                            showConfirmButton: false,
-                            timer: 1000
-                        });
-                    }
-                });
-            }
+                    });
+                }
+            });
         });
     });
-});
 </script>
 
 
@@ -1313,14 +1344,14 @@
         $("a[data-target='#updateInterventionTypeModal']").click(function() {
             var intTypeId = $(this).data("user-id");
 
-             // Close modal properly
-        $(".close-modal").click(function () {
-            $("#updateInterventionTypeModal").modal("hide");
-        });
-        $("#updateInterventionTypeModal").on("hidden.bs.modal", function () {
-            $("body").removeClass("modal-open");
-            $(".modal-backdrop").remove();
-        });
+            // Close modal properly
+            $(".close-modal").click(function() {
+                $("#updateInterventionTypeModal").modal("hide");
+            });
+            $("#updateInterventionTypeModal").on("hidden.bs.modal", function() {
+                $("body").removeClass("modal-open");
+                $(".modal-backdrop").remove();
+            });
 
             $.ajax({
                 url: "4InterventionTypeManagement/fetch_intervention_type.php", // PHP file to fetch intervention details
@@ -1401,85 +1432,6 @@
 
 
 
-<script>
-    $(document).ready(function() {
-        console.log("Script loaded"); // Debugging: Verify script is loaded
-
-        // Flag to track if the fetch call has been made
-        var isFetching = false;
-
-        // Attach the event listener
-        $('#updateDistributionModal').on('show.bs.modal', function(event) {
-            console.log("Modal show event triggered"); // Debugging: Verify event is triggered
-
-            // If the fetch call has already been made, return early
-            if (isFetching) {
-                console.log("Fetch call already made. Skipping...");
-                return;
-            }
-
-            // Set the flag to true to prevent multiple fetch calls
-            isFetching = true;
-
-            var button = $(event.relatedTarget); // Button that triggered the modal
-
-            // Extract distribution_id from data-* attributes
-            var distributionId = button.data('distribution-id');
-            var distributionDate = button.data('distribution-date');
-            var interventionName = button.data('intervention-name');
-            var seedlingName = button.data('seedling-name');
-            var quantity = button.data('quantity');
-            var quantityLeft = button.data('quantity-left');
-
-            // Update the input field for distribution_id
-            var distributionIdInput = document.getElementById('distribution_id');
-            if (distributionIdInput) {
-                distributionIdInput.value = distributionId;
-            }
-
-            // Update the input field for distribution date
-            var distributionDateInput = document.getElementById('update_distribution_date');
-            if (distributionDateInput) {
-                distributionDateInput.value = distributionDate;
-            }
-
-            // Populate the intervention dropdown
-            var interventionSelect = $('.intervention_name_distrib');
-            interventionSelect.empty(); // Clear existing options
-            interventionSelect.append('<option value="" disabled selected>Select Intervention</option>');
-
-            // Fetch interventions
-            fetch('3distributionManagement/get_interventions.php') // Replace with your actual endpoint
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Fetched interventions:", data); // Debugging: Verify fetched data
-                    data.forEach(intervention => {
-                        var selected = (intervention.intervention_name === interventionName) ? 'selected' : '';
-                        interventionSelect.append(`<option value="${intervention.int_type_id}" ${selected}>${intervention.intervention_name}</option>`);
-                    });
-                })
-                .catch(error => {
-                    console.error("Error fetching interventions:", error);
-                });
-
-            // Populate the seedling dropdown
-            var seedlingSelect = $('.seedling_type_distrib');
-            seedlingSelect.empty(); // Clear existing options
-            seedlingSelect.append('<option value="" disabled selected>Select Classification</option>');
-            seedlingSelect.append(`<option value="${seedlingName}" selected>${seedlingName}</option>`);
-
-            // Update the quantity input field
-            var quantityInput = $('input[name="update_quantity[]"]');
-            if (quantityInput) {
-                quantityInput.val(quantity);
-            }
-
-            // Update the quantity left display
-            $('.quantity-left').text(quantityLeft);
-        });
-    });
-</script>
-
 <!-- Include jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -1526,42 +1478,43 @@
 
 <!-- archive user  -->
 <script>
-function confirmArchive(userId) {
-    Swal.fire({
-        title: "Are you sure?",
-        text: "This user will be archived!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Yes, archive it!",
-        cancelButtonText: "Cancel"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            archiveUser(userId);
-        }
-    });
-}
-
-function archiveUser(userId) {
-    $.ajax({
-        url: "1userManagement/archiveUser.php",
-        type: "POST",
-        data: { userId: userId },
-        dataType: "json",
-        success: function (response) {
-            if (response.success) {
-                Swal.fire("Archived!", "User has been archived.", "success").then(() => {
-                    location.reload();
-                });
-            } else {
-                Swal.fire("Error", response.message, "error");
+    function confirmArchive(userId) {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This user will be archived!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, archive it!",
+            cancelButtonText: "Cancel"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                archiveUser(userId);
             }
-        },
-        error: function () {
-            Swal.fire("Error", "An error occurred while archiving.", "error");
-        }
-    });
-}
+        });
+    }
 
+    function archiveUser(userId) {
+        $.ajax({
+            url: "1userManagement/archiveUser.php",
+            type: "POST",
+            data: {
+                userId: userId
+            },
+            dataType: "json",
+            success: function(response) {
+                if (response.success) {
+                    Swal.fire("Archived!", "User has been archived.", "success").then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire("Error", response.message, "error");
+                }
+            },
+            error: function() {
+                Swal.fire("Error", "An error occurred while archiving.", "error");
+            }
+        });
+    }
 </script>
 
 <!-- archive intervention management -->
@@ -1569,153 +1522,152 @@ function archiveUser(userId) {
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".archiveintervention-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            let interventionId = this.getAttribute("data-intervention-id");
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".archiveintervention-btn").forEach(button => {
+            button.addEventListener("click", function() {
+                let interventionId = this.getAttribute("data-intervention-id");
 
-            Swal.fire({
-                title: "Are you sure?",
-                text: "This intervention will be archived.",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Yes, archive it!"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`2InterventionManagement/archiveIntervention.php?intervention_id=${interventionId}`, {
-                        method: "GET"
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire(
-                                "Archived!",
-                                "The intervention has been archived.",
-                                "success"
-                            ).then(() => {
-                                location.reload(); // Refresh page to update table
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "This intervention will be archived.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes, archive it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`2InterventionManagement/archiveIntervention.php?intervention_id=${interventionId}`, {
+                                method: "GET"
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire(
+                                        "Archived!",
+                                        "The intervention has been archived.",
+                                        "success"
+                                    ).then(() => {
+                                        location.reload(); // Refresh page to update table
+                                    });
+                                } else {
+                                    Swal.fire("Error!", "Failed to archive the intervention.", "error");
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error:", error);
+                                Swal.fire("Error!", "Something went wrong.", "error");
                             });
-                        } else {
-                            Swal.fire("Error!", "Failed to archive the intervention.", "error");
-                        }
-                    })
-                    .catch(error => {
-                        console.error("Error:", error);
-                        Swal.fire("Error!", "Something went wrong.", "error");
-                    });
-                }
+                    }
+                });
             });
         });
     });
-});
-
 </script>
 
 <!-- archive intervention type management -->
- <!-- Include SweetAlert Library -->
- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Include SweetAlert Library -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".archive-int-type-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            let intTypeId = this.getAttribute("data-int-type-id");
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".archive-int-type-btn").forEach(button => {
+            button.addEventListener("click", function() {
+                let intTypeId = this.getAttribute("data-int-type-id");
 
-            Swal.fire({
-                title: "Are you sure?",
-                text: "This intervention type will be archived!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, archive it!"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch('4InterventionTypeManagement/archiveInterventionType.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: 'int_type_id=' + intTypeId
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire({
-                                title: "Archived!",
-                                text: "Intervention has been archived successfully.",
-                                icon: "success",
-                                timer: 2000,
-                                showConfirmButton: false
-                            }).then(() => {
-                                location.reload(); // Refresh the table
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "This intervention type will be archived!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, archive it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch('4InterventionTypeManagement/archiveInterventionType.php', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded'
+                                },
+                                body: 'int_type_id=' + intTypeId
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire({
+                                        title: "Archived!",
+                                        text: "Intervention has been archived successfully.",
+                                        icon: "success",
+                                        timer: 2000,
+                                        showConfirmButton: false
+                                    }).then(() => {
+                                        location.reload(); // Refresh the table
+                                    });
+                                } else {
+                                    Swal.fire("Error!", "Failed to archive intervention.", "error");
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error:", error);
+                                Swal.fire("Error!", "An error occurred while processing your request.", "error");
                             });
-                        } else {
-                            Swal.fire("Error!", "Failed to archive intervention.", "error");
-                        }
-                    })
-                    .catch(error => {
-                        console.error("Error:", error);
-                        Swal.fire("Error!", "An error occurred while processing your request.", "error");
-                    });
-                }
+                    }
+                });
             });
         });
     });
-});
-
 </script>
 
 <!-- archive classification  -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".archive-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            let seedId = this.getAttribute("data-id");
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".archive-btn").forEach(button => {
+            button.addEventListener("click", function() {
+                let seedId = this.getAttribute("data-id");
 
-            Swal.fire({
-                title: "Are you sure?",
-                text: "This classification will be archived.",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Yes, archive it!"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`5SeedTypeManagement/archiveClassification.php?seed_id=${seedId}`, {
-                        method: "GET"
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire(
-                                "Archived!",
-                                "The seed type has been archived successfully.",
-                                "success"
-                            ).then(() => {
-                                location.reload();
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "This classification will be archived.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes, archive it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`5SeedTypeManagement/archiveClassification.php?seed_id=${seedId}`, {
+                                method: "GET"
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire(
+                                        "Archived!",
+                                        "The seed type has been archived successfully.",
+                                        "success"
+                                    ).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire(
+                                        "Error!",
+                                        "Failed to archive the seed type.",
+                                        "error"
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error:", error);
+                                Swal.fire("Error!", "Something went wrong.", "error");
                             });
-                        } else {
-                            Swal.fire(
-                                "Error!",
-                                "Failed to archive the seed type.",
-                                "error"
-                            );
-                        }
-                    })
-                    .catch(error => {
-                        console.error("Error:", error);
-                        Swal.fire("Error!", "Something went wrong.", "error");
-                    });
-                }
+                    }
+                });
             });
         });
     });
-});
-
 </script>
 
 <!-- archive intervention management -->
@@ -1723,229 +1675,451 @@ function archiveUser(userId) {
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".archivedistribution-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            let distributionId = this.getAttribute("data-distribution-id");
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".archivedistribution-btn").forEach(button => {
+            button.addEventListener("click", function() {
+                let distributionId = this.getAttribute("data-distribution-id");
 
-            Swal.fire({
-                title: "Are you sure?",
-                text: "This distribution will be archived.",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Yes, archive it!"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`3distributionManagement/archiveDistribution.php?distribution_id=${distributionId}`, {
-                        method: "GET"
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire(
-                                "Archived!",
-                                "The distribution has been archived.",
-                                "success"
-                            ).then(() => {
-                                location.reload(); // Refresh page to update table
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "This distribution will be archived.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes, archive it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`3distributionManagement/archiveDistribution.php?distribution_id=${distributionId}`, {
+                                method: "GET"
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire(
+                                        "Archived!",
+                                        "The distribution has been archived.",
+                                        "success"
+                                    ).then(() => {
+                                        location.reload(); // Refresh page to update table
+                                    });
+                                } else {
+                                    Swal.fire("Error!", "Failed to archive the distribution.", "error");
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error:", error);
+                                Swal.fire("Error!", "Something went wrong.", "error");
                             });
-                        } else {
-                            Swal.fire("Error!", "Failed to archive the distribution.", "error");
-                        }
-                    })
-                    .catch(error => {
-                        console.error("Error:", error);
-                        Swal.fire("Error!", "Something went wrong.", "error");
-                    });
-                }
+                    }
+                });
             });
         });
     });
-});
-
 </script>
 
 <!-- archive cooperative management -->
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".archivecoop-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            let coopId = this.getAttribute("data-id");
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".archivecoop-btn").forEach(button => {
+            button.addEventListener("click", function() {
+                let coopId = this.getAttribute("data-id");
 
-            Swal.fire({
-                title: "Are you sure?",
-                text: "This cooperative will be archived.",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Yes, archive it!"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`6cooperativeManagement/archiveCooperative.php?coop_id=${coopId}`, {
-                        method: "GET"
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "This cooperative will be archived.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes, archive it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`6cooperativeManagement/archiveCooperative.php?coop_id=${coopId}`, {
+                                method: "GET"
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire(
+                                        "Archived!",
+                                        "The cooperative has been archived successfully.",
+                                        "success"
+                                    ).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire(
+                                        "Error!",
+                                        "Failed to archive the cooperative.",
+                                        "error"
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error:", error);
+                                Swal.fire("Error!", "Something went wrong.", "error");
+                            });
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+<!-- search intervention management -->
+<script>
+    function searchInterventionTable() {
+        let input = document.getElementById("search_id").value.toLowerCase();
+        let table = document.getElementById("dataTable2");
+        let rows = table.getElementsByTagName("tr");
+        let noRecordsRow = document.getElementById("noRecordsRow");
+        let found = false;
+
+        // Loop through rows, excluding the header
+        for (let i = 0; i < rows.length; i++) {
+            let cells = rows[i].getElementsByTagName("td");
+            let match = false;
+
+            if (cells.length > 0) { // Ignore headers
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j].innerText.toLowerCase().includes(input)) {
+                        match = true;
+                        break;
+                    }
+                }
+
+                rows[i].style.display = match ? "" : "none"; // Show or hide rows
+                if (match) found = true;
+            }
+        }
+
+        // Handle "No records found" row
+        if (!found) {
+            if (!noRecordsRow) {
+                noRecordsRow = document.createElement("tr");
+                noRecordsRow.id = "noRecordsRow";
+                noRecordsRow.innerHTML = `<td colspan="7" class="text-center">No Interventions Found</td>`;
+                table.appendChild(noRecordsRow);
+            }
+            noRecordsRow.style.display = "";
+        } else if (noRecordsRow) {
+            noRecordsRow.style.display = "none";
+        }
+    }
+</script>
+
+<!-- search distribution management -->
+<script>
+    function searchDistributionTable() {
+        let input = document.getElementById("search_id").value.toLowerCase();
+        let table = document.getElementById("dataTable3");
+        let rows = table.getElementsByTagName("tr");
+        let noRecordsRow = document.getElementById("noRecordsRow");
+        let found = false;
+
+        // Loop through rows, excluding the header
+        for (let i = 0; i < rows.length; i++) {
+            let cells = rows[i].getElementsByTagName("td");
+            let match = false;
+
+            if (cells.length > 0) { // Ignore rows without <td> (like headers)
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j].innerText.toLowerCase().includes(input)) {
+                        match = true;
+                        break;
+                    }
+                }
+
+                if (match) {
+                    rows[i].style.display = ""; // Show matching rowsm
+                    found = true;
+                } else {
+                    rows[i].style.display = "none"; // Hide non-matching rows
+                }
+            }
+        }
+
+        // Handle "No records found"
+        if (!found) {
+            if (!noRecordsRow) {
+                noRecordsRow = document.createElement("tr");
+                noRecordsRow.id = "noRecordsRow";
+                noRecordsRow.innerHTML = `<td colspan="11" class="text-center">No Distributions found</td>`;
+                table.appendChild(noRecordsRow);
+            }
+            noRecordsRow.style.display = "";
+        } else if (noRecordsRow) {
+            noRecordsRow.style.display = "none";
+        }
+    }
+</script>
+
+<!-- search intervention type management -->
+<script>
+    function searchIntTypeTable() {
+        let input = document.getElementById("search_id").value.toLowerCase();
+        let table = document.getElementById("dataTable4");
+        let rows = table.getElementsByTagName("tr");
+        let noRecordsRow = document.getElementById("noRecordsRow");
+        let found = false;
+
+        // Loop through rows, excluding the header
+        for (let i = 0; i < rows.length; i++) {
+            let cells = rows[i].getElementsByTagName("td");
+            let match = false;
+
+            if (cells.length > 0) { // Ignore rows without <td> (like headers)
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j].innerText.toLowerCase().includes(input)) {
+                        match = true;
+                        break;
+                    }
+                }
+
+                if (match) {
+                    rows[i].style.display = ""; // Show matching rowsm
+                    found = true;
+                } else {
+                    rows[i].style.display = "none"; // Hide non-matching rows
+                }
+            }
+        }
+
+        // Handle "No records found"
+        if (!found) {
+            if (!noRecordsRow) {
+                noRecordsRow = document.createElement("tr");
+                noRecordsRow.id = "noRecordsRow";
+                noRecordsRow.innerHTML = `<td colspan="11" class="text-center">No Intervention Types Found</td>`;
+                table.appendChild(noRecordsRow);
+            }
+            noRecordsRow.style.display = "";
+        } else if (noRecordsRow) {
+            noRecordsRow.style.display = "none";
+        }
+    }
+</script>
+
+<!-- search classification management -->
+<script>
+    function searchClassificationTable() {
+        let input = document.getElementById("search_id").value.toLowerCase();
+        let table = document.getElementById("dataTable5");
+        let rows = table.getElementsByTagName("tr");
+        let noRecordsRow = document.getElementById("noRecordsRow");
+        let found = false;
+
+        // Loop through rows, excluding the header
+        for (let i = 0; i < rows.length; i++) {
+            let cells = rows[i].getElementsByTagName("td");
+            let match = false;
+
+            if (cells.length > 0) { // Ignore rows without <td> (like headers)
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j].innerText.toLowerCase().includes(input)) {
+                        match = true;
+                        break;
+                    }
+                }
+
+                if (match) {
+                    rows[i].style.display = ""; // Show matching rowsm
+                    found = true;
+                } else {
+                    rows[i].style.display = "none"; // Hide non-matching rows
+                }
+            }
+        }
+
+        // Handle "No records found"
+        if (!found) {
+            if (!noRecordsRow) {
+                noRecordsRow = document.createElement("tr");
+                noRecordsRow.id = "noRecordsRow";
+                noRecordsRow.innerHTML = `<td colspan="11" class="text-center">No Classifications Found</td>`;
+                table.appendChild(noRecordsRow);
+            }
+            noRecordsRow.style.display = "";
+        } else if (noRecordsRow) {
+            noRecordsRow.style.display = "none";
+        }
+    }
+</script>
+
+<!-- search cooperative management -->
+<script>
+    function searchCooperativeTable() {
+        let input = document.getElementById("search_id").value.toLowerCase();
+        let table = document.getElementById("dataTable6");
+        let rows = table.getElementsByTagName("tr");
+        let noRecordsRow = document.getElementById("noRecordsRow");
+        let found = false;
+
+        // Loop through rows, excluding the header
+        for (let i = 0; i < rows.length; i++) {
+            let cells = rows[i].getElementsByTagName("td");
+            let match = false;
+
+            if (cells.length > 0) { // Ignore rows without <td> (like headers)
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j].innerText.toLowerCase().includes(input)) {
+                        match = true;
+                        break;
+                    }
+                }
+
+                if (match) {
+                    rows[i].style.display = ""; // Show matching rowsm
+                    found = true;
+                } else {
+                    rows[i].style.display = "none"; // Hide non-matching rows
+                }
+            }
+        }
+
+        // Handle "No records found"
+        if (!found) {
+            if (!noRecordsRow) {
+                noRecordsRow = document.createElement("tr");
+                noRecordsRow.id = "noRecordsRow";
+                noRecordsRow.innerHTML = `<td colspan="11" class="text-center">No Cooperatives Found</td>`;
+                table.appendChild(noRecordsRow);
+            }
+            noRecordsRow.style.display = "";
+        } else if (noRecordsRow) {
+            noRecordsRow.style.display = "none";
+        }
+    }
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let provinceSelect = document.getElementById("update_province");
+        let municipalitySelect = document.getElementById("update_municipality");
+        let barangaySelect = document.getElementById("update_barangay");
+
+        // Fetch provinces only when the user clicks the dropdown
+        provinceSelect.addEventListener("focus", function() {
+            if (provinceSelect.options.length === 1) { // Prevents refetching
+                fetchProvinces(provinceSelect);
+            }
+        });
+
+        // Fetch municipalities only when a province is selected
+        provinceSelect.addEventListener("change", function() {
+            let provinceCode = this.value;
+            resetDropdown(municipalitySelect, "Select Municipality");
+            resetDropdown(barangaySelect, "Select Barangay");
+            fetchMunicipalities(provinceCode, municipalitySelect);
+        });
+
+        // Fetch barangays only when a municipality is selected
+        municipalitySelect.addEventListener("change", function() {
+            let municipalityCode = this.value;
+            resetDropdown(barangaySelect, "Select Barangay");
+            fetchBarangays(municipalityCode, barangaySelect);
+        });
+
+    });
+
+    // Helper function to reset dropdowns
+    function resetDropdown(dropdown, placeholder) {
+        dropdown.innerHTML = `<option value="" disabled selected>${placeholder}</option>`;
+    }
+
+    // Fetch provinces
+    function fetchProvinces(dropdown) {
+        fetch("6cooperativeManagement/fetch_location.php?type=provinces")
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(province => {
+                    let option = document.createElement("option");
+                    option.value = province.code;
+                    option.textContent = province.name;
+                    dropdown.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error fetching provinces:", error));
+    }
+
+    // Fetch municipalities
+    function fetchMunicipalities(provinceCode, dropdown) {
+        fetch(`6cooperativeManagement/fetch_location.php?type=municipalities&code=${provinceCode}`)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(municipality => {
+                    let option = document.createElement("option");
+                    option.value = municipality.code;
+                    option.textContent = municipality.name;
+                    dropdown.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error fetching municipalities:", error));
+    }
+
+    // Fetch barangays
+    function fetchBarangays(municipalityCode, dropdown) {
+        fetch(`6cooperativeManagement/fetch_location.php?type=barangays&code=${municipalityCode}`)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(barangay => {
+                    let option = document.createElement("option");
+                    option.value = barangay.code;
+                    option.textContent = barangay.name;
+                    dropdown.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error fetching barangays:", error));
+    }
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".update-btn").forEach(button => {
+            button.addEventListener("click", function() {
+                let coopId = this.getAttribute("data-id").trim();
+
+                fetch("6cooperativeManagement/fetch_cooperative.php", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: "coop_id=" + encodeURIComponent(coopId)
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.success) {
-                            Swal.fire(
-                                "Archived!",
-                                "The cooperative has been archived successfully.",
-                                "success"
-                            ).then(() => {
-                                location.reload();
-                            });
+                        if (!data.error) {
+                            document.querySelector("#update_id").value = data.coop_id || "";
+                            document.querySelector("#update_cooperative_name").value = data.cooperative_name || "";
+
+                            // Populate Province Dropdown
+                            let provinceDropdown = document.querySelector("#update_province");
+                            provinceDropdown.innerHTML = `<option value="${data.province_name || ''}">${data.province_name || 'Select Province'}</option>`;
+
+                            // Populate Municipality Dropdown
+                            let municipalityDropdown = document.querySelector("#update_municipality");
+                            municipalityDropdown.innerHTML = `<option value="${data.municipality_name || ''}">${data.municipality_name || 'Select Municipality'}</option>`;
+
+                            // Populate Barangay Dropdown
+                            let barangayDropdown = document.querySelector("#update_barangay");
+                            barangayDropdown.innerHTML = `<option value="${data.barangay_name || ''}">${data.barangay_name || 'Select Barangay'}</option>`;
+
+                            // Open Modal
+                            let updateModal = new bootstrap.Modal(document.getElementById("updateCooperativeModal"));
+                            updateModal.show();
                         } else {
-                            Swal.fire(
-                                "Error!",
-                                "Failed to archive the cooperative.",
-                                "error"
-                            );
+                            console.error("Error:", data.message);
+                            Swal.fire("Error!", data.message, "error");
                         }
                     })
                     .catch(error => {
-                        console.error("Error:", error);
+                        console.error("Error fetching data:", error);
                         Swal.fire("Error!", "Something went wrong.", "error");
                     });
-                }
             });
         });
     });
-});
-
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    let provinceSelect = document.getElementById("update_province");
-    let municipalitySelect = document.getElementById("update_municipality");
-    let barangaySelect = document.getElementById("update_barangay");
-
-    // Fetch provinces only when the user clicks the dropdown
-    provinceSelect.addEventListener("focus", function () {
-        if (provinceSelect.options.length === 1) { // Prevents refetching
-            fetchProvinces(provinceSelect);
-        }
-    });
-
-    // Fetch municipalities only when a province is selected
-    provinceSelect.addEventListener("change", function () {
-        let provinceCode = this.value;
-        resetDropdown(municipalitySelect, "Select Municipality");
-        resetDropdown(barangaySelect, "Select Barangay");
-        fetchMunicipalities(provinceCode, municipalitySelect);
-    });
-
-    // Fetch barangays only when a municipality is selected
-    municipalitySelect.addEventListener("change", function () {
-        let municipalityCode = this.value;
-        resetDropdown(barangaySelect, "Select Barangay");
-        fetchBarangays(municipalityCode, barangaySelect);
-    });
-
-    });
-
-// Helper function to reset dropdowns
-function resetDropdown(dropdown, placeholder) {
-    dropdown.innerHTML = `<option value="" disabled selected>${placeholder}</option>`;
-}
-
-// Fetch provinces
-function fetchProvinces(dropdown) {
-    fetch("6cooperativeManagement/fetch_location.php?type=provinces")
-        .then(response => response.json())
-        .then(data => {
-            data.forEach(province => {
-                let option = document.createElement("option");
-                option.value = province.code;
-                option.textContent = province.name;
-                dropdown.appendChild(option);
-            });
-        })
-        .catch(error => console.error("Error fetching provinces:", error));
-}
-
-// Fetch municipalities
-function fetchMunicipalities(provinceCode, dropdown) {
-    fetch(`6cooperativeManagement/fetch_location.php?type=municipalities&code=${provinceCode}`)
-        .then(response => response.json())
-        .then(data => {
-            data.forEach(municipality => {
-                let option = document.createElement("option");
-                option.value = municipality.code;
-                option.textContent = municipality.name;
-                dropdown.appendChild(option);
-            });
-        })
-        .catch(error => console.error("Error fetching municipalities:", error));
-}
-
-// Fetch barangays
-function fetchBarangays(municipalityCode, dropdown) {
-    fetch(`6cooperativeManagement/fetch_location.php?type=barangays&code=${municipalityCode}`)
-        .then(response => response.json())
-        .then(data => {
-            data.forEach(barangay => {
-                let option = document.createElement("option");
-                option.value = barangay.code;
-                option.textContent = barangay.name;
-                dropdown.appendChild(option);
-            });
-        })
-        .catch(error => console.error("Error fetching barangays:", error));
-}
-
-
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".update-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            let coopId = this.getAttribute("data-id").trim();
-
-            fetch("6cooperativeManagement/fetch_cooperative.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: "coop_id=" + encodeURIComponent(coopId)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.error) {
-                    document.querySelector("#update_id").value = data.coop_id || "";
-                    document.querySelector("#update_cooperative_name").value = data.cooperative_name || "";
-
-                    // Populate Province Dropdown
-                    let provinceDropdown = document.querySelector("#update_province");
-                    provinceDropdown.innerHTML = `<option value="${data.province_name || ''}">${data.province_name || 'Select Province'}</option>`;
-
-                    // Populate Municipality Dropdown
-                    let municipalityDropdown = document.querySelector("#update_municipality");
-                    municipalityDropdown.innerHTML = `<option value="${data.municipality_name || ''}">${data.municipality_name || 'Select Municipality'}</option>`;
-
-                    // Populate Barangay Dropdown
-                    let barangayDropdown = document.querySelector("#update_barangay");
-                    barangayDropdown.innerHTML = `<option value="${data.barangay_name || ''}">${data.barangay_name || 'Select Barangay'}</option>`;
-
-                    // Open Modal
-                    let updateModal = new bootstrap.Modal(document.getElementById("updateCooperativeModal"));
-                    updateModal.show();
-                } else {
-                    console.error("Error:", data.message);
-                    Swal.fire("Error!", data.message, "error");
-                }
-            })
-            .catch(error => {
-                console.error("Error fetching data:", error);
-                Swal.fire("Error!", "Something went wrong.", "error");
-            });
-        });
-    });
-});
 </script>
 
 <!-- for filtering type of distri if group or individual -->
@@ -1997,295 +2171,140 @@ document.addEventListener("DOMContentLoaded", function () {
 
 <!-- fetch locations for update coop mngmnt -->
 <script>
-// Helper function to reset dropdowns
-function resetDropdown(dropdown, placeholder) {
-    dropdown.innerHTML = `<option value="" disabled selected>${placeholder}</option>`;
-}
+    // Helper function to reset dropdowns
+    function resetDropdown(dropdown, placeholder) {
+        dropdown.innerHTML = `<option value="" disabled selected>${placeholder}</option>`;
+    }
 
-// Fetch provinces
-function fetchProvinces(dropdown) {
-    fetch("6cooperativeManagement/fetch_location.php?type=provinces")
-        .then(response => response.json())
-        .then(data => {
-            data.forEach(province => {
-                let option = document.createElement("option");
-                option.value = province.code;
-                option.textContent = province.name;
-                dropdown.appendChild(option);
-            });
-        })
-        .catch(error => console.error("Error fetching provinces:", error));
-}
+    // Fetch provinces
+    function fetchProvinces(dropdown) {
+        fetch("6cooperativeManagement/fetch_location.php?type=provinces")
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(province => {
+                    let option = document.createElement("option");
+                    option.value = province.code;
+                    option.textContent = province.name;
+                    dropdown.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error fetching provinces:", error));
+    }
 
-// Fetch municipalities
-function fetchMunicipalities(provinceCode, dropdown) {
-    fetch(`6cooperativeManagement/fetch_location.php?type=municipalities&code=${provinceCode}`)
-        .then(response => response.json())
-        .then(data => {
-            data.forEach(municipality => {
-                let option = document.createElement("option");
-                option.value = municipality.code;
-                option.textContent = municipality.name;
-                dropdown.appendChild(option);
-            });
-        })
-        .catch(error => console.error("Error fetching municipalities:", error));
-}
+    // Fetch municipalities
+    function fetchMunicipalities(provinceCode, dropdown) {
+        fetch(`6cooperativeManagement/fetch_location.php?type=municipalities&code=${provinceCode}`)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(municipality => {
+                    let option = document.createElement("option");
+                    option.value = municipality.code;
+                    option.textContent = municipality.name;
+                    dropdown.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error fetching municipalities:", error));
+    }
 
-// Fetch barangays
-function fetchBarangays(municipalityCode, dropdown) {
-    fetch(`6cooperativeManagement/fetch_location.php?type=barangays&code=${municipalityCode}`)
-        .then(response => response.json())
-        .then(data => {
-            data.forEach(barangay => {
-                let option = document.createElement("option");
-                option.value = barangay.code;
-                option.textContent = barangay.name;
-                dropdown.appendChild(option);
-            });
-        })
-        .catch(error => console.error("Error fetching barangays:", error));
-}
-
-
+    // Fetch barangays
+    function fetchBarangays(municipalityCode, dropdown) {
+        fetch(`6cooperativeManagement/fetch_location.php?type=barangays&code=${municipalityCode}`)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(barangay => {
+                    let option = document.createElement("option");
+                    option.value = barangay.code;
+                    option.textContent = barangay.name;
+                    dropdown.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error fetching barangays:", error));
+    }
 </script>
 
 <!-- fetch for cooperative update modal coop mngmnt -->
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".update-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            let coopId = this.getAttribute("data-id").trim();
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".update-btn").forEach(button => {
+            button.addEventListener("click", function() {
+                let coopId = this.getAttribute("data-id").trim();
 
-            fetch("6cooperativeManagement/fetch_cooperative.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: "coop_id=" + encodeURIComponent(coopId)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.error) {
-                    document.querySelector("#update_id").value = data.coop_id || "";
-                    document.querySelector("#update_cooperative_name").value = data.cooperative_name || "";
+                fetch("6cooperativeManagement/fetch_cooperative.php", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: "coop_id=" + encodeURIComponent(coopId)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.error) {
+                            document.querySelector("#update_id").value = data.coop_id || "";
+                            document.querySelector("#update_cooperative_name").value = data.cooperative_name || "";
 
-                    // Populate Province Dropdown
-                    let provinceDropdown = document.querySelector("#update_province");
-                    provinceDropdown.innerHTML = `<option value="${data.province_name || ''}">${data.province_name || 'Select Province'}</option>`;
+                            // Populate Province Dropdown
+                            let provinceDropdown = document.querySelector("#update_province");
+                            provinceDropdown.innerHTML = `<option value="${data.province_name || ''}">${data.province_name || 'Select Province'}</option>`;
 
-                    // Populate Municipality Dropdown
-                    let municipalityDropdown = document.querySelector("#update_municipality");
-                    municipalityDropdown.innerHTML = `<option value="${data.municipality_name || ''}">${data.municipality_name || 'Select Municipality'}</option>`;
+                            // Populate Municipality Dropdown
+                            let municipalityDropdown = document.querySelector("#update_municipality");
+                            municipalityDropdown.innerHTML = `<option value="${data.municipality_name || ''}">${data.municipality_name || 'Select Municipality'}</option>`;
 
-                    // Populate Barangay Dropdown
-                    let barangayDropdown = document.querySelector("#update_barangay");
-                    barangayDropdown.innerHTML = `<option value="${data.barangay_name || ''}">${data.barangay_name || 'Select Barangay'}</option>`;
+                            // Populate Barangay Dropdown
+                            let barangayDropdown = document.querySelector("#update_barangay");
+                            barangayDropdown.innerHTML = `<option value="${data.barangay_name || ''}">${data.barangay_name || 'Select Barangay'}</option>`;
 
-                    // Open Modal
-                    let updateModal = new bootstrap.Modal(document.getElementById("updateCooperativeModal"));
-                    updateModal.show();
-                } else {
-                    console.error("Error:", data.message);
-                    Swal.fire("Error!", data.message, "error");
-                }
-            })
-            .catch(error => {
-                console.error("Error fetching data:", error);
-                Swal.fire("Error!", "Something went wrong.", "error");
+                            // Open Modal
+                            let updateModal = new bootstrap.Modal(document.getElementById("updateCooperativeModal"));
+                            updateModal.show();
+                        } else {
+                            console.error("Error:", data.message);
+                            Swal.fire("Error!", data.message, "error");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching data:", error);
+                        Swal.fire("Error!", "Something went wrong.", "error");
+                    });
             });
         });
     });
-});
 </script>
 
-<!-- fetch distribution date -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var updateModal = document.getElementById("updateDistributionModal");
-        updateModal.addEventListener("show.bs.modal", function (event) {
-            var button = event.relatedTarget;
-            var distributionDate = button.getAttribute("data-distribution-date");
-            
-            var dateInput = updateModal.querySelector("#update_distribution_date");
-            if (distributionDate) {
-                dateInput.value = distributionDate;
-            }
-        });
-    });
-</script>
 
 
 <!-- search users -->
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    let searchInput = document.getElementById("search_id");
-    let searchButton = document.getElementById("searchBtn");
+    document.addEventListener("DOMContentLoaded", function() {
+        let searchInput = document.getElementById("search_id");
+        let searchButton = document.getElementById("searchBtn");
 
-    // Autofocus the search input on page load
-    searchInput.focus();
+        function fetchSearchResults() {
+            let searchQuery = searchInput.value.trim();
+            let xhr = new XMLHttpRequest();
+            xhr.open("GET", "1userManagement/searchUser.php?search=" + encodeURIComponent(searchQuery), true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    document.getElementById("dataTable").innerHTML = xhr.responseText;
+                }
+            };
+            xhr.send();
+        }
 
-    function fetchSearchResults() {
-        let searchQuery = searchInput.value.trim();
-        let xhr = new XMLHttpRequest();
-        xhr.open("GET", "1userManagement/searchUser.php?search=" + encodeURIComponent(searchQuery), true);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                document.getElementById("dataTable").innerHTML = xhr.responseText;
-            }
-        };
-        xhr.send();
-    }
-
-    // Trigger search on button click
-    searchButton.addEventListener("click", function () {
-        fetchSearchResults();
-    });
-
-    // Trigger search on Enter key press
-    searchInput.addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault(); // Prevent form submission
+        // Trigger search on button click
+        searchButton.addEventListener("click", function() {
             fetchSearchResults();
-        }
+        });
+
+        // Trigger search on Enter key press
+        searchInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Prevent form submission
+                fetchSearchResults();
+            }
+        });
     });
-});
 </script>
-
-<!-- search cooperative -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const searchInput = document.getElementById("search_coop");
-    const searchButton = document.getElementById("search_button");
-    const dataTable = document.getElementById("dataTable6");
-
-    // Auto-focus the search input on page load
-    searchInput.focus();
-
-    function fetchCooperatives() {
-        const searchValue = searchInput.value.trim();
-        fetch(`6cooperativeManagement/searchCooperative.php?search=${encodeURIComponent(searchValue)}`)
-            .then(response => response.text())
-            .then(data => {
-                dataTable.innerHTML = data;
-            })
-            .catch(error => console.error("Error:", error));
-    }
-
-    // Trigger search on "Enter" key press
-    searchInput.addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault(); // Prevent form submission
-            fetchCooperatives();
-        }
-    });
-
-    // Trigger search on button click
-    searchButton.addEventListener("click", function () {
-        fetchCooperatives();
-        searchInput.focus(); // Keep focus on input after search
-    });
-});
-</script>
-
-<!-- search for beneficiary -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const searchInput = document.getElementById("search_id");
-    const searchButton = document.getElementById("searchButton");
-    const beneficiaryTable = document.querySelector("#beneficiaryTable tbody");
-    const searchForm = document.getElementById("searchForm");
-
-    // Auto-focus the search input on page load
-    searchInput.focus();
-
-    function cleanSearchInput(input) {
-        return input.replace(/\s+/g, " ").trim(); // Convert multiple spaces to single space
-    }
-
-    function fetchBeneficiaries() {
-    let searchValue = cleanSearchInput(searchInput.value);
-
-    if (searchValue === "") {
-        location.reload(); // Reload to show the full list
-        return;
-    }
-
-    console.log("Searching for:", searchValue);
-
-    fetch("8beneficiaryManagement/searchBeneficiary.php?search=" + encodeURIComponent(searchValue))
-        .then(response => response.text())
-        .then(data => {
-            beneficiaryTable.innerHTML = data.trim() ? data : "<tr><td colspan='10' class='text-center'>No results found.</td></tr>";
-            searchInput.focus();
-        })
-        .catch(error => console.error("Error:", error));
-}
-
-
-    // Prevent form from reloading
-    searchForm.addEventListener("submit", function (event) {
-        event.preventDefault();
-        fetchBeneficiaries();
-    });
-
-    // Trigger search on "Enter" key press
-    searchInput.addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            fetchBeneficiaries();
-        }
-    });
-
-    // Trigger search on button click
-    searchButton.addEventListener("click", function () {
-        fetchBeneficiaries();
-    });
-});
-</script>
-
-<!-- search for distribution -->
- <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const searchInput = document.getElementById("search_id");
-    const searchButton = document.getElementById("searchButton");
-    const dataTable = document.getElementById("dataTable3");
-
-    // Autofocus on the search input
-    searchInput.focus();
-
-    // Function to perform search
-    function performSearch() {
-        const searchQuery = searchInput.value.trim();
-
-        if (searchQuery.length > 0) {
-            fetch("3distributionManagement/searchDistribution.php?q=" + encodeURIComponent(searchQuery))
-                .then(response => response.text())
-                .then(data => {
-                    dataTable.innerHTML = data.trim() ? data : "<tr><td colspan='10' class='text-center'>No results found.</td></tr>";
-                })
-                .catch(error => console.error("Error fetching search results:", error));
-        } else {
-            // Reload the page to restore default data
-            location.reload();
-        }
-    }
-
-    // Search on button click
-    searchButton.addEventListener("click", function () {
-        performSearch();
-    });
-
-    // Search on pressing Enter
-    searchInput.addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            performSearch();
-        }
-    });
-});
- </script>
-
 
 <script>
     $(document).ready(function() {
@@ -2495,547 +2514,197 @@ document.addEventListener("DOMContentLoaded", function () {
 <!-- Include jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-$(document).ready(function() {
-    // When the "Update" button is clicked
-    $('.edit-btn').on('click', function() {
-        // Get the data attributes from the button
-        var seedId = $(this).data('id');
-        var seedName = $(this).data('seed-name');
-        var interventionName = $(this).data('intervention-name');
+    $(document).ready(function() {
+        // When the "Update" button is clicked
+        $('.edit-btn').on('click', function() {
+            // Get the data attributes from the button
+            var seedId = $(this).data('id');
+            var seedName = $(this).data('seed-name');
+            var interventionName = $(this).data('intervention-name');
 
-        // Populate the modal fields with the data
-        $('#seed_id').val(seedId);
-        $('#seed_name').val(seedName);
-        $('#up_intervention_name').val(interventionName); // Fix: Ensure correct ID is used
-    });
+            // Populate the modal fields with the data
+            $('#seed_id').val(seedId);
+            $('#seed_name').val(seedName);
+            $('#up_intervention_name').val(interventionName); // Fix: Ensure correct ID is used
+        });
 
 
-    // Handle form submission
-    $('#updateSeedForm').on('submit', function(e) {
-        e.preventDefault(); // Prevent the default form submission
+        // Handle form submission
+        $('#updateSeedForm').on('submit', function(e) {
+            e.preventDefault(); // Prevent the default form submission
 
-        // Show a confirmation dialog using SweetAlert2
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'Do you want to update this seed?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, update it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // If the user confirms, proceed with the AJAX request
-                var formData = $(this).serialize();
+            // Show a confirmation dialog using SweetAlert2
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to update this seed?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, update it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // If the user confirms, proceed with the AJAX request
+                    var formData = $(this).serialize();
 
-                // Send the data via AJAX
-                $.ajax({
-                    url: '5SeedtypeManagement/updateClassification.php', // PHP script to handle the update
-                    type: 'POST',
-                    data: formData,
-                    success: function(response) {
-                        // Show a success message using SweetAlert2
-                        Swal.fire({
-                            title: 'Success!',
-                            text: 'Seed updated successfully!',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        }).then(() => {
-                            $('#editSeedlingModal').modal('hide'); // Hide the modal
-                            location.reload(); // Reload the page or update the table
-                        });
-                    },
-                    error: function(xhr, status, error) {
-                        // Show an error message using SweetAlert2
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'An error occurred while updating the seed.',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
-                    }
-                });
-            }
+                    // Send the data via AJAX
+                    $.ajax({
+                        url: '5SeedtypeManagement/updateClassification.php', // PHP script to handle the update
+                        type: 'POST',
+                        data: formData,
+                        success: function(response) {
+                            // Show a success message using SweetAlert2
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Seed updated successfully!',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                $('#editSeedlingModal').modal('hide'); // Hide the modal
+                                location.reload(); // Reload the page or update the table
+                            });
+                        },
+                        error: function(xhr, status, error) {
+                            // Show an error message using SweetAlert2
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'An error occurred while updating the seed.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    });
+                }
+            });
         });
     });
-});
 </script>
 
 <!-- for update unit management -->
- <script>
-  $(document).ready(function () {
-    // When the "Update" button is clicked
-    $(document).on("click", ".btn[data-target='#updateUnitModal']", function () {
-        // Get the unit details from the button's data attributes
-        var unitId = $(this).data('unit-id');
-        var unitName = $(this).data('unit-name'); // Get unit name directly from the button
+<script>
+    $(document).ready(function() {
+        // When the "Update" button is clicked
+        $(document).on("click", ".btn[data-target='#updateUnitModal']", function() {
+            // Get the unit details from the button's data attributes
+            var unitId = $(this).data('unit-id');
+            var unitName = $(this).data('unit-name'); // Get unit name directly from the button
 
-        // Populate the modal fields
-        $('#unit_id').val(unitId);
-        $('#up_unit_name').val(unitName); // Fix: Ensure correct ID is used in modal
+            // Populate the modal fields
+            $('#unit_id').val(unitId);
+            $('#up_unit_name').val(unitName); // Fix: Ensure correct ID is used in modal
 
-        // Optional: If you still want to fetch from PHP
-        $.ajax({
-            url: '7unitManagement/fetchUnit.php',
-            type: 'GET',
-            data: { unit_id: unitId },
-            dataType: 'json',
-            success: function (data) {
-                $('#unit_id').val(data.unit_id);
-                $('#up_unit_name').val(data.unit_name); // Update modal with fetched data
-            },
-            error: function () {
-                console.error("Error fetching data.");
-            }
+            // Optional: If you still want to fetch from PHP
+            $.ajax({
+                url: '7unitManagement/fetchUnit.php',
+                type: 'GET',
+                data: {
+                    unit_id: unitId
+                },
+                dataType: 'json',
+                success: function(data) {
+                    $('#unit_id').val(data.unit_id);
+                    $('#up_unit_name').val(data.unit_name); // Update modal with fetched data
+                },
+                error: function() {
+                    console.error("Error fetching data.");
+                }
+            });
         });
-    });
 
-    // Handle update form submission with confirmation
-    $('#updateUnitForm').on('submit', function (e) {
-        e.preventDefault();
+        // Handle update form submission with confirmation
+        $('#updateUnitForm').on('submit', function(e) {
+            e.preventDefault();
 
-        var formData = new FormData(this);
+            var formData = new FormData(this);
 
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You are about to update this unit.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, update it!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: '7unitManagement/updateunit.php',
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    dataType: 'json',
-                    success: function (data) {
-                        if (data.success) {
-                            Swal.fire("Updated!", "The unit has been updated.", "success")
-                                .then(() => location.reload()); // Reload page after success
-                        } else {
-                            Swal.fire("Error!", data.message, "error");
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You are about to update this unit.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, update it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '7unitManagement/updateunit.php',
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        dataType: 'json',
+                        success: function(data) {
+                            if (data.success) {
+                                Swal.fire("Updated!", "The unit has been updated.", "success")
+                                    .then(() => location.reload()); // Reload page after success
+                            } else {
+                                Swal.fire("Error!", data.message, "error");
+                            }
+                        },
+                        error: function() {
+                            console.error("Error updating.");
                         }
-                    },
-                    error: function () {
-                        console.error("Error updating.");
-                    }
-                });
-            }
-        });
-    });
-});
-
- </script>
-
-<!-- for filter button in beneficiary management -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    fetchBeneficiaries("all");
-
-    document.getElementById("btnAll").addEventListener("click", function () {
-        fetchBeneficiaries("all");
-    });
-
-    document.getElementById("btnIndividual").addEventListener("click", function () {
-        fetchBeneficiaries("Individual");
-    });
-
-    document.getElementById("btnGroup").addEventListener("click", function () {
-        fetchBeneficiaries("Group");
-    });
-
-    function fetchBeneficiaries(category) {
-        fetch(`8BeneficiaryManagement/fetch_beneficiaries.php?category=${category}`)
-            .then(response => response.json())
-            .then(data => {
-                let tableBody = document.querySelector("#beneficiaryTable tbody");
-                tableBody.innerHTML = ""; 
-
-                if (!data || data.length === 0) {
-                    tableBody.innerHTML = "<tr><td colspan='7'>No beneficiaries found.</td></tr>";
-                    return;
-                }
-
-                data.forEach(row => {
-                    let newRow = document.createElement("tr");
-                    newRow.innerHTML = `
-                        <td>${row.fullName}</td>
-                        <td>${row.rsbsa_no}</td>
-                        <td>${row.province_name}</td>
-                        <td>${row.municipality_name}</td>
-                        <td>${row.barangay_name}</td>
-                        <td>${row.birthdate}</td>
-                         <td>
-                        <button class="btn btn-primary update-beneficiary" data-bs-toggle="modal" data-bs-target="#updateBeneficiaryModal" data-id="${row.beneficiary_id}">Update</button>
-                        <button class="btn btn-danger btn-sm delete-beneficiary" data-id="${row.beneficiary_id}">Delete</button>
-                        <button class="btn btn-info btn-sm view-beneficiary" data-id="${row.beneficiary_id}">View</button>
-                        <button type="button" class="btn btn-success btn-sm add-distribution" id="btnAddDistribution" data-bs-toggle="modal" data-bs-target="#addDistributionModal" data-beneficiary-id="${row.beneficiary_id}">
-                            <i class="bx bx-plus"></i>
-                            <span>Add Intervention</span>
-                        </button>
-                    </td>
-                    `;
-                    tableBody.appendChild(newRow);
-                });
-            })
-            .catch(error => console.error("Error fetching beneficiaries:", error));
-    }
-
-    // Event delegation for dynamically loaded elements
-    document.querySelector("#beneficiaryTable tbody").addEventListener("click", function (event) {
-        let target = event.target;
-        let beneficiaryId = target.dataset.id;
-
-        if (target.classList.contains("update-beneficiary")) {
-            openUpdateBeneficiaryModal(beneficiaryId);
-        }
-    });
-
-    function openUpdateBeneficiaryModal(beneficiaryId) {
-    // Fetch the beneficiary data
-    fetch(`8beneficiaryManagement/fetch_update_beneficiary.php?id=${beneficiaryId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data) {
-                // Populate text inputs
-                document.getElementById('update_beneficiary_first_name').value = data.fname || '';
-                document.getElementById('update_beneficiary_middle_name').value = data.mname || '';
-                document.getElementById('update_beneficiary_last_name').value = data.lname || '';
-                document.getElementById('update_streetPurok').value = data.StreetPurok || '';
-
-                // Set the raw RSBSA number (no dashes)
-                const rsbsaNo = data.rsbsa_no || ''; 
-                const rsbsaInput = document.getElementById('update_rsbsa-no');
-                rsbsaInput.value = rsbsaNo; // Set the value without dashes
-                
-                // Call formatRSBSA to display it with dashes in the modal
-                formatRSBSA(rsbsaInput);  // Format the RSBSA number with dashes for display only
-
-                document.getElementById('update_birthdate').value = data.birthdate || '';
-                document.getElementById('update_contact_number').value = data.contact_no || '';
-
-                // Populate location dropdowns
-                document.getElementById('update_province_name').innerHTML = `<option selected>${data.province_name || 'Select a province'}</option>`;
-                document.getElementById('update_municipality_name').innerHTML = `<option selected>${data.municipality_name || 'Select a municipality'}</option>`;
-                document.getElementById('update_barangay_name').innerHTML = `<option selected>${data.barangay_name || 'Select a barangay'}</option>`;
-
-                // Set Sex radio button
-                if (data.Sex) {
-                    let sexRadio = document.querySelector(`input[name="up_sex"][value="${data.Sex.trim()}"]`);
-                    if (sexRadio) {
-                        sexRadio.checked = true;
-                    }
-                }
-
-                // Auto-check Beneficiary Category
-                if (data.beneficiary_category) {
-                    let categoryRadio = document.getElementById(`update_${data.beneficiary_category.toLowerCase()}`);
-                    if (categoryRadio) categoryRadio.checked = true;
-                }
-
-                // Auto-check Beneficiary Type
-                if (data.beneficiary_type) {
-                    let beneficiaryTypeRadio = document.getElementById(`update_${data.beneficiary_type.toLowerCase()}`);
-                    if (beneficiaryTypeRadio) beneficiaryTypeRadio.checked = true;
-                }
-
-                // Toggle Individual or Group visibility
-                toggleBeneficiaryType();
-
-                // Handle Individual Type
-                if (data.beneficiary_type === 'Individual' && data.individual_type) {
-                    let individualTypeRadio = document.getElementById(`update_${data.individual_type.toLowerCase()}`);
-                    if (individualTypeRadio) individualTypeRadio.checked = true;
-                }
-
-                // Handle Group Type
-                if (data.beneficiary_type === 'Group' && data.group_type) {
-                    let groupTypeRadio = document.getElementById(`update_${data.group_type.toLowerCase()}`);
-                    if (groupTypeRadio) groupTypeRadio.checked = true;
-                }
-
-                // Ensure "Others" fields are handled properly
-                handleOthersVisibility('individual', data.individual_type);
-                handleOthersVisibility('group', data.group_type);
-
-                // Auto-check "Others" if value is not in predefined lists
-                handleAutoCheckOthers(data);
-
-                // Check applicable checkboxes
-                let applicable = data.if_applicable ? data.if_applicable.split(',') : [];
-                document.querySelectorAll('[name="applicable[]"]').forEach(checkbox => {
-                    checkbox.checked = applicable.includes(checkbox.value);
-                });
-
-                // Open the modal
-                const modalElement = document.getElementById('updateBeneficiaryModal');
-                if (modalElement) {
-                    let modal = new bootstrap.Modal(modalElement);
-                    modal.show();
-                }
-            } else {
-                alert("Error: Beneficiary data not found.");
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching beneficiary data:', error);
-            alert("An error occurred while fetching the beneficiary data.");
-        });
-
-
-        function formatRSBSA(input) {
-    // Remove all non-digit characters
-    let value = input.value.replace(/\D+/g, '');
-
-    // Format the value as 01-33-10-001-000000
-    let dashedValue = '';
-    if (value.length > 0) {
-        dashedValue += value.substring(0, 2);
-    }
-    if (value.length > 2) {
-        dashedValue += '-' + value.substring(2, 4);
-    }
-    if (value.length > 4) {
-        dashedValue += '-' + value.substring(4, 6);
-    }
-    if (value.length > 6) {
-        dashedValue += '-' + value.substring(6, 9);
-    }
-    if (value.length > 9) {
-        dashedValue += '-' + value.substring(9, 15);
-    }
-
-    // Set the formatted value back to the input
-    input.value = dashedValue;
-}
-
-// Function to show/hide "Others" input field
-function handleOthersVisibility(category, value) {
-    let inputDiv, inputField;
-    
-    if (category === 'individual') {
-        inputDiv = document.getElementById('updateOthersInput');
-        inputField = document.getElementById('update_others_specify');
-    } else if (category === 'group') {
-        inputDiv = document.getElementById('updateGroupOthersInput');
-        inputField = document.getElementById('update_group_others_specify');
-    }
-
-    if (inputDiv && inputField) {
-        inputDiv.style.display = value === 'Others' ? 'block' : 'none';
-        if (value === 'Others') inputField.value = '';
-    }
-}
-
-// Function to toggle between Individual and Group visibility
-function toggleBeneficiaryType() {
-    let individualRadio = document.getElementById("update_individual");
-    let groupRadio = document.getElementById("update_group");
-    let individualTypeDiv = document.getElementById("updateIndividualTypeRadio");
-    let groupTypeDiv = document.getElementById("updateGroupTypeRadio");
-
-    individualTypeDiv.style.display = individualRadio.checked ? "block" : "none";
-    groupTypeDiv.style.display = groupRadio.checked ? "block" : "none";
-}
-function handleAutoCheckOthers(data) {
-    console.log("Received data:", data); // Debugging
-
-    const individualTypes = ["Farmer", "Fisher", "AEW"];
-    const groupTypes = ["FCA", "Cluster", "LGU", "School"];
-
-    // Handle Individual Type
-    if (data.beneficiary_category === "Individual") {
-        let othersRadio = document.getElementById("update_others");
-        let othersInputDiv = document.getElementById("updateOthersInput");
-        let othersInput = document.getElementById("update_others_specify");
-
-        let individualRadios = document.getElementsByName("individual_type");
-        let foundMatch = false;
-
-        console.log("Checking individual_type:", data.beneficiary_type);
-
-        individualRadios.forEach(radio => {
-            if (radio.value === data.beneficiary_type) {
-                radio.checked = true;
-                foundMatch = true;
-            } else {
-                radio.checked = false;
-            }
-        });
-
-        if (!foundMatch) {
-            console.log("No match found. Selecting 'Others'.");
-            othersRadio.checked = true;
-            othersInputDiv.style.display = "block";
-            othersInput.value = data.beneficiary_type || "";
-        } else {
-            console.log("Match found. Hiding 'Others' input.");
-            othersRadio.checked = false;
-            othersInputDiv.style.display = "none";
-            othersInput.value = "";
-        }
-
-        // Hide Cooperative input when Individual is selected
-        document.getElementById("updateCooperativeInput").style.display = "none";
-    }
-
-    // Handle Group Type
-    if (data.beneficiary_category === "Group") {
-        let groupOthersRadio = document.getElementById("update_group_others");
-        let groupOthersInputDiv = document.getElementById("updateGroupOthersInput");
-        let groupOthersInput = document.getElementById("update_group_others_specify");
-
-        let groupRadios = document.getElementsByName("group_type");
-        let foundMatch = false;
-
-        console.log("Checking group_type:", data.beneficiary_type);
-
-        groupRadios.forEach(radio => {
-            if (radio.value === data.beneficiary_type) {
-                radio.checked = true;
-                foundMatch = true;
-            } else {
-                radio.checked = false;
-            }
-        });
-
-        if (!foundMatch) {
-            console.log("No match found for group type. Selecting 'Others'.");
-            groupOthersRadio.checked = true;
-            groupOthersInputDiv.style.display = "block";
-            groupOthersInput.value = data.beneficiary_type || "";
-        } else {
-            console.log("Match found for group type. Hiding 'Others' input.");
-            groupOthersRadio.checked = false;
-            groupOthersInputDiv.style.display = "none";
-            groupOthersInput.value = "";
-        }
-
-        // Show Cooperative input when Group is selected
-        document.getElementById("updateCooperativeInput").style.display = "block";
-
-        // Fetch and display the cooperative name
-        fetchCooperatives(data.coop_id);
-    }
-}
-
-// Function to fetch and populate the Cooperative dropdown
-function fetchCooperatives(selectedCoopId) {
-    fetch("8beneficiaryManagement/get_cooperatives.php") // Replace with your actual PHP endpoint
-        .then(response => response.json())
-        .then(cooperatives => {
-            let select = document.getElementById("update_cooperative");
-            select.innerHTML = '<option value="" disabled>Select a Cooperative</option>'; // Reset options
-
-            cooperatives.forEach(coop => {
-                let option = document.createElement("option");
-                option.value = coop.id;
-                option.textContent = coop.name;
-
-                // Select the correct cooperative if it matches the data
-                if (coop.id == selectedCoopId) {
-                    option.selected = true;
-                }
-
-                select.appendChild(option);
-            });
-        })
-        .catch(error => console.error("Error fetching cooperatives:", error));
-}
-    }
-});
-</script> 
-
-<!-- fetch for dashboard benefeciaries -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-    const filterButtons = document.querySelectorAll(".filter-btn");
-    const tableRows = document.querySelectorAll("tbody tr");
-
-    filterButtons.forEach((button) => {
-        button.addEventListener("click", function () {
-            const filter = this.getAttribute("data-filter");
-
-            // Remove 'active' class from all buttons and add to clicked one
-            filterButtons.forEach((btn) => btn.classList.remove("active"));
-            this.classList.add("active");
-
-            // Loop through table rows and filter based on category
-            tableRows.forEach((row) => {
-                const beneficiaryType = row.getAttribute("data-type");
-
-                if (filter === "all" || beneficiaryType === filter) {
-                    row.style.display = ""; // Show row
-                } else {
-                    row.style.display = "none"; // Hide row
+                    });
                 }
             });
         });
     });
-});
-
 </script>
+
+
+
 
 <script>
     $(document).ready(function() {
-        console.log("Script loaded"); // Debugging: Verify script is loaded
-
-        // Function to fetch quantity left
-        function fetchQuantityLeft(intTypeId, seedId) {
-            if (!intTypeId || !seedId) {
-                console.error("Invalid int_type_id or seed_id");
-                $('.quantity-left').text("0"); // Reset quantity display
-                return;
-            }
-
-            console.log("Fetching quantity for int_type_id:", intTypeId, "and seed_id:", seedId);
-
-            fetch('3distributionManagement/get_quantity_left_distri.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        int_type_id: intTypeId,
-                        seed_id: seedId
-                    }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log("Fetched quantity left:", data.quantity_left);
-                        $('.quantity-left').text(data.quantity_left || 0); // Update quantity display
-                    } else {
-                        console.error("Error:", data.message);
-                        $('.quantity-left').text("0"); // Reset quantity display on error
-                    }
-                })
-                .catch(error => {
-                    console.error("Error fetching quantity left:", error);
-                    $('.quantity-left').text("0"); // Reset quantity display on error
-                });
-        }
-
         // Listen for changes in the intervention dropdown
         $('.intervention_name_distrib').on('change', function() {
-            var intTypeId = $(this).val();
-            var seedId = $('.seedling_type_distrib').val();
-            fetchQuantityLeft(intTypeId, seedId);
-        });
+            var interventionId = $(this).val(); // Get the selected intervention ID
+            var seedlingDropdown = $(this).closest('tr').find('.seedling_type_distrib'); // Find the corresponding seedling dropdown
 
-        // Listen for changes in the seed dropdown
-        $('.seedling_type_distrib').on('change', function() {
-            var intTypeId = $('.intervention_name_distrib').val();
-            var seedId = $(this).val();
-            fetchQuantityLeft(intTypeId, seedId);
+            // Clear the existing options
+            seedlingDropdown.empty().append('<option value="" disabled selected>Select Classification</option>');
+
+            if (interventionId) {
+                // Make an AJAX request to fetch seedling types
+                $.ajax({
+                    url: '3distributionManagement/fetch_seedlings_update_distri.php', // PHP script to fetch data
+                    type: 'GET',
+                    data: {
+                        intervention_id: interventionId
+                    },
+                    success: function(response) {
+                        // Populate the seedling dropdown with the returned data
+                        if (response.length > 0) {
+                            $.each(response, function(index, seedling) {
+                                seedlingDropdown.append('<option value="' + seedling.seed_id + '">' + seedling.seed_name + '</option>');
+                            });
+                        } else {
+                            seedlingDropdown.append('<option value="" disabled>No classifications found</option>');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error: " + status + error);
+                    }
+                });
+            }
         });
     });
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Listen for the modal show event
+        $('#updateDistributionModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget); // Button that triggered the modal
+            var distributionId = button.data('distribution-id'); // Extract distribution_id from data-* attributes
+
+            // Update the input field
+            document.getElementById('distribution_id').value = distributionId;
+        });
+    });
+</script>
+
 
 <script>
     $(document).ready(function() {
@@ -3112,6 +2781,65 @@ function fetchCooperatives(selectedCoopId) {
 
             // Update the quantity left display
             $('.quantity-left').text(quantityLeft);
+        });
+    });
+</script>
+
+
+
+
+<script>
+    $(document).ready(function() {
+        console.log("Script loaded"); // Debugging: Verify script is loaded
+
+        // Function to fetch quantity left
+        function fetchQuantityLeft(intTypeId, seedId) {
+            if (!intTypeId || !seedId) {
+                console.error("Invalid int_type_id or seed_id");
+                $('.quantity-left').text("0"); // Reset quantity display
+                return;
+            }
+
+            console.log("Fetching quantity for int_type_id:", intTypeId, "and seed_id:", seedId);
+
+            fetch('3distributionManagement/get_quantity_left_distri.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        int_type_id: intTypeId,
+                        seed_id: seedId
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("Fetched quantity left:", data.quantity_left);
+                        $('.quantity-left').text(data.quantity_left || 0); // Update quantity display
+                    } else {
+                        console.error("Error:", data.message);
+                        $('.quantity-left').text("0"); // Reset quantity display on error
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching quantity left:", error);
+                    $('.quantity-left').text("0"); // Reset quantity display on error
+                });
+        }
+
+        // Listen for changes in the intervention dropdown
+        $('.intervention_name_distrib').on('change', function() {
+            var intTypeId = $(this).val();
+            var seedId = $('.seedling_type_distrib').val();
+            fetchQuantityLeft(intTypeId, seedId);
+        });
+
+        // Listen for changes in the seed dropdown
+        $('.seedling_type_distrib').on('change', function() {
+            var intTypeId = $('.intervention_name_distrib').val();
+            var seedId = $(this).val();
+            fetchQuantityLeft(intTypeId, seedId);
         });
     });
 </script>
