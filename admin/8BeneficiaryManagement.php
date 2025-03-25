@@ -134,7 +134,7 @@ include('includes/navbar.php');
                                 return $rsbsa_no;
                             }
 
-                            $query = "SELECT beneficiary_id, fname, mname, lname, rsbsa_no, province_name, municipality_name, barangay_name, birthdate FROM tbl_beneficiary";
+                            $query = "SELECT beneficiary_id, fname, mname, lname, rsbsa_no, province_name, municipality_name, barangay_name, birthdate FROM tbl_beneficiary ORDER BY beneficiary_id DESC";
                             $result = $conn->query($query);
 
                             if ($result->num_rows > 0) :
