@@ -161,6 +161,7 @@ include('includes/navbar.php');
                                                 FROM tbl_cooperative 
                                                 WHERE station_id = ? 
                                                 AND archived_at IS NULL  
+                                                ORDER BY coop_id DESC
                                                 LIMIT ?, ?";
 
                                         $stmt = $conn->prepare($sql);
