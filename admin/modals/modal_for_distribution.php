@@ -69,7 +69,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addDistributionModalLabel">
-                     Add Distribution
+                    Add Distribution
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -141,10 +141,10 @@
                     <!-- Modal Footer -->
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary btn-custom" data-bs-dismiss="modal">
-                             Close
+                            Close
                         </button>
                         <button type="submit" class="btn btn-success btn-custom">
-                             Add Distribution
+                            Add Distribution
                         </button>
                     </div>
                 </form>
@@ -154,15 +154,15 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         // Get today's date in YYYY-MM-DD format
         let today = new Date().toISOString().split('T')[0];
 
         // Set the default value of the date input field
         document.getElementById("distribution_date").value = today;
     });
-</script> 
-              
+</script>
+
 <style>
     /* Modal Header Styling */
     .modal-header {
@@ -185,7 +185,6 @@
     }
 </style>
 
-
 <!-- Update Distribution Modal -->
 <div class="modal fade" id="updateDistributionModal" tabindex="-1" aria-labelledby="updateDistributionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -198,12 +197,14 @@
                 <form id="updateDistributionForm" method="POST">
                     <input type="hidden" name="distribution_id" id="distribution_id">
                     <div class="row">
+                        <!-- Date of Distribution -->
                         <div class="col-md-4 mb-3">
                             <label for="update_distribution_date" class="form-label">Date of Distribution</label>
                             <input type="date" class="form-control" id="update_distribution_date" name="update_distribution_date" required>
                         </div>
                     </div>
 
+                    <!-- Table for Interventions -->
                     <div class="mb-3">
                         <label class="form-label">Intervention Details</label>
                         <table class="table table-bordered" id="updateinterventionTable">
@@ -217,14 +218,33 @@
                             <tbody>
                                 <tr>
                                     <td>
-                                        <select class="form-control intervention_name_distrib" name="intervention_name_distrib" required>
+                                        <select class="form-control intervention_name_distrib" name="intervention_name_distrib[]" required>
                                             <option value="" disabled selected>Select Intervention</option>
+                                            <?php
+                                            $conn = new mysqli("localhost", "root", "", "db_darfo1");
+                                            $uid = $_SESSION['uid'];
+                                            $stationQuery = $conn->prepare("SELECT station_id FROM tbl_user WHERE uid = ?");
+                                            $stationQuery->bind_param("i", $uid);
+                                            $stationQuery->execute();
+                                            $stationQuery->bind_result($stationId);
+                                            $stationQuery->fetch();
+                                            $stationQuery->close();
+
+                                            $sql = "SELECT int_type_id, intervention_name FROM tbl_intervention_type WHERE station_id = ? ORDER BY int_type_id";
+                                            $stmt = $conn->prepare($sql);
+                                            $stmt->bind_param("i", $stationId);
+                                            $stmt->execute();
+                                            $result = $stmt->get_result();
+                                            while ($row = $result->fetch_assoc()) {
+                                                echo "<option value='{$row['int_type_id']}'>" . htmlspecialchars($row['intervention_name']) . "</option>";
+                                            }
+                                            $conn->close();
+                                            ?>
                                         </select>
                                     </td>
                                     <td>
                                         <select class="form-control seedling_type_distrib" name="seedling_type_distrib" required>
                                             <option value="" disabled selected>Select Classification</option>
-                                            <!-- Options for seedling types will be populated here -->
                                         </select>
                                     </td>
                                     <td>
@@ -236,6 +256,7 @@
                         </table>
                     </div>
 
+                    <!-- Modal Footer -->
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-success">Update</button>
@@ -246,6 +267,30 @@
     </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var updateDistributionModal = document.getElementById('updateDistributionModal');
+        updateDistributionModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget; // Button that triggered the modal
+            var distributionId = button.getAttribute('data-distribution-id');
+            var quantity = button.getAttribute('data-quantity');
+            var interventionName = button.getAttribute('data-intervention-name');
+            var seedName = button.getAttribute('data-seed-name');
+            var distributionDate = button.getAttribute('data-distribution-date');
+
+            // Update the modal's content.
+            var modalTitle = updateDistributionModal.querySelector('.modal-title');
+            var distributionIdInput = updateDistributionModal.querySelector('#distribution_id');
+            var updateQuantityInput = updateDistributionModal.querySelector('input[name="update_quantity[]"]');
+            var updateDistributionDateInput = updateDistributionModal.querySelector('#update_distribution_date');
+
+            modalTitle.textContent = 'Update Distribution ' + distributionId;
+            distributionIdInput.value = distributionId;
+            updateQuantityInput.value = quantity;
+            updateDistributionDateInput.value = distributionDate;
+        });
+    });
+</script>
 
 <!-- function for update distribution -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -302,55 +347,3 @@
         });
     });
 </script>
-
-<script>
-    $(document).ready(function() {
-        // Listen for changes in the intervention dropdown
-        $('.intervention_name_distrib').on('change', function() {
-            var interventionId = $(this).val(); // Get the selected intervention ID
-            var seedlingDropdown = $(this).closest('tr').find('.seedling_type_distrib'); // Find the corresponding seedling dropdown
-
-            // Clear the existing options
-            seedlingDropdown.empty().append('<option value="" disabled selected>Select Classification</option>');
-
-            if (interventionId) {
-                // Make an AJAX request to fetch seedling types
-                $.ajax({
-                    url: '3distributionManagement/fetch_seedlings_update_distri.php', // PHP script to fetch data
-                    type: 'GET',
-                    data: {
-                        intervention_id: interventionId
-                    },
-                    success: function(response) {
-                        // Populate the seedling dropdown with the returned data
-                        if (response.length > 0) {
-                            $.each(response, function(index, seedling) {
-                                seedlingDropdown.append('<option value="' + seedling.seed_id + '">' + seedling.seed_name + '</option>');
-                            });
-                        } else {
-                            seedlingDropdown.append('<option value="" disabled>No classifications found</option>');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("AJAX Error: " + status + error);
-                    }
-                });
-            }
-        });
-    });
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Listen for the modal show event
-        $('#updateDistributionModal').on('show.bs.modal', function(event) {
-            var button = $(event.relatedTarget); // Button that triggered the modal
-            var distributionId = button.data('distribution-id'); // Extract distribution_id from data-* attributes
-
-            // Update the input field
-            document.getElementById('distribution_id').value = distributionId;
-        });
-    });
-</script>
-
-
