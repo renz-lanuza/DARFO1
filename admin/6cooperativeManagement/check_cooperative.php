@@ -7,7 +7,20 @@ if (isset($_POST['cooperative_name'], $_POST['province'], $_POST['municipality']
     $province_code = trim($_POST['province']);
     $municipality_code = trim($_POST['municipality']);
     $barangay_code = trim($_POST['barangay']);
-    $station_id = $_SESSION['station_id']; // Ensure the check is specific to the user’s station
+    $uid = $_SESSION['uid']; // Ensure this is set in the session
+
+    // Fetch station_id from tbl_user
+    $stmt = $conn->prepare("SELECT station_id FROM tbl_user WHERE uid = ?");
+    $stmt->bind_param("i", $uid);
+    $stmt->execute();
+    $station_result = $stmt->get_result();
+    $station_row = $station_result->fetch_assoc();
+    $station_id = $station_row['station_id'] ?? null;
+
+    if (!$station_id) {
+        echo json_encode(["error" => "Station ID not found for the user"]);
+        exit;
+    }
 
     // Fetch Province Name
     $stmt = $conn->prepare("SELECT province_name FROM provinces WHERE province_code = ?");
