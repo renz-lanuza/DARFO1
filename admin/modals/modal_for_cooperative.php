@@ -47,23 +47,27 @@
 
     
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-       document.addEventListener("DOMContentLoaded", function () {
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("addCooperativeForm");
     const cooperativeNameInput = document.getElementById("cooperative_name");
     const provinceInput = document.getElementById("province");
     const municipalityInput = document.getElementById("municipality");
     const barangayInput = document.getElementById("barangay");
     const errorDiv = document.getElementById("cooperative_error");
-    
+    const submitButton = form.querySelector("button[type='submit']");
+
     function checkCooperativeExists() {
         const cooperative_name = cooperativeNameInput.value.trim();
         const province = provinceInput.value;
         const municipality = municipalityInput.value;
         const barangay = barangayInput.value;
-        
+
         if (!cooperative_name || !province || !municipality || !barangay) {
             errorDiv.textContent = "";
+            errorDiv.style.display = "none";
+            cooperativeNameInput.classList.remove("is-invalid");
+            submitButton.disabled = false; // Enable button if fields are empty
             return;
         }
 
@@ -83,10 +87,12 @@
                 errorDiv.textContent = "This cooperative with the same location already exists.";
                 errorDiv.style.display = "block";
                 cooperativeNameInput.classList.add("is-invalid");
+                submitButton.disabled = true; // Disable button if validation fails
             } else {
                 errorDiv.textContent = "";
                 errorDiv.style.display = "none";
                 cooperativeNameInput.classList.remove("is-invalid");
+                submitButton.disabled = false; // Enable button if validation passes
             }
         })
         .catch(error => console.error("Error checking cooperative:", error));
@@ -100,13 +106,12 @@
 
     // Prevent form submission if validation fails
     form.addEventListener("submit", function (event) {
-        if (cooperativeNameInput.classList.contains("is-invalid")) {
+        if (submitButton.disabled) {
             event.preventDefault();
         }
     });
 });
-
-    </script>
+</script>
 
 <style>
     .modal-lg {
