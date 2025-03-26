@@ -2671,6 +2671,54 @@
 
 <!-- for filter button in beneficiary management -->
 <script>
+   function fetchBeneficiaries(category) {
+    fetch(`8BeneficiaryManagement/fetch_beneficiaries.php?category=${category}`)
+        .then(response => response.json())
+        .then(data => {
+            let tableBody = document.querySelector("#beneficiaryTable tbody");
+            tableBody.innerHTML = "";
+
+            if (!data || data.length === 0) {
+                tableBody.innerHTML = "<tr><td colspan='7'>No beneficiaries found.</td></tr>";
+                return;
+            }
+
+            console.log("Fetched data:", data);
+
+            data.forEach(row => {
+                console.log("Beneficiary ID:", row.beneficiary_id);
+                let newRow = document.createElement("tr");
+                newRow.innerHTML = `
+                    <td>${row.fullName}</td>
+                    <td>${row.rsbsa_no}</td>
+                    <td>${row.province_name}</td>
+                    <td>${row.municipality_name}</td>
+                    <td>${row.barangay_name}</td>
+                    <td>${row.birthdate}</td>
+                    <td>
+                        <div class="d-flex">
+                            <button class="btn btn-success btn-sm update-beneficiary" data-bs-toggle="modal" data-bs-target="#updateBeneficiaryModal" data-id="${row.beneficiary_id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm delete-beneficiary ms-2" data-id="${row.beneficiary_id}">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                            <button class="btn btn-info btn-sm view-beneficiary ms-2" data-id="${row.beneficiary_id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button type="button" class="btn btn-success btn-sm add-distribution ml-2" id="btnAddDistribution" data-bs-toggle="modal" data-bs-target="#addDistributionModal" data-beneficiary-id="${row.beneficiary_id}">
+                                <i class="bx bx-plus"></i>
+                                <span>Add Intervention</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(newRow);
+            });
+        })
+        .catch(error => console.error("Error fetching beneficiaries:", error));
+}
+
     document.addEventListener("DOMContentLoaded", function() {
         fetchBeneficiaries("all");
 
@@ -2685,67 +2733,15 @@
         document.getElementById("btnGroup").addEventListener("click", function() {
             fetchBeneficiaries("Group");
         });
+    });
+    document.querySelector("#beneficiaryTable tbody").addEventListener("click", function(event) {
+    let target = event.target.closest(".update-beneficiary");
+    if (target) {
+        let beneficiaryId = target.dataset.id;
+        openUpdateBeneficiaryModal(beneficiaryId);
+    }
 
-        function fetchBeneficiaries(category) {
-            fetch(`8BeneficiaryManagement/fetch_beneficiaries.php?category=${category}`)
-                .then(response => response.json())
-                .then(data => {
-                    let tableBody = document.querySelector("#beneficiaryTable tbody");
-                    tableBody.innerHTML = "";
 
-                    if (!data || data.length === 0) {
-                        tableBody.innerHTML = "<tr><td colspan='7'>No beneficiaries found.</td></tr>";
-                        return;
-                    }
-
-                    // Debug: Log the fetched data
-                    console.log("Fetched data:", data);
-
-                    data.forEach(row => {
-                        // Debug: Log the beneficiary ID for each row
-                        console.log("Beneficiary ID:", row.beneficiary_id);
-
-                        let newRow = document.createElement("tr");
-                        newRow.innerHTML = `
-                    <td>${row.fullName}</td>
-                    <td>${row.rsbsa_no}</td>
-                    <td>${row.province_name}</td>
-                    <td>${row.municipality_name}</td>
-                    <td>${row.barangay_name}</td>
-                    <td>${row.birthdate}</td>
-                    <td>
-                        <div class="d-flex">
-                                <button class="btn btn-success btn-sm update-beneficiary" data-bs-toggle="modal" data-bs-target="#updateBeneficiaryModal" data-id="${row.beneficiary_id}" style="border-radius: 0;">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-danger btn-sm delete-beneficiary ms-2" data-id="${row.beneficiary_id}" style="border-radius: 0;">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                                <button class="btn btn-info btn-sm view-beneficiary ms-2" data-id="${row.beneficiary_id}" style="border-radius: 0;">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button type="button" class="btn btn-success btn-sm add-distribution ml-2" id="btnAddDistribution" data-bs-toggle="modal" data-bs-target="#addDistributionModal" data-beneficiary-id="${row.beneficiary_id}">
-                                    <i class="bx bx-plus"></i>
-                                    <span>Add Intervention</span>
-                                </button>
-                            </div>
-                    </td>
-                `;
-                        tableBody.appendChild(newRow);
-                    });
-                })
-                .catch(error => console.error("Error fetching beneficiaries:", error));
-        }
-
-        // Event delegation for dynamically loaded elements
-        document.querySelector("#beneficiaryTable tbody").addEventListener("click", function(event) {
-            let target = event.target;
-            let beneficiaryId = target.dataset.id;
-
-            if (target.classList.contains("update-beneficiary")) {
-                openUpdateBeneficiaryModal(beneficiaryId);
-            }
-        });
 
         function openUpdateBeneficiaryModal(beneficiaryId) {
             // Fetch the beneficiary data
