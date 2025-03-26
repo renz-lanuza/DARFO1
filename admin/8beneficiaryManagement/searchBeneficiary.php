@@ -39,13 +39,19 @@ if (!empty($search)) {
                 <td>' . htmlspecialchars($formattedBirthdate) . '</td>
                 <td>
                     <div class="d-flex justify-content-center">
-                        <button class="btn btn-success" style="border-radius: 0;" onclick="openUpdateBeneficiaryModal(' . $row['beneficiary_id'] . ')"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-danger btn-sm ms-2" style="border-radius: 0;" onclick="deleteBeneficiary(' . $row['beneficiary_id'] . ')"> <i class="fas fa-trash-alt"></i></button>
-                        <button class="btn btn-info btn-sm view-beneficiary ms-2" style="border-radius: 0;" data-id="' . $row['beneficiary_id'] . '"><i class="fas fa-eye"></i></button>
-                        <button type="button" class="btn btn-success btn-sm ml-2" data-bs-toggle="modal" data-bs-target="#addDistributionModal" 
-                            data-beneficiary-id="' . $row['beneficiary_id'] . '">
-                            <i class="bx bx-plus"></i>
-                            <span>Add Intervention</span>
+                       <div class="d-flex justify-content-center">
+                    <button class="btn btn-success btn-sm update-beneficiary" data-bs-toggle="modal" data-bs-target="#updateBeneficiaryModal" data-id="' . $row['beneficiary_id'] . '">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-danger btn-sm ms-2" onclick="deleteBeneficiary(' . $row['beneficiary_id'] . ')">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    <button class="btn btn-info btn-sm view-beneficiary ms-2" data-id="' . $row['beneficiary_id'] . '">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                        <button type="button" class="btn btn-success btn-sm add-distribution ml-2" id="btnAddDistribution" data-bs-toggle="modal" data-bs-target="#addDistributionModal" data-beneficiary-id="' . $row['beneficiary_id'] .'">
+                                <i class="bx bx-plus"></i>
+                                <span>Add Intervention</span>
                         </button>
                     </div> 
                 </td>
