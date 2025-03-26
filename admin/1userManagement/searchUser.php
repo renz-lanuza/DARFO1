@@ -49,10 +49,16 @@ if (mysqli_num_rows($view) > 0) {
         }
         echo "</td>
               <td>
-                  <a href='#' class='btn' style='background-color: #DCFFB7; color: black;' 
+                <div class='d-flex justify-content-center gap-2'>
+                  <a href='#' class='btn btn-success rounded-0' 
                      data-toggle='modal' data-target='#updateUserModal' 
-                     data-user-id='$uid'>Update</a>    
-                  <button class='btn btn-warning' onclick=\"confirmArchive('$uid')\">Archive</button>
+                     data-user-id='$uid'>
+                     <i class='fas fa-edit'></i> 
+                  </a>    
+                  <button class='btn btn-danger rounded-0' onclick=\"confirmArchive('$uid')\">
+                    <i class='fas fa-trash-alt'></i> 
+                  </button>
+                </div>
               </td>
             </tr>";
     }
@@ -61,3 +67,4 @@ if (mysqli_num_rows($view) > 0) {
     echo "<tr><td colspan='6' class='text-center text-danger'>No Users Found</td></tr>";
 }
 ?>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
