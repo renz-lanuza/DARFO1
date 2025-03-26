@@ -4,7 +4,6 @@ include('includes/navbar.php');
 ?>
 
 
-
 <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
 <!-- Content Wrapper -->
 <div id="content-wrapper" class="d-flex flex-column">
@@ -72,39 +71,38 @@ include('includes/navbar.php');
         <!-- End of Topbar -->
 
         <!-- Begin Page Content -->
-<div class="container-fluid">
-    <div class="card shadow mb-4">
-        <div class="card-header py-3" style="background-color: #0D7C66;">
-            <div class="d-flex align-items-center">
-                <button type="button" class="btn d-flex align-items-center gap-2 rounded-pill shadow-sm"
-                    style="background-color: #DCFFB7; color: black; border: none; padding: 8px 16px;"
-                    id="btnAddBeneficiary" data-bs-toggle="modal" data-bs-target="#addBeneficiaryModal">
-                    <i class='bx bx-plus' style="font-size: 1.2rem;"></i>
-                    <span>Add Beneficiary</span>
-                </button>
-                <form id="searchForm" class="form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
-    <div class="input-group">
-        <input type="text" id="search_id" class="form-control bg-light border-0 small"
-            placeholder="Search for beneficiaries..." aria-label="Search" 
-            aria-describedby="searchButton" autofocus>
-        <div class="input-group-append">
-            <button class="btn text-white" style="background-color: #0D7C66;" type="button" id="searchButton">
-                <i class="fas fa-search fa-sm"></i> Search
-            </button>
-        </div>
-    </div>
-</form>
+        <div class="container-fluid">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3" style="background-color: #0D7C66;">
+                    <div class="d-flex align-items-center">
+                        <button type="button" class="btn d-flex align-items-center gap-2 rounded-pill shadow-sm"
+                            style="background-color: #DCFFB7; color: black; border: none; padding: 8px 16px;"
+                            id="btnAddBeneficiary" data-bs-toggle="modal" data-bs-target="#addBeneficiaryModal">
+                            <i class='bx bx-plus' style="font-size: 1.2rem;"></i>
+                            <span>Add Beneficiary</span>
+                        </button>
+                        <form id="searchForm" class="form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
+                            <div class="input-group">
+                                <input type="text" id="search_id" class="form-control bg-light border-0 small"
+                                    placeholder="Search for beneficiaries..." aria-label="Search" 
+                                    aria-describedby="searchButton" autofocus>
+                                <div class="input-group-append">
+                                    <button class="btn text-white" style="background-color: #DCFFB7;" type="button" id="searchButton">
+                                        <i class="fas fa-search fa-sm" style="color: black;"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>  
+                </div>
 
-            </div>
-        </div>
-
-        <div id="tab1" class="tab-content active">
-            <div class="card-body">
-            <div class="d-flex justify-content-start mb-3">
-                <button class="btn btn-outline-success px-4 py-2 me-2 filter-btn active" id="btnAll">All</button>
-                <button class="btn btn-outline-primary px-4 py-2 me-2 filter-btn" id="btnIndividual">Individual</button> 
-                <button class="btn btn-outline-secondary px-4 py-2 filter-btn" id="btnGroup">Group</button>
-            </div>
+            <div id="tab1" class="tab-content active">
+                <div class="card-body">
+                    <div class="d-flex justify-content-start mb-3">
+                        <button class="btn btn-outline-success px-4 py-2 me-2 filter-btn active" id="btnAll">All</button>
+                        <button class="btn btn-outline-primary px-4 py-2 me-2 filter-btn" id="btnIndividual">Individual</button> 
+                        <button class="btn btn-outline-secondary px-4 py-2 filter-btn" id="btnGroup">Group</button>
+                    </div>
                 <div style="max-height: 430px; overflow: auto; width: 100%; border: 1px solid #ddd; border-radius: 10px;">
                     <!-- Table to display beneficiaries -->
                     <table class="table table-bordered text-center" width="100%" cellspacing="0" id="beneficiaryTable">
@@ -113,7 +111,7 @@ include('includes/navbar.php');
                                 <th>Full Name</th>
                                 <th>RSBSA No.</th>
                                 <th>Province</th>
-                                <th>Municipality</th>
+                                <th>Municipality</th>   
                                 <th>Barangay</th>
                                 <th>Birthdate</th>
                                 <th>Actions</th>
@@ -151,19 +149,21 @@ include('includes/navbar.php');
                                         <td><?= $row['barangay_name'] ?></td>
                                         <td><?= $formattedBirthdate ?></td>
                                         <td>
-                                             <button class="btn btn-primary" onclick="openUpdateBeneficiaryModal(<?= $row['beneficiary_id'] ?>)">
-                                                Update
+                                        <!-- <div class="d-flex">
+                                            <button class="btn btn-success btn-sm update-beneficiary" data-bs-toggle="modal" data-bs-target="#updateBeneficiaryModal" data-id="${row.beneficiary_id}" style="border-radius: 0;">
+                                                <i class="fas fa-edit"></i>
                                             </button>
-                                            <button class="btn btn-danger btn-sm" onclick="deleteBeneficiary(<?= $row['beneficiary_id'] ?>)">
-                                                Delete
+                                            <button class="btn btn-danger btn-sm delete-beneficiary ms-2" data-id="${row.beneficiary_id}" style="border-radius: 0;">
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
-                                            <!-- View Beneficiary Button -->
-                                            <button class="btn btn-info btn-sm view-beneficiary" data-id="<?= $row['beneficiary_id'] ?>">View</button>
-                                                <button type="button" id="btnAddDistribution" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addDistributionModal"
-                                                        data-beneficiary-id="<?= $row['beneficiary_id'] ?>">
-                                                        <i class="bx bx-plus"></i>
-                                                        <span>Add Intervention</span>
-                                                    </button>
+                                            <button class="btn btn-info btn-sm view-beneficiary ms-2" data-id="${row.beneficiary_id}" style="border-radius: 0;">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-success btn-sm add-distribution ml-2" id="btnAddDistribution" data-bs-toggle="modal" data-bs-target="#addDistributionModal" data-beneficiary-id="${row.beneficiary_id}">
+                                                <i class="bx bx-plus"></i>
+                                                <span>Add Intervention</span>
+                                            </button>
+                                        </div> -->
                                         </td>
                                     </tr>
                             <?php
@@ -246,25 +246,6 @@ include('includes/navbar.php');
             text-align: center;
             color: #333;
         }
-
-        /* Action button */
-        .table tbody td .btn-info {
-            background-color: #0D7C66;
-            border: none;
-            padding: 5px 12px;
-            border-radius: 6px;
-            color: white;
-            transition: 0.3s ease;
-        }
-
-        .table tbody td .btn-info:hover {
-            background-color: #066395;
-        }
-
-        #btnAddDistribution:hover {                                                                                 
-            background-color: #C8E6A0 !important;
-            /* Slightly darker green */
-        }
     .custom-search-form {
         margin-left: 30px; /* Adjust as needed */
     }   
@@ -287,4 +268,3 @@ include('includes/navbar.php');
     <?php include 'modals/modal_for_beneficiary.php'; ?>
     <?php include 'modals/modal_for_viewing_beneficiary.php'; ?>
     <?php include 'modals/modal_for_distribution.php'; ?>
-
