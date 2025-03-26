@@ -1922,54 +1922,6 @@
     }
 </script>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        document.querySelectorAll(".update-btn").forEach(button => {
-            button.addEventListener("click", function() {
-                let coopId = this.getAttribute("data-id").trim();
-
-                fetch("6cooperativeManagement/fetch_cooperative.php", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/x-www-form-urlencoded"
-                        },
-                        body: "coop_id=" + encodeURIComponent(coopId)
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.error) {
-                            document.querySelector("#update_id").value = data.coop_id || "";
-                            document.querySelector("#update_cooperative_name").value = data.cooperative_name || "";
-
-                            // Populate Province Dropdown
-                            let provinceDropdown = document.querySelector("#update_province");
-                            provinceDropdown.innerHTML = `<option value="${data.province_name || ''}">${data.province_name || 'Select Province'}</option>`;
-
-                            // Populate Municipality Dropdown
-                            let municipalityDropdown = document.querySelector("#update_municipality");
-                            municipalityDropdown.innerHTML = `<option value="${data.municipality_name || ''}">${data.municipality_name || 'Select Municipality'}</option>`;
-
-                            // Populate Barangay Dropdown
-                            let barangayDropdown = document.querySelector("#update_barangay");
-                            barangayDropdown.innerHTML = `<option value="${data.barangay_name || ''}">${data.barangay_name || 'Select Barangay'}</option>`;
-
-                            // Open Modal
-                            let updateModal = new bootstrap.Modal(document.getElementById("updateCooperativeModal"));
-                            updateModal.show();
-                        } else {
-                            console.error("Error:", data.message);
-                            Swal.fire("Error!", data.message, "error");
-                        }
-                    })
-                    .catch(error => {
-                        console.error("Error fetching data:", error);
-                        Swal.fire("Error!", "Something went wrong.", "error");
-                    });
-            });
-        });
-    });
-</script>
-
 <!-- for filtering type of distri if group or individual -->
 <script>
     $(document).ready(function() {
@@ -2070,55 +2022,6 @@
     }
 </script>
 
-<!-- fetch for cooperative update modal coop mngmnt -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        document.querySelectorAll(".update-btn").forEach(button => {
-            button.addEventListener("click", function() {
-                let coopId = this.getAttribute("data-id").trim();
-
-                fetch("6cooperativeManagement/fetch_cooperative.php", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/x-www-form-urlencoded"
-                        },
-                        body: "coop_id=" + encodeURIComponent(coopId)
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.error) {
-                            document.querySelector("#update_id").value = data.coop_id || "";
-                            document.querySelector("#update_cooperative_name").value = data.cooperative_name || "";
-
-                            // Populate Province Dropdown
-                            let provinceDropdown = document.querySelector("#update_province");
-                            provinceDropdown.innerHTML = `<option value="${data.province_name || ''}">${data.province_name || 'Select Province'}</option>`;
-
-                            // Populate Municipality Dropdown
-                            let municipalityDropdown = document.querySelector("#update_municipality");
-                            municipalityDropdown.innerHTML = `<option value="${data.municipality_name || ''}">${data.municipality_name || 'Select Municipality'}</option>`;
-
-                            // Populate Barangay Dropdown
-                            let barangayDropdown = document.querySelector("#update_barangay");
-                            barangayDropdown.innerHTML = `<option value="${data.barangay_name || ''}">${data.barangay_name || 'Select Barangay'}</option>`;
-
-                            // Open Modal
-                            let updateModal = new bootstrap.Modal(document.getElementById("updateCooperativeModal"));
-                            updateModal.show();
-                        } else {
-                            console.error("Error:", data.message);
-                            Swal.fire("Error!", data.message, "error");
-                        }
-                    })
-                    .catch(error => {
-                        console.error("Error fetching data:", error);
-                        Swal.fire("Error!", "Something went wrong.", "error");
-                    });
-            });
-        });
-    });
-</script>
-
 <!-- fetch distribution date -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -2134,7 +2037,6 @@
         });
     });
 </script>
-
 
 <!-- search users -->
 <script>
@@ -3144,7 +3046,6 @@
         }
     });
 });
-
 
 
 
