@@ -3049,7 +3049,9 @@
 
 
 
-</script><script>
+</script>
+
+<script>
 document.addEventListener("DOMContentLoaded", function () {
     let modalElement = document.getElementById("updateCooperativeModal");
     let modalInstance = new bootstrap.Modal(modalElement, { backdrop: "static", keyboard: false });
@@ -3171,7 +3173,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
-
 
 </script>
 
