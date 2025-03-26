@@ -197,14 +197,12 @@
                 <form id="updateDistributionForm" method="POST">
                     <input type="hidden" name="distribution_id" id="distribution_id">
                     <div class="row">
-                        <!-- Date of Distribution -->
                         <div class="col-md-4 mb-3">
                             <label for="update_distribution_date" class="form-label">Date of Distribution</label>
                             <input type="date" class="form-control" id="update_distribution_date" name="update_distribution_date" required>
                         </div>
                     </div>
 
-                    <!-- Table for Interventions -->
                     <div class="mb-3">
                         <label class="form-label">Intervention Details</label>
                         <table class="table table-bordered" id="updateinterventionTable">
@@ -218,33 +216,14 @@
                             <tbody>
                                 <tr>
                                     <td>
-                                        <select class="form-control intervention_name_distrib" name="intervention_name_distrib[]" required>
+                                        <select class="form-control intervention_name_distrib" name="intervention_name_distrib" required>
                                             <option value="" disabled selected>Select Intervention</option>
-                                            <?php
-                                            $conn = new mysqli("localhost", "root", "", "db_darfo1");
-                                            $uid = $_SESSION['uid'];
-                                            $stationQuery = $conn->prepare("SELECT station_id FROM tbl_user WHERE uid = ?");
-                                            $stationQuery->bind_param("i", $uid);
-                                            $stationQuery->execute();
-                                            $stationQuery->bind_result($stationId);
-                                            $stationQuery->fetch();
-                                            $stationQuery->close();
-
-                                            $sql = "SELECT int_type_id, intervention_name FROM tbl_intervention_type WHERE station_id = ? ORDER BY int_type_id";
-                                            $stmt = $conn->prepare($sql);
-                                            $stmt->bind_param("i", $stationId);
-                                            $stmt->execute();
-                                            $result = $stmt->get_result();
-                                            while ($row = $result->fetch_assoc()) {
-                                                echo "<option value='{$row['int_type_id']}'>" . htmlspecialchars($row['intervention_name']) . "</option>";
-                                            }
-                                            $conn->close();
-                                            ?>
                                         </select>
                                     </td>
                                     <td>
                                         <select class="form-control seedling_type_distrib" name="seedling_type_distrib" required>
                                             <option value="" disabled selected>Select Classification</option>
+                                            <!-- Options for seedling types will be populated here -->
                                         </select>
                                     </td>
                                     <td>
@@ -256,7 +235,6 @@
                         </table>
                     </div>
 
-                    <!-- Modal Footer -->
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-success">Update</button>
@@ -266,6 +244,29 @@
         </div>
     </div>
 </div>
+
+<script>
+    // This script will handle the modal close event
+    document.addEventListener('DOMContentLoaded', function() {
+        var updateDistributionModal = document.getElementById('updateDistributionModal');
+
+        updateDistributionModal.addEventListener('hidden.bs.modal', function() {
+            // Reload the page when modal is closed
+            location.reload();
+        });
+
+        // Optional: Prevent reload if form was submitted successfully
+        document.getElementById('updateDistributionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Handle your form submission via AJAX here
+
+            // After successful submission, you can close the modal manually
+            // and it will still reload the page
+            var modal = bootstrap.Modal.getInstance(updateDistributionModal);
+            modal.hide();
+        });
+    });
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
