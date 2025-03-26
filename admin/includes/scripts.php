@@ -3091,7 +3091,9 @@
             $('#beneficiariesTable tbody tr').show(); // Show all rows
         });
     });
-</script><script>
+</script>
+
+<script>
     document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("search_id");
 
@@ -3146,5 +3148,5 @@
 
 
 
-    </script>
+</script>
 
