@@ -336,30 +336,3 @@ include('includes/navbar.php');
         include('includes/footer.php');
     ?>
     <?php include 'modals/modal_for_seed_type.php'; ?>
-
-<script>
-        document.addEventListener("DOMContentLoaded", function () {
-    const searchInput = document.getElementById("search_id");
-
-    searchInput.addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault(); // Prevent form submission
-            searchClassificationTable(); // Call search function
-        }
-    });
-
-    function searchClassificationTable() {
-        const query = searchInput.value.trim();
-        const url = `5seedTypeManagement/searchClassification.php?search=${encodeURIComponent(query)}`;
-
-        fetch(url)
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById("seedTableBody").innerHTML = data;
-                searchInput.focus(); // Keep search input focused after search
-            })
-            .catch(error => console.error("Error fetching data:", error));
-    }
-});
-
-    </script>
