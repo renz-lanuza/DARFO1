@@ -174,8 +174,8 @@ include('includes/navbar.php');
                                     LEFT JOIN tbl_seed_type ON tbl_intervention_inventory.seed_id = tbl_seed_type.seed_id
                                     INNER JOIN tbl_unit ON tbl_intervention_inventory.unit_id = tbl_unit.unit_id
                                     WHERE tbl_intervention_inventory.station_id = ?
-                                        AND tbl_intervention_inventory.archived_at IS NULL  -- Exclude archived records
-                                    ORDER BY intervention_id DESC
+                                        AND tbl_intervention_inventory.archived_at IS NULL
+                                    ORDER BY intervention_id DESC  -- Exclude archived records
                                     LIMIT ? OFFSET ?";
 
                                     $stmt = $conn->prepare($sql);
@@ -195,16 +195,18 @@ include('includes/navbar.php');
                                                 <td><?php echo htmlspecialchars($row['quantity_left']); ?></td>
                                                 <td><?php echo htmlspecialchars($row['unit_name']); ?></td> <!-- Fetch Unit Name -->
                                                 <td>
-                                                    <a href="#" class="btn" style="background-color: #DCFFB7; color: black;"
-                                                        data-bs-toggle="modal" data-bs-target="#updateInterventionModal"
-                                                        data-intervention-id="<?php echo htmlspecialchars($row['intervention_id']); ?>">
-                                                        Update
-                                                    </a>
+                                                    <div class="d-flex justify-content-center gap-2">
+                                                        <a href="#" class="btn btn-success rounded-0"
+                                                            data-bs-toggle="modal" data-bs-target="#updateInterventionModal"
+                                                            data-intervention-id="<?php echo htmlspecialchars($row['intervention_id']); ?>">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
 
-                                                    <button class="btn btn-danger archiveintervention-btn"
-                                                        data-intervention-id="<?php echo htmlspecialchars($row['intervention_id']); ?>">
-                                                        Delete
-                                                    </button>
+                                                        <button class="btn btn-danger archiveintervention-btn rounded-0"
+                                                            data-intervention-id="<?php echo htmlspecialchars($row['intervention_id']); ?>">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                     <?php
