@@ -133,32 +133,38 @@ include('includes/navbar.php');
 
                             // Define the query to fetch data filtered by station ID
                             $query = "SELECT 
-                                            d.distribution_id,
-                                            d.distribution_date,
-                                            CONCAT(b.fname, ' ', IFNULL(b.mname, ''), ' ', b.lname) AS beneficiary_name,
-                                            b.province_name,
-                                            b.municipality_name,
-                                            b.barangay_name,
-                                            IF(b.coop_id = 0, 'N/A', c.cooperative_name) AS cooperative_name,
-                                            it.intervention_name,
-                                            st.seed_name,
-                                            d.quantity
-                                        FROM 
-                                            tbl_distribution AS d
-                                        INNER JOIN 
-                                            tbl_beneficiary AS b ON d.beneficiary_id = b.beneficiary_id
-                                        INNER JOIN 
-                                            tbl_seed_type AS st ON d.seed_id = st.seed_id
-                                        INNER JOIN 
-                                            tbl_intervention_type AS it ON d.intervention_id = it.int_type_id
-                                        LEFT JOIN 
-                                            tbl_cooperative AS c ON b.coop_id = c.coop_id
-                                        WHERE 
-                                            d.station_id = ? 
-                                            AND (d.archived_at IS NULL OR d.archived_at = '') -- Ensures archived records are not shown
-                                        ORDER BY 
-                                            d.distribution_date DESC
-                                        LIMIT $offset, $entries_per_page;";
+                                        d.distribution_id,
+                                        d.distribution_date,
+                                        CONCAT(b.fname, ' ', IFNULL(b.mname, ''), ' ', b.lname) AS beneficiary_name,
+                                        b.province_name,
+                                        b.municipality_name,
+                                        b.barangay_name,
+                                        IF(b.coop_id = 0, 'N/A', c.cooperative_name) AS cooperative_name,
+                                        it.intervention_name,
+                                        st.seed_name,
+                                        CONCAT(d.quantity, ' ', IFNULL(u.unit_name, '')) AS quantity_with_unit
+                                    FROM 
+                                        tbl_distribution AS d
+                                    INNER JOIN 
+                                        tbl_beneficiary AS b ON d.beneficiary_id = b.beneficiary_id
+                                    INNER JOIN 
+                                        tbl_seed_type AS st ON d.seed_id = st.seed_id
+                                    INNER JOIN 
+                                        tbl_intervention_type AS it ON d.intervention_id = it.int_type_id
+                                    LEFT JOIN 
+                                        tbl_cooperative AS c ON b.coop_id = c.coop_id
+                                    LEFT JOIN 
+                                        tbl_intervention_inventory AS ii ON d.seed_id = ii.seed_id -- Ensure correct linking
+                                    LEFT JOIN 
+                                        tbl_unit AS u ON ii.unit_id = u.unit_id -- Get unit from intervention inventory
+                                    WHERE 
+                                        d.station_id = ? 
+                                        AND (d.archived_at IS NULL OR d.archived_at = '') 
+                                    ORDER BY 
+                                        d.distribution_date DESC
+                                    LIMIT $offset, $entries_per_page;
+
+                                    ";
 
                             $stmt = $conn->prepare($query);
                             if (!$stmt) {
@@ -202,7 +208,8 @@ include('includes/navbar.php');
                                                 $cooperative_name = $data['cooperative_name']; // Fetch the cooperative name
                                                 $intervention_name = $data['intervention_name'];
                                                 $seed_name = $data['seed_name'];
-                                                $quantity = $data['quantity'];
+                                                $quantity_with_unit = $data['quantity_with_unit'];
+
                                                 $date = date("F j, Y", strtotime($data['distribution_date']));
                                         ?>
                                                 <tr>
@@ -214,7 +221,8 @@ include('includes/navbar.php');
                                                     <td><?php echo htmlspecialchars($cooperative_name); ?></td> <!-- Display cooperative name or N/A -->
                                                     <td><?php echo htmlspecialchars($intervention_name); ?></td>
                                                     <td><?php echo htmlspecialchars($seed_name); ?></td>
-                                                    <td><?php echo htmlspecialchars($quantity); ?></td>
+                                                    <td><?php echo htmlspecialchars($quantity_with_unit); ?></td>
+
                                                     <td>
                                                         <button type="button" class="btn btn-success"
                                                             data-bs-toggle="modal"
