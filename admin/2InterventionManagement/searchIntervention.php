@@ -66,15 +66,17 @@ if ($result->num_rows > 0) {
                 <td>" . htmlspecialchars($row['quantity_left']) . "</td>
                 <td>" . htmlspecialchars($row['unit_name']) . "</td>
                 <td>
-                    <a href='#' class='btn' style='background-color: #DCFFB7; color: black;'
-                        data-bs-toggle='modal' data-bs-target='#updateInterventionModal'
-                        data-intervention-id='" . htmlspecialchars($row['intervention_id']) . "'>
-                        Update
-                    </a>
-                    <button class='btn btn-warning archiveintervention-btn'
-                        data-intervention-id='" . htmlspecialchars($row['intervention_id']) . "'>
-                        Archive
-                    </button>
+                    <div class='d-flex justify-content-center gap-2'>
+                        <a href='#' class='btn btn-success rounded-0' 
+                            data-bs-toggle='modal' data-bs-target='#updateInterventionModal'
+                            data-intervention-id='" . htmlspecialchars($row['intervention_id']) . "'>
+                            <i class='fas fa-edit'></i> 
+                        </a>
+                        <button class='btn btn-danger rounded-0 archiveintervention-btn'
+                            data-intervention-id='" . htmlspecialchars($row['intervention_id']) . "'>
+                            <i class='fas fa-trash-alt'></i> 
+                        </button>
+                    </div>
                 </td>
               </tr>";
     }
