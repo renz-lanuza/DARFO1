@@ -219,13 +219,17 @@ include('includes/navbar.php');
                                                 <?php } ?>
                                             </td>
                                             <td>
-                                                <a href="#" class="btn" style="background-color: #DCFFB7; color: black;"
-                                                    data-toggle="modal" data-target="#updateUserModal"
-                                                    data-user-id="<?php echo htmlspecialchars($uid, ENT_QUOTES, 'UTF-8'); ?>">
-                                                    Update
-                                                </a>    
+                                                <div class="d-flex justify-content-center gap-2">
+                                                    <a href="#" class="btn btn btn-success rounded-0"
+                                                        data-toggle="modal" data-target="#updateUserModal"
+                                                        data-user-id="<?php echo htmlspecialchars($uid, ENT_QUOTES, 'UTF-8'); ?>">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>    
 
-                                                <button class="btn btn-danger" onclick="confirmArchive('<?php echo $uid; ?>')">Delete</button>
+                                                    <button class="btn btn-danger rounded-0" onclick="confirmArchive('<?php echo $uid; ?>')">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>                                                
+                                                </div>
                                             </td>
                                         </tr>
                                 <?php
