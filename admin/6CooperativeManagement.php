@@ -17,7 +17,7 @@ include('includes/navbar.php');
             </button>
 
             <span class="navbar-brand font-weight-bold" style="font-size: 18px; padding-left: 55px; color: Black; font-family: 'Roboto', sans-serif;">
-                COOPERATIVE MANAGEMENT
+                GROUP MANAGEMENT
             </span>
 
             <div style="padding-left: 20px; color: black; display: flex; flex-direction: column; line-height: 1;">
@@ -160,8 +160,8 @@ include('includes/navbar.php');
                                          $sql = "SELECT coop_id, cooperative_name, province_name, municipality_name, barangay_name 
                                                 FROM tbl_cooperative 
                                                 WHERE station_id = ? 
-                                                AND archived_at IS NULL  
-                                                ORDER BY coop_id DESC
+                                                AND archived_at IS NULL 
+                                                ORDER BY coop_id DESC 
                                                 LIMIT ?, ?";
 
                                         $stmt = $conn->prepare($sql);
@@ -173,28 +173,29 @@ include('includes/navbar.php');
                                         if ($result->num_rows > 0) {
                                             while ($row = $result->fetch_assoc()) {
                                                 echo "<tr>
-                                                <td>" . htmlspecialchars($row['cooperative_name']) . "</td>
-                                                <td>" . htmlspecialchars($row['province_name']) . "</td>
-                                                <td>" . htmlspecialchars($row['municipality_name']) . "</td>
-                                                <td>" . htmlspecialchars($row['barangay_name']) . "</td>
-                                                <td>
-                                                    <button class='btn btn-success btn-sm update-btn' 
-                                                        data-id='" . htmlspecialchars($row['coop_id'], ENT_QUOTES, 'UTF-8') . "'
-                                                        data-name='" . htmlspecialchars($row['cooperative_name'], ENT_QUOTES, 'UTF-8') . "'
-                                                        data-province='" . htmlspecialchars($row['province_name'], ENT_QUOTES, 'UTF-8') . "'
-                                                        data-municip                                                                                                                            ality='" . htmlspecialchars($row['municipality_name'], ENT_QUOTES, 'UTF-8') . "'
-                                                        data-barangay='" . htmlspecialchars($row['barangay_name'], ENT_QUOTES, 'UTF-8') . "'
-                                                        data-bs-toggle='modal' data-bs-target='#updateCooperativeModal'>
-                                                        Update
-                                                    </button>
-                                        
-                                                    <button class='btn btn-danger btn-sm archivecoop-btn' 
-                                                        data-id='" . htmlspecialchars($row['coop_id'], ENT_QUOTES, 'UTF-8') . "'>
-                                                        Delete
-                                                    </button>
-                                                </td>
-                                            </tr>";
-                                        
+                                                        <td>" . htmlspecialchars($row['cooperative_name']) . "</td>
+                                                        <td>" . htmlspecialchars($row['province_name']) . "</td>
+                                                        <td>" . htmlspecialchars($row['municipality_name']) . "</td>
+                                                        <td>" . htmlspecialchars($row['barangay_name']) . "</td>
+                                                        <td>
+                                                            <div class='btn-group' role='group'>
+                                                                <button class='btn btn-success btn-sm update-btn' 
+                                                                    data-id='" . htmlspecialchars($row['coop_id'], ENT_QUOTES, 'UTF-8') . "'
+                                                                    data-name='" . htmlspecialchars($row['cooperative_name'], ENT_QUOTES, 'UTF-8') . "'
+                                                                    data-province='" . htmlspecialchars($row['province_name'], ENT_QUOTES, 'UTF-8') . "'
+                                                                    data-municipality='" . htmlspecialchars($row['municipality_name'], ENT_QUOTES, 'UTF-8') . "'
+                                                                    data-barangay='" . htmlspecialchars($row['barangay_name'], ENT_QUOTES, 'UTF-8') . "'
+                                                                    data-bs-toggle='modal' data-bs-target='#updateCooperativeModal'>
+                                                                    <i class='fas fa-edit'></i> <!-- Edit icon -->
+                                                                </button>
+
+                                                                <button class='btn btn-danger btn-sm archivecoop-btn' 
+                                                                    data-id='" . htmlspecialchars($row['coop_id'], ENT_QUOTES, 'UTF-8') . "'>
+                                                                    <i class='fas fa-trash-alt'></i> <!-- Trash icon -->
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>";                                                                 
                                                 }
                                         } else {
                                             echo "<tr><td colspan='5' class='text-center'>No cooperatives found.</td></tr>";
