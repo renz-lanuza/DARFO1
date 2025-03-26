@@ -1314,95 +1314,81 @@
 <!-- script for fetching int type update  -->
 
 <script>
-    $(document).ready(function() {
-        // When update button is clicked, fetch the intervention type details
-        $("a[data-target='#updateInterventionTypeModal']").click(function() {
-            var intTypeId = $(this).data("user-id");
+   $(document).ready(function () {
+    // Dynamically handle "Edit" button clicks
+    $(document).on("click", ".update-intervention", function () {
+        var intTypeId = $(this).data("int-type-id");
 
-            // Close modal properly
-            $(".close-modal").click(function() {
-                $("#updateInterventionTypeModal").modal("hide");
-            });
-            $("#updateInterventionTypeModal").on("hidden.bs.modal", function() {
-                $("body").removeClass("modal-open");
-                $(".modal-backdrop").remove();
-            });
+        console.log("Fetching data for Intervention ID:", intTypeId); // Debugging
 
-            $.ajax({
-                url: "4InterventionTypeManagement/fetch_intervention_type.php", // PHP file to fetch intervention details
-                type: "POST",
-                data: {
-                    int_type_id: intTypeId
-                },
-                dataType: "json",
-                success: function(response) {
-                    if (response.success) {
-                        // Populate the modal fields with the current data
-                        $("#updateIntTypeId").val(response.data.int_type_id);
-                        $("#updateInterventionName").val(response.data.intervention_name);
-                        // Optionally, you can load station_id if needed: response.data.station_id
-                        $("#updateInterventionTypeModal").modal("show");
-                    } else {
-                        alert("Error fetching data.");
-                    }
-                },
-                error: function() {
-                    alert("Failed to retrieve data.");
+        $.ajax({
+            url: "4InterventionTypeManagement/fetch_intervention_type.php",
+            type: "POST",
+            data: { int_type_id: intTypeId },
+            dataType: "json",
+            success: function (response) {
+                if (response.success) {
+                    console.log("Data received:", response);
+
+                    // Populate modal fields
+                    $("#updateIntTypeId").val(response.data.int_type_id);
+                    $("#updateInterventionName").val(response.data.intervention_name);
+
+                    // Show modal
+                    $("#updateInterventionTypeModal").modal("show");
+                } else {
+                    Swal.fire("Error!", "Error fetching data.", "error");
                 }
-            });
-        });
-
-        $("#updateInterventionForm").submit(function(e) {
-            e.preventDefault();
-
-            Swal.fire({
-                title: "Are you sure?",
-                text: "Do you really want to update this intervention?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#0D7C66",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, update it!"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    var formData = $(this).serialize();
-                    $.ajax({
-                        url: "4InterventionTypeManagement/update_intervention_type.php", // PHP file to handle the update
-                        type: "POST",
-                        data: formData,
-                        dataType: "json",
-                        success: function(response) {
-                            if (response.success) {
-                                Swal.fire({
-                                    title: "Updated!",
-                                    text: "Intervention updated successfully.",
-                                    icon: "success",
-                                    confirmButtonColor: "#0D7C66"
-                                }).then(() => {
-                                    location.reload(); // Reload to reflect changes
-                                });
-                            } else {
-                                Swal.fire({
-                                    title: "Error!",
-                                    text: "Error updating intervention: " + response.message,
-                                    icon: "error",
-                                    confirmButtonColor: "#d33"
-                                });
-                            }
-                        },
-                        error: function() {
-                            Swal.fire({
-                                title: "Failed!",
-                                text: "Failed to update intervention.",
-                                icon: "error",
-                                confirmButtonColor: "#d33"
-                            });
-                        }
-                    });
-                }
-            });
+            },
+            error: function () {
+                Swal.fire("Failed!", "Failed to retrieve data.", "error");
+            }
         });
     });
+
+    // Handle update form submission
+    $("#updateInterventionForm").submit(function (e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you really want to update this intervention?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#0D7C66",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, update it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var formData = $(this).serialize();
+                $.ajax({
+                    url: "4InterventionTypeManagement/update_intervention_type.php",
+                    type: "POST",
+                    data: formData,
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: "Updated!",
+                                text: "Intervention updated successfully.",
+                                icon: "success",
+                                confirmButtonColor: "#0D7C66"
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire("Error!", "Error updating intervention: " + response.message, "error");
+                        }
+                    },
+                    error: function () {
+                        Swal.fire("Failed!", "Failed to update intervention.", "error");
+                    }
+                });
+            }
+        });
+    });
+});
+
 </script>
 
 <!-- fetch and dynamic int name and classification from distribution -->
