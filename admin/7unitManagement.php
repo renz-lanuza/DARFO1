@@ -4,6 +4,7 @@ include('includes/navbar.php');
 
 ?>
 <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Content Wrapper -->
 <div id="content-wrapper" class="d-flex flex-column">
 
@@ -174,15 +175,19 @@ include('includes/navbar.php');
                                             <tr>
                                                 <td><?php echo htmlspecialchars($row['unit_name']); ?></td>
                                                 <td>
-                                                <a href="#" class="btn update-btn" style="background-color: #DCFFB7; color: black;"
-                                                    data-toggle="modal" data-target="#updateUnitModal"
-                                                    data-unit-id="<?php echo htmlspecialchars($row['unit_id']); ?>"
-                                                    data-unit-name="<?php echo htmlspecialchars($row['unit_name']); ?>">Update</a>
-
-                                                    <a href="#" class="btn btn-danger archive-unit-btn"
-                                                        data-unit-id="<?php echo htmlspecialchars($row['unit_id']); ?>">
-                                                        Delete
-                                                    </a>
+                                                    <div class="d-flex justify-content-center">
+                                                        <a href="#" class="btn btn-success update-btn" style="border-radius: 0;" 
+                                                            data-toggle="modal" data-target="#updateUnitModal"
+                                                            data-unit-id="<?php echo htmlspecialchars($row['unit_id']); ?>"
+                                                            data-unit-name="<?php echo htmlspecialchars($row['unit_name']); ?>">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <a href="#" class="btn btn-danger archive-unit-btn ms-2" 
+                                                            data-unit-id="<?php echo htmlspecialchars($row['unit_id']); ?>" 
+                                                            style="border-radius: 0;">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </a>
+                                                    </div>
                                                 </td>
                                             </tr>
                                     <?php
