@@ -3091,5 +3091,60 @@
             $('#beneficiariesTable tbody tr').show(); // Show all rows
         });
     });
-</script>
+</script><script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("search_id");
+
+    searchInput.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            searchClassificationTable();
+        }
+    });
+
+    function searchClassificationTable() {
+        const query = searchInput.value.trim();
+        const url = `5seedTypeManagement/searchClassification.php?search=${encodeURIComponent(query)}`;
+
+        fetch(url)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("seedTableBody").innerHTML = data;
+                searchInput.focus();
+            })
+            .catch(error => console.error("Error fetching data:", error));
+    }
+
+    // Fix: Ensure modal gets correct data
+    document.getElementById("seedTableBody").addEventListener("click", function (event) {
+        if (event.target.closest(".edit-btn")) {
+            const btn = event.target.closest(".edit-btn");
+            const seedId = btn.getAttribute("data-id");
+            const seedName = btn.getAttribute("data-seed-name");
+            const interventionName = btn.getAttribute("data-intervention-name");
+
+            // Assign values to modal fields
+            document.getElementById("seed_id").value = seedId;
+            document.getElementById("seed_name").value = seedName;
+            document.getElementById("up_intervention_name").value = interventionName;
+
+            // Ensure the modal is properly shown
+            const modalElement = document.getElementById("editSeedlingModal");
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+
+            // Fix black screen: Ensure modal backdrop is removed when closed
+            modalElement.addEventListener("hidden.bs.modal", function () {
+                document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+                document.body.classList.remove("modal-open");
+                document.body.style.overflow = "auto"; // Restore scroll
+            });
+        }
+    });
+});
+
+
+
+
+    </script>
 
