@@ -1,7 +1,7 @@
 <!-- Bootstrap core JavaScript-->
 <script src="../vendor/jquery/jquery.min.js"></script>
 <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Core plugin JavaScript-->
 <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
 
@@ -2714,13 +2714,21 @@
                     <td>${row.barangay_name}</td>
                     <td>${row.birthdate}</td>
                     <td>
-                        <button class="btn btn-primary update-beneficiary" data-bs-toggle="modal" data-bs-target="#updateBeneficiaryModal" data-id="${row.beneficiary_id}">Update</button>
-                        <button class="btn btn-danger btn-sm delete-beneficiary" data-id="${row.beneficiary_id}">Delete</button>
-                        <button class="btn btn-info btn-sm view-beneficiary" data-id="${row.beneficiary_id}">View</button>
-                        <button type="button" class="btn btn-success btn-sm add-distribution" id="btnAddDistribution" data-bs-toggle="modal" data-bs-target="#addDistributionModal" data-beneficiary-id="${row.beneficiary_id}">
-                            <i class="bx bx-plus"></i>
-                            <span>Add Intervention</span>
-                        </button>
+                        <div class="d-flex">
+                                <button class="btn btn-success btn-sm update-beneficiary" data-bs-toggle="modal" data-bs-target="#updateBeneficiaryModal" data-id="${row.beneficiary_id}" style="border-radius: 0;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm delete-beneficiary ms-2" data-id="${row.beneficiary_id}" style="border-radius: 0;">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                <button class="btn btn-info btn-sm view-beneficiary ms-2" data-id="${row.beneficiary_id}" style="border-radius: 0;">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button type="button" class="btn btn-success btn-sm add-distribution ml-2" id="btnAddDistribution" data-bs-toggle="modal" data-bs-target="#addDistributionModal" data-beneficiary-id="${row.beneficiary_id}">
+                                    <i class="bx bx-plus"></i>
+                                    <span>Add Intervention</span>
+                                </button>
+                            </div>
                     </td>
                 `;
                         tableBody.appendChild(newRow);
@@ -3020,6 +3028,87 @@
                     }
                 });
             });
+        });
+    });
+    
+</script>
+<!-- for viewing the interventions received -->
+<script>
+    $(document).ready(function() {
+        // Event listener for the "View Interventions" button
+        $('.view-interventions-btn').on('click', function() {
+            var beneficiaryId = $(this).data('beneficiary-id');
+            console.log("Beneficiary ID:", beneficiaryId);
+
+            // Show the modal
+            $('#viewInterventionsModal').modal('show');
+
+            // Fetch interventions for the selected beneficiary
+            $.ajax({
+                url: '2interventionManagement/fetch_intervention_dashboard.php',
+                type: 'GET',
+                data: {
+                    beneficiary_id: beneficiaryId
+                },
+                success: function(response) {
+                    $('#modalContent').html(response);
+                },
+                error: function(xhr, status, error) {
+                    $('#modalContent').html('<p class="text-danger">Error loading interventions.</p>');
+                }
+            });
+        });
+
+        // Manually close the modal (for debugging)
+        $('#viewInterventionsModal .close, #viewInterventionsModal .btn-secondary').on('click', function() {
+            $('#viewInterventionsModal').modal('hide');
+        });
+    });
+</script>
+
+<!-- for filtering type of distri if group or individual -->
+<script>
+    $(document).ready(function() {
+        // Filter by type of distribution (Individual/Group)
+        $('#filterType').on('change', function() {
+            const selectedType = $(this).val(); // Get the selected filter value
+
+            // Update the table header based on the selected filter
+            const nameHeader = $('#nameHeader');
+            if (selectedType === 'Group') {
+                nameHeader.text('Representative Name'); // Change header for groups
+            } else {
+                nameHeader.text('Name'); // Default header for individuals or all
+            }
+
+            // Filter the table rows
+            $('#beneficiariesTable tbody tr').each(function() {
+                const rowType = $(this).data('type'); // Get the row's type of distribution
+                if (selectedType === 'all' || rowType === selectedType) {
+                    $(this).show(); // Show the row if it matches the filter
+                } else {
+                    $(this).hide(); // Hide the row if it doesn't match the filter
+                }
+            });
+        });
+
+        // Search functionality
+        $('#searchInput').on('input', function() {
+            const searchText = $(this).val().toLowerCase(); // Get the search text
+            $('#beneficiariesTable tbody tr').each(function() {
+                const rowText = $(this).text().toLowerCase(); // Get the row's text
+                if (rowText.includes(searchText)) {
+                    $(this).show(); // Show the row if it matches the search
+                } else {
+                    $(this).hide(); // Hide the row if it doesn't match the search
+                }
+            });
+        });
+
+        // Clear search
+        $('#clearSearch').on('click', function() {
+            $('#searchInput').val(''); // Clear the search input
+            $('#beneficiariesTable tbody tr').show(); // Show all rows
         });
     });
 </script>
