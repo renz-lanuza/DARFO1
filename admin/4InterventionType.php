@@ -168,14 +168,18 @@ include('includes/navbar.php');
                                             <tr>
                                                 <td><?php echo htmlspecialchars($row['intervention_name']); ?></td>
                                                 <td>
-                                                    <a href="#" class="btn" style="background-color: #DCFFB7; color: black;"
-                                                        data-toggle="modal" data-target="#updateInterventionTypeModal"
-                                                        data-user-id="<?php echo $row['int_type_id']; ?>">Update</a>
-
-                                                        <a href="#" class="btn btn-danger archive-int-type-btn"
-                                                            data-int-type-id="<?php echo htmlspecialchars($row['int_type_id']); ?>">
-                                                            Delete
+                                                    <div class="d-flex justify-content-center gap-2">
+                                                        <a href="#" class="btn btn-success rounded-0"
+                                                            data-toggle="modal" data-target="#updateInterventionTypeModal"
+                                                            data-user-id="<?php echo $row['int_type_id']; ?>">
+                                                            <i class="fas fa-edit"></i>
                                                         </a>
+
+                                                        <a href="#" class="btn btn-danger archive-int-type-btn rounded-0"
+                                                            data-int-type-id="<?php echo htmlspecialchars($row['int_type_id']); ?>">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </a>
+                                                    </div>
                                                 </td>
                                             </tr>
                                     <?php
