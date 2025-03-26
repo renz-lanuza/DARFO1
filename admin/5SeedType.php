@@ -175,20 +175,22 @@ include('includes/navbar.php');
                                         <td><?= htmlspecialchars($row['intervention_name']) ?></td>
                                         <td><?= htmlspecialchars($row['seed_name']) ?></td>
                                         <td>
-                                        <button class="btn btn-success btn-sm edit-btn" 
-                                            data-id="<?= htmlspecialchars($row['seed_id']) ?>"
-                                            data-seed-name="<?= htmlspecialchars($row['seed_name']) ?>"
-                                            data-intervention-name="<?= htmlspecialchars($row['intervention_name']) ?>"
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#editSeedlingModal">
-                                            Update
-                                        </button>
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <button class="btn btn-success btn-sm edit-btn rounded-0" 
+                                                    data-id="<?= htmlspecialchars($row['seed_id']) ?>"
+                                                    data-seed-name="<?= htmlspecialchars($row['seed_name']) ?>"
+                                                    data-intervention-name="<?= htmlspecialchars($row['intervention_name']) ?>"
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editSeedlingModal">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
 
-                                            <!-- Archive Button -->
-                                            <button class="btn btn-danger btn-sm archive-btn" 
-                                                data-id="<?= htmlspecialchars($row['seed_id']) ?>">
-                                                Delete
-                                            </button>
+                                                <!-- Archive Button -->
+                                                <button class="btn btn-danger btn-sm archive-btn rounded-0" 
+                                                    data-id="<?= htmlspecialchars($row['seed_id']) ?>">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php }
