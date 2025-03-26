@@ -1699,51 +1699,49 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        document.querySelectorAll(".archive-btn").forEach(button => {
-            button.addEventListener("click", function() {
-                let seedId = this.getAttribute("data-id");
+      document.addEventListener("DOMContentLoaded", function () {
+    const seedTableBody = document.getElementById("seedTableBody");
 
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "This classification will be archived.",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#d33",
-                    cancelButtonColor: "#3085d6",
-                    confirmButtonText: "Yes, archive it!"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        fetch(`5SeedTypeManagement/archiveClassification.php?seed_id=${seedId}`, {
-                                method: "GET"
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    Swal.fire(
-                                        "Archived!",
-                                        "The seed type has been archived successfully.",
-                                        "success"
-                                    ).then(() => {
-                                        location.reload();
-                                    });
-                                } else {
-                                    Swal.fire(
-                                        "Error!",
-                                        "Failed to archive the seed type.",
-                                        "error"
-                                    );
-                                }
-                            })
-                            .catch(error => {
-                                console.error("Error:", error);
-                                Swal.fire("Error!", "Something went wrong.", "error");
+    // 🔹 Event Delegation for Archive Button
+    seedTableBody.addEventListener("click", function (event) {
+        const archiveBtn = event.target.closest(".archive-btn"); // Find the closest archive button
+        if (!archiveBtn) return;
+
+        let seedId = archiveBtn.getAttribute("data-id");
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This classification will be archived.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, archive it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`5SeedTypeManagement/archiveClassification.php?seed_id=${seedId}`, { method: "GET" })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire(
+                                "Archived!",
+                                "The seed type has been archived successfully.",
+                                "success"
+                            ).then(() => {
+                                location.reload(); // Refresh the page after archiving
                             });
-                    }
-                });
-            });
+                        } else {
+                            Swal.fire("Error!", "Failed to archive the seed type.", "error");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        Swal.fire("Error!", "Something went wrong.", "error");
+                    });
+            }
         });
     });
+});
 </script>
 
 <!-- archive intervention management -->
@@ -3094,3 +3092,4 @@
         });
     });
 </script>
+
