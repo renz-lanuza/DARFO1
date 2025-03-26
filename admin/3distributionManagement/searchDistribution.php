@@ -87,19 +87,22 @@ if ($result->num_rows > 0) {
             <td>" . htmlspecialchars($seed_name) . "</td>
             <td>" . htmlspecialchars($quantity_with_unit) . "</td>
             <td>
-                <button type='button' class='btn btn-success' data-bs-toggle='modal' data-bs-target='#updateDistributionModal'
-                    data-distribution-id='" . htmlspecialchars($data['distribution_id']) . "'
-                    data-quantity='" . htmlspecialchars($data['quantity'] ?? '') . "'
-                    data-intervention-name='" . htmlspecialchars($intervention_name ?? '') . "'
-                    data-seed-name='" . htmlspecialchars($seed_name ?? '') . "'
-                    data-distribution-date='" . htmlspecialchars($data['distribution_date'] ?? '') . "'
-                    data-quantity-left='" . (isset($data['quantity_left']) ? htmlspecialchars($data['quantity_left']) : '0') . "'>
-                    Update
-                </button>
-                <button class='btn btn-warning archivedistribution-btn' 
-                    data-distribution-id='" . htmlspecialchars($data['distribution_id']) . "'>
-                    Archive
-                </button>
+                <div class='d-flex justify-content-center gap-2'>
+                    <button type='button' class='btn btn-success rounded-0' data-bs-toggle='modal' data-bs-target='#updateDistributionModal'
+                        data-distribution-id='" . htmlspecialchars($data['distribution_id']) . "'
+                        data-quantity='" . htmlspecialchars($data['quantity'] ?? '') . "'
+                        data-intervention-name='" . htmlspecialchars($intervention_name ?? '') . "'
+                        data-seed-name='" . htmlspecialchars($seed_name ?? '') . "'
+                        data-distribution-date='" . htmlspecialchars($data['distribution_date'] ?? '') . "'
+                        data-quantity-left='" . (isset($data['quantity_left']) ? htmlspecialchars($data['quantity_left']) : '0') . "'>
+                        <i class='fas fa-edit'></i> 
+                    </button>
+
+                    <button class='btn btn-danger rounded-0 archivedistribution-btn' 
+                        data-distribution-id='" . htmlspecialchars($data['distribution_id']) . "'>
+                        <i class='fas fa-trash-alt'></i> 
+                    </button>
+                </div>
             </td>
         </tr>";
     }
