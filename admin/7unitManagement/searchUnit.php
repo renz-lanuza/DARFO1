@@ -35,13 +35,19 @@ if ($result->num_rows > 0) {
         echo "<tr>
                 <td>" . htmlspecialchars($row['unit_name']) . "</td>
                 <td>
-                    <a href='#' class='btn update-btn' style='background-color: #DCFFB7; color: black;'
-                        data-toggle='modal' data-target='#updateUnitModal'
-                        data-unit-id='" . htmlspecialchars($row['unit_id']) . "'
-                        data-unit-name='" . htmlspecialchars($row['unit_name']) . "'>Update</a>
+                    <div class='d-flex justify-content-center'>
+                        <a href='#' class='btn btn-success update-btn' style='border-radius: 0; padding: 5px 10px;'
+                            data-toggle='modal' data-target='#updateUnitModal'
+                            data-unit-id='" . htmlspecialchars($row['unit_id']) . "'
+                            data-unit-name='" . htmlspecialchars($row['unit_name']) . "'>
+                            <i class='fa fa-edit'></i> 
+                        </a>
 
-                    <a href='#' class='btn btn-warning archive-unit-btn'
-                        data-unit-id='" . htmlspecialchars($row['unit_id']) . "'>Archive</a>
+                        <a href='#' class='btn btn-danger archive-unit-btn' style='border-radius: 0; padding: 5px 10px;'
+                            data-unit-id='" . htmlspecialchars($row['unit_id']) . "'>
+                            <i class='fas fa-trash-alt'></i> 
+                        </a>
+                    </div>
                 </td>
             </tr>";
     }
@@ -52,3 +58,5 @@ if ($result->num_rows > 0) {
 $stmt->close();
 $conn->close();
 ?>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
