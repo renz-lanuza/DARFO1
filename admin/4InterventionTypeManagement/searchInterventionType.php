@@ -42,12 +42,17 @@ if ($result->num_rows > 0) {
         echo "<tr>
                 <td>" . htmlspecialchars($row['intervention_name']) . "</td>
                 <td>
-                    <a href='#' class='btn' style='background-color: #DCFFB7; color: black;' 
-                        data-toggle='modal' data-target='#updateInterventionTypeModal'
-                        data-user-id='" . $row['int_type_id'] . "'>Update</a>
-                    
-                    <a href='#' class='btn btn-warning archive-int-type-btn'
-                        data-int-type-id='" . htmlspecialchars($row['int_type_id']) . "'>Archive</a>
+                    <div class='d-flex justify-content-center gap-2'>
+                        <button class='btn btn-success rounded-0' data-toggle='modal' data-target='#updateInterventionTypeModal'
+                            data-user-id='" . htmlspecialchars($row['int_type_id']) . "'>
+                            <i class='fas fa-edit'></i> 
+                        </button>
+                        
+                        <button class='btn btn-danger rounded-0 archive-int-type-btn'
+                            data-int-type-id='" . htmlspecialchars($row['int_type_id']) . "'>
+                            <i class='fas fa-trash-alt'></i> 
+                        </button>
+                    </div>
                 </td>
               </tr>";
     }
