@@ -184,7 +184,6 @@
         background-color: #D1ECE4;
     }
 </style>
-
 <!-- Update Distribution Modal -->
 <div class="modal fade" id="updateDistributionModal" tabindex="-1" aria-labelledby="updateDistributionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -268,30 +267,6 @@
     });
 </script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var updateDistributionModal = document.getElementById('updateDistributionModal');
-        updateDistributionModal.addEventListener('show.bs.modal', function(event) {
-            var button = event.relatedTarget; // Button that triggered the modal
-            var distributionId = button.getAttribute('data-distribution-id');
-            var quantity = button.getAttribute('data-quantity');
-            var interventionName = button.getAttribute('data-intervention-name');
-            var seedName = button.getAttribute('data-seed-name');
-            var distributionDate = button.getAttribute('data-distribution-date');
-
-            // Update the modal's content.
-            var modalTitle = updateDistributionModal.querySelector('.modal-title');
-            var distributionIdInput = updateDistributionModal.querySelector('#distribution_id');
-            var updateQuantityInput = updateDistributionModal.querySelector('input[name="update_quantity[]"]');
-            var updateDistributionDateInput = updateDistributionModal.querySelector('#update_distribution_date');
-
-            modalTitle.textContent = 'Update Distribution ' + distributionId;
-            distributionIdInput.value = distributionId;
-            updateQuantityInput.value = quantity;
-            updateDistributionDateInput.value = distributionDate;
-        });
-    });
-</script>
 
 <!-- function for update distribution -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
