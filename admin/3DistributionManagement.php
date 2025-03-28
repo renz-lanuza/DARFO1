@@ -93,7 +93,7 @@ include('includes/navbar.php');
                                 
                                 <label for="end_date" class="text-white ml-2">End: </label>
                                 <input type="date" id="end_date" class="form-control bg-light border-0 small ml-2">
-                                
+                           
                                 <!-- <button id="filterButton" class="btn text-white" style="background-color: #DCFFB7;" type="button" onclick="filterData()">
                                     <i class="fas fa-filter fa-sm" style="color: black;"></i>
                                 </button> -->
@@ -409,7 +409,13 @@ include('includes/navbar.php');
         window.open(url, '_blank');
     }
 </script>
-
+<script>
+    // Set default date to today
+    document.addEventListener("DOMContentLoaded", function () {
+        let today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+        document.getElementById("end_date").value = today;
+    });
+</script>
 <?php
     include('includes/scripts.php');
     include('includes/footer.php');
