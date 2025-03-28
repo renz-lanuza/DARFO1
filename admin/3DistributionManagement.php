@@ -75,28 +75,45 @@ include('includes/navbar.php');
             <!-- <div class="d-sm-flex align-items-center justify-content-between mb-4">
                     <h1 class=" mb-0 text-gray-800 fw-bolder">Distribution Management</h1>
                 </div> -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3" style="background-color: #0D7C66;">
-                    <div class="d-flex align-items-center">
-                        <button type="button" class="btn d-flex align-items-center gap-2 rounded-pill shadow-sm" 
-                                style="background-color: #DCFFB7; color: black; border: none; padding: 8px 16px;"
-                                id="btnPrintReport" onclick="window.open('9report/print_distribution_report.php', '_blank')">
-                            <i class='bx bx-printer' style="font-size: 1.2rem;"></i>
-                            <span>Print Report</span>
-                        </button>
-                       <form class="d-none d-sm-inline-block form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
-                        <div class="input-group">
-                            <input type="text" id="search_id" class="form-control bg-light border-0 small"
-                                placeholder="Search for distributed..." aria-label="Search" aria-describedby="basic-addon2">
-                            <div class="input-group-append">
-                                <button id="searchButton" class="btn text-white" style="background-color: #DCFFB7;" type="button">
-                                    <i class="fas fa-search fa-sm" style="color: black;"></i>
-                                </button>
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3" style="background-color: #0D7C66;">
+                        <div class="d-flex align-items-center gap-3">
+                            <!-- Print Report Button -->
+                            <button type="button" class="btn d-flex align-items-center gap-2 rounded-pill shadow-sm" 
+                                    style="background-color: #DCFFB7; color: black; border: none; padding: 8px 16px;"
+                                    id="btnPrintReport" onclick="printReport()">
+                                <i class='bx bx-printer' style="font-size: 1.2rem;"></i>
+                                <span>Print Report</span>
+                            </button>
+
+                            <!-- Date Filter Inputs -->
+                            <div class="d-flex align-items-center gap-4">
+                                <label for="start_date" class="text-white ml-3 mr- 2">Start: </label>
+                                <input type="date" id="start_date" class="form-control bg-light border-0 small ml-2">
+                                
+                                <label for="end_date" class="text-white ml-2">End: </label>
+                                <input type="date" id="end_date" class="form-control bg-light border-0 small ml-2">
+                                
+                                <!-- <button id="filterButton" class="btn text-white" style="background-color: #DCFFB7;" type="button" onclick="filterData()">
+                                    <i class="fas fa-filter fa-sm" style="color: black;"></i>
+                                </button> -->
                             </div>
+
+                            <!-- Search Bar (Right Aligned) -->
+                            <form class="d-none d-sm-inline-block form-inline ml-auto my-2 my-md-0 mw-100 navbar-search custom-search-form">
+                                <div class="input-group">
+                                    <input type="text" id="search_id" class="form-control bg-light border-0 small"
+                                        placeholder="Search for distributed..." aria-label="Search" aria-describedby="basic-addon2">
+                                    
+                                    <div class="input-group-append">
+                                        <button id="searchButton" class="btn text-white" style="background-color: #DCFFB7;" type="button" onclick="searchData()">
+                                            <i class="fas fa-search fa-sm" style="color: black;"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                    </form>
                     </div>
-                </div>
 
                 <div id="tab1" class="tab-content active">
                     <div class="card-body">
@@ -192,19 +209,19 @@ include('includes/navbar.php');
                                     <tbody id="dataTable3" style="color: black;">
                                         <?php
                                         // Loop through and display the records
-                                        if ($result->num_rows > 0) {
-                                            while ($data = $result->fetch_assoc()) {
-                                                // Fetch the values for each row
-                                                $beneficiary_name = $data['beneficiary_name'];
-                                                $province = $data['province_name'];
-                                                $municipality = $data['municipality_name'];
-                                                $barangay = $data['barangay_name'];
-                                                $cooperative_name = $data['cooperative_name']; // Fetch the cooperative name
-                                                $intervention_name = $data['intervention_name'];
-                                                $seed_name = $data['seed_name'];
-                                                $quantity = $data['quantity'];
-                                                $date = date("F j, Y", strtotime($data['distribution_date']));
-                                        ?>
+                                            if ($result->num_rows > 0) {
+                                                while ($data = $result->fetch_assoc()) {
+                                                    // Fetch the values for each row
+                                                    $beneficiary_name = $data['beneficiary_name'];
+                                                    $province = $data['province_name'];
+                                                    $municipality = $data['municipality_name'];
+                                                    $barangay = $data['barangay_name'];
+                                                    $cooperative_name = $data['cooperative_name']; // Fetch the cooperative name
+                                                    $intervention_name = $data['intervention_name'];
+                                                    $seed_name = $data['seed_name'];
+                                                    $quantity = $data['quantity'];
+                                                    $date = date("F j, Y", strtotime($data['distribution_date']));
+                                            ?>
                                                 <tr>
                                                     <td><?php echo htmlspecialchars($date); ?></td> <!-- Display the formatted date -->
                                                     <td><?php echo htmlspecialchars($beneficiary_name); ?></td>
@@ -217,23 +234,20 @@ include('includes/navbar.php');
                                                     <td><?php echo htmlspecialchars($quantity); ?></td>
                                                     <td>
                                                         <div class="btn-group" role="group">
-                                                            <button type="button" class="btn btn-success btn-sm"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#updateDistributionModal"
-                                                                data-beneficiary-name="<?= htmlspecialchars($beneficiary_name); ?>"
-                                                                data-seed-name="<?= htmlspecialchars($seed_name); ?>"
-                                                                data-province="<?= htmlspecialchars($province); ?>"
-                                                                data-municipality="<?= htmlspecialchars($municipality); ?>"
-                                                                data-barangay="<?= htmlspecialchars($barangay); ?>"
-                                                                data-quantity="<?= htmlspecialchars($quantity); ?>"
-                                                                data-intervention-name="<?= htmlspecialchars($intervention_name); ?>">
-                                                                <i class="fas fa-edit"></i>
-                                                            </button>
+                                                        <button type="button" class="btn btn-success rounded-0" data-bs-toggle="modal" data-bs-target="#updateDistributionModal"
+                                                            data-distribution-id="<?php echo htmlspecialchars($data['distribution_id']); ?>"
+                                                            data-quantity="<?php echo htmlspecialchars($data['quantity'] ?? ''); ?>"
+                                                            data-intervention-name="<?php echo htmlspecialchars($intervention_name ?? ''); ?>"
+                                                            data-seedling-name="<?php echo htmlspecialchars($seed_name ?? ''); ?>"
+                                                            data-distribution-date="<?php echo htmlspecialchars($data['distribution_date'] ?? ''); ?>"
+                                                            data-quantity-left="<?php echo isset($data['quantity_left']) ? htmlspecialchars($data['quantity_left']) : '0'; ?>">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
 
-                                                            <button class="btn btn-danger btn-sm archivedistribution-btn"
-                                                                data-distribution-id="<?= htmlspecialchars($data['distribution_id']); ?>">
-                                                                <i class="fas fa-trash-alt"></i>
-                                                            </button>
+                                                        <button class="btn btn-danger rounded-0 archivedistribution-btn"
+                                                            data-distribution-id="<?php echo htmlspecialchars($data['distribution_id']); ?>">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -376,8 +390,28 @@ include('includes/navbar.php');
         });
     });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function printReport() {
+        let startDate = document.getElementById("start_date").value;
+        let endDate = document.getElementById("end_date").value;
+        
+        if (!startDate || !endDate) {
+            Swal.fire({
+                icon: "warning",
+                title: "Incomplete Input",
+                text: "Please select both start and end dates.",
+            });
+            return;
+        }
+        
+        let url = `9report/print_distribution_report.php?start_date=${startDate}&end_date=${endDate}`;
+        window.open(url, '_blank');
+    }
+</script>
+
 <?php
-include('includes/scripts.php');
-include('includes/footer.php');
+    include('includes/scripts.php');
+    include('includes/footer.php');
 ?>
-<?php include 'modals/modal_for_distribution.php'; ?>
+<?php include ('modals/modal_for_distribution.php'); ?>
